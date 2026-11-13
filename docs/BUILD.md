@@ -18,7 +18,7 @@
 | Flavor / build type | afat / debug |
 | Целевая ABI | arm64-v8a |
 
-Задача `:TMessagesProj_App:assembleAfatDebug` подтверждена фактическим выводом Gradle в CI run 43412734080: шаг `:TMessagesProj_App:tasks --all` и проверка имени завершились успешно. Локально на телефоне JDK/SDK не устанавливались. Наличие задачи отдельно от успешной компиляции APK.
+Задача `:TMessagesProj_App:assembleAfatDebug` подтверждена фактическим выводом Gradle в CI runs 43412734080 и 43415735775: шаг `:TMessagesProj_App:tasks --all` и проверка имени завершились успешно. Локально на телефоне JDK/SDK не устанавливались. Наличие задачи отдельно от успешной компиляции APK.
 
 `TMessagesProj` теперь библиотека, а APK выпускает `TMessagesProj_App`. Также существуют AppHuawei, AppHockeyApp, AppStandalone, AppTests, jlatexmath и Media3. Первая поддерживаемая конфигурация Tetogram — только `TMessagesProj_App`/afatDebug; остальные модули сохранены, их выпуск требует отдельной настройки сервисов и подписи.
 
@@ -90,11 +90,11 @@ Workflow: `.github/workflows/android-build.yml`. Push исходников и р
 
 Последовательность: статические проверки → проверка конфигурации → рекурсивные подмодули закреплённых версий → JDK 17 → SDK 36/Build Tools 36/NDK 27.2/CMake 3.22.1 → кэш зависимостей → проверка wrapper и списка задач → ARM64 debug APK → проверка package/version/label/authorities/permissions/подписи/.so → Artifacts. Кэшируются только скачанные Gradle/Maven-зависимости и Wrapper; Gradle build/configuration cache отключены, чтобы не кэшировать сгенерированные API-поля проекта. Логи сохраняются и при ошибке, но не содержат намеренного вывода конфигурации.
 
-Использование actions сверено с [checkout](https://github.com/actions/checkout), [setup-java](https://github.com/actions/setup-java), [setup-gradle](https://github.com/gradle/actions), [setup-android](https://github.com/android-actions/setup-android) и [upload-artifact](https://github.com/actions/upload-artifact). Workflow подготовлен, но облачный запуск пока не выполнен.
+Использование actions сверено с [checkout](https://github.com/actions/checkout), [setup-java](https://github.com/actions/setup-java), [setup-gradle](https://github.com/gradle/actions), [setup-android](https://github.com/android-actions/setup-android) и [upload-artifact](https://github.com/actions/upload-artifact). Workflow выполнен успешно в run 43415735775; APK и build logs загружены в Artifacts. Ссылки, SHA-256 и проверенный исходный commit приведены в VALIDATION.md.
 
 Откройте **Actions → Tetogram Android APK → Run workflow**. Успех загрузки исходников или списка задач не равен успеху сборки. При ошибке скачайте `Tetogram-build-logs`, исправьте причину и повторите сборку.
 
-Ожидаемый выход после успешной сборки:
+Проверенный выход успешной сборки:
 
 ```text
 TMessagesProj_App/build/outputs/apk/afat/debug/Tetogram-debug.apk
@@ -130,3 +130,5 @@ python3 scripts/verify-apk.py TMessagesProj_App/build/outputs/apk/afat/debug/Tet
 После **успешной** сборки войдите в GitHub в браузере телефона, откройте выполненный workflow и скачайте ZIP `Tetogram-debug` из Artifacts. Распакуйте ZIP, при желании сверьте SHA-256, откройте `Tetogram-debug.apk` файловым менеджером и разрешите установку из этого источника по запросу Android. Официальный Telegram удалять не нужно. Перед входом ознакомьтесь с неофициальным статусом клиента и выполните `MANUAL_TESTING.md`.
 
 APK имеет другой package, собственные account type/provider identifiers и отдельный каталог данных. Переходы `tg://` и `t.me` сохранены: Android может предложить выбрать клиент — это ожидаемо и не заменяет официальный Telegram. Совместная установка должна быть подтверждена реальным тестом.
+
+Первая проверенная APK также скопирована в Android Download: `/sdcard/Download/Tetogram-debug.apk`. Откройте её файловым менеджером и подтвердите установку из этого источника. Агент установку и вход не выполнял.

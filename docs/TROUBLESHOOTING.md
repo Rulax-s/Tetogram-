@@ -2,7 +2,7 @@
 
 ## Текущее состояние
 
-APK не получена. На телефоне нет JDK, Android SDK/NDK и Android Studio; они намеренно не устанавливались. Cloud workflow опубликован в Rulax-s/Tetogram- и запущен. GitHub заблокировал выделение runner по billing issue аккаунта; необходимые Secret names присутствуют, но значения и Firebase package пока не проверены в CI. Нельзя считать рабочими авторизацию, чаты, push, звонки и другие runtime-функции до реальной проверки.
+ARM64 debug APK получена в успешном run 43415735775. На телефоне нет JDK, Android SDK/NDK и Android Studio; сборка выполнена в GitHub Actions. Firebase package, API-поля, Gradle-задача, конечные идентификаторы, подпись и native ABI проверены. Runtime-функции пока не тестировались: успешная сборка не подтверждает вход, push или звонки.
 
 ## Сеть и подмодули
 
@@ -44,10 +44,10 @@ Google Services plugin применяется к APK-модулю: он гене
 
 ## GitHub account locked due to a billing issue
 
-Run: https://github.com/Rulax-s/Tetogram-/actions/runs/43408428079 . GitHub не запустил даже source-checks; build помечен skipped. Отсутствие логов (`log not found`) здесь объясняется отсутствием runner. Это не ошибка Gradle и не повод отключать компоненты или менять API-данные. Владелец должен устранить указанную GitHub проблему в https://github.com/settings/billing . После этого повторить workflow; дальнейшие ошибки исследовать уже по реальным логам шагов.
+Run: https://github.com/Rulax-s/Tetogram-/actions/runs/43408428079 . GitHub не запустил даже source-checks; build помечен skipped. Отсутствие логов (`log not found`) здесь объясняется отсутствием runner. Это не ошибка Gradle и не повод отключать компоненты или менять API-данные. Владелец устранил проблему; последующие runner запустились. Если сообщение повторится, проверять GitHub Billing, а не менять исходники или Secrets.
 
 Проверка GitHub-подключения дала 403 на создание blob несмотря на права аккаунта в repo metadata. Действующая CLI-авторизация нашлась в конфигурации Termux; её использование через GH_CONFIG_DIR позволило выполнить обычный Git push без копирования токена и без изменения глобальных Git credentials.
 
 ## Проверка authorities после компиляции
 
-В run 43412734080 Gradle собрал APK, но первоначальная проверка providers по строкам `aapt2 dump xmltree` завершилась `Provider authority conflict` без диагностических значений. Проверка переведена на структурированный XML непосредственно из APK (`apkanalyzer manifest print`), с выводом только имён providers и authorities. Требование уникальности сохранено: все authorities и собственные permissions должны начинаться с org.tetogram.messenger. Полный manifest и metadata не выводятся, чтобы не раскрывать настроенные ключи сервисов.
+В run 43412734080 Gradle собрал APK, но первоначальная проверка providers по строкам `aapt2 dump xmltree` завершилась `Provider authority conflict` без диагностических значений. Проверка переведена на структурированный XML непосредственно из APK (`apkanalyzer manifest print`), с выводом только имён providers и authorities. Повторный run 43415735775 подтвердил, что все реальные authorities уникальны, а ошибка была в прежней проверке дампа. Требование уникальности сохранено: все authorities и собственные permissions должны начинаться с org.tetogram.messenger. Полный manifest и metadata не выводятся, чтобы не раскрывать настроенные ключи сервисов.

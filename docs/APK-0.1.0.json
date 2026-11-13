@@ -1,0 +1,16 @@
+{
+  "run_id": 43415735775,
+  "source_commit": "31d813f1fa818e678fcb5ba263180c58c1822588",
+  "file_name": "Tetogram-debug.apk",
+  "size_bytes": 70514065,
+  "sha256": "2c071aca3c458ed5b5266bcabb61e0e4d4d43fe74188d81a4e276c129d48c4c1",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43415735775/artifacts/14032027793",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "signature_certificate_sha256": "85fb2f8e1b6fc5fe4132b868594de3628f889045e4505bac488ab7ece85714f8",
+  "runtime_tested": false
+}
