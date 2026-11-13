@@ -4447,6 +4447,23 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
     }
 
     public void sendMessage(SendMessageParams sendMessageParams) {
+        MessageObject replyCandidate = sendMessageParams.replyQuote != null && sendMessageParams.replyQuote.message != null
+                ? sendMessageParams.replyQuote.message : sendMessageParams.replyToMsg;
+        if (!sendMessageParams.tetogramReplyChecked && sendMessageParams.retryMessageObject == null
+                && replyCandidate != null && !replyCandidate.tetogramLocalDeleted && !replyCandidate.isEphemeral()
+                && replyCandidate.currentAccount == currentAccount && replyCandidate.getDialogId() == sendMessageParams.peer
+                && !DialogObject.isEncryptedDialog(sendMessageParams.peer)
+                && org.telegram.messenger.tetogram.LabsSettings.enabled(currentAccount)) {
+            sendMessageParams.tetogramReplyChecked = true;
+            org.telegram.messenger.tetogram.DeletedHistory.find(currentAccount, sendMessageParams.peer, replyCandidate.getId(), archived -> {
+                if (archived != null) {
+                    sendMessageParams.replyToMsg = archived;
+                    sendMessageParams.replyQuote = null;
+                }
+                sendMessage(sendMessageParams);
+            });
+            return;
+        }
         final SendMessageChatArguments sendMessageChatArguments = sendMessageParams.sendMessageChatArguments != null ?
                 sendMessageParams.sendMessageChatArguments : SendMessageChatArguments.EMPTY;
         String message = sendMessageParams.message;
@@ -4545,6 +4562,50 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
 
         if (replyQuote != null && replyQuote.message != null && replyToMsg != null) {
             replyToMsg = replyQuote.message;
+        }
+
+        int tetogramReplyTopic = 0;
+        if (replyToMsg != null && org.telegram.messenger.tetogram.DeletedReplyPolicy.shouldConvert(replyToMsg.tetogramLocalDeleted, retryMessageObject != null)) {
+            if (!org.telegram.messenger.tetogram.DeletedReplyPolicy.sameContext(currentAccount, peer,
+                    replyToMsg.currentAccount, replyToMsg.getDialogId(), replyToMsg.isEphemeral() || ephemeralReceiverBotId != 0,
+                    DialogObject.isEncryptedDialog(peer))) {
+                AndroidUtilities.runOnUIThread(() -> android.widget.Toast.makeText(ApplicationLoader.applicationContext,
+                        LocaleController.getString(R.string.MessageNotFound), android.widget.Toast.LENGTH_SHORT).show());
+                return;
+            }
+            if (richMessage != null || location != null || user != null || game != null || poll != null || todo != null || invoice != null) {
+                AndroidUtilities.runOnUIThread(() -> android.widget.Toast.makeText(ApplicationLoader.applicationContext,
+                        LocaleController.getString(R.string.TetogramDeletedReplyUnsupported), android.widget.Toast.LENGTH_LONG).show());
+                return;
+            }
+            TLObject author = replyToMsg.getFromPeerObject();
+            String name = author instanceof TLRPC.User ? ContactsController.formatName(((TLRPC.User)author).first_name, ((TLRPC.User)author).last_name)
+                    : author instanceof TLRPC.Chat ? ((TLRPC.Chat)author).title : "ID: " + replyToMsg.getSenderId();
+            if (TextUtils.isEmpty(name)) name = "ID: " + replyToMsg.getSenderId();
+            String source = replyToMsg.messageOwner.message;
+            if (TextUtils.isEmpty(source)) source = TextUtils.isEmpty(replyToMsg.messageText) ? LocaleController.getString(R.string.TetogramMetadataOnly) : replyToMsg.messageText.toString();
+            boolean textReply = !TextUtils.isEmpty(message);
+            org.telegram.messenger.tetogram.DeletedReplyPolicy.Result quoted = org.telegram.messenger.tetogram.DeletedReplyPolicy.prepare(
+                    name, source, textReply ? message : caption, !DialogObject.isUserDialog(peer));
+            if (textReply) message = quoted.text; else caption = quoted.text;
+            entities = org.telegram.messenger.tetogram.DeletedReplyPolicy.shiftEntities(entities,quoted.entityShift,
+                    new org.telegram.messenger.tetogram.DeletedReplyPolicy.Entity<TLRPC.MessageEntity>() {
+                        public TLRPC.MessageEntity copy(TLRPC.MessageEntity e) { return TLObject.deepCopy(e, TLRPC.MessageEntity::TLdeserialize); }
+                        public int offset(TLRPC.MessageEntity e) { return e.offset; }
+                        public void offset(TLRPC.MessageEntity e,int value) { e.offset=value; }
+                    });
+            if (replyToTopMsg != null && replyToTopMsg.currentAccount == currentAccount && replyToTopMsg.getDialogId() == peer
+                    && replyToTopMsg.getId() != replyToMsg.getId() && !replyToTopMsg.tetogramLocalDeleted && !replyToTopMsg.isEphemeral()) {
+                replyToMsg = replyToTopMsg;
+            } else {
+                if (replyToMsg.messageOwner.reply_to != null && replyToMsg.messageOwner.reply_to.forum_topic) {
+                    tetogramReplyTopic = replyToMsg.messageOwner.reply_to.reply_to_top_id;
+                    if (tetogramReplyTopic == 0) tetogramReplyTopic = replyToMsg.messageOwner.reply_to.reply_to_msg_id;
+                }
+                replyToMsg = null;
+                replyToTopMsg = null;
+            }
+            replyQuote = null;
         }
 
         String originalPath = null;
@@ -5088,6 +5149,13 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                 newMsg.reply_to.story_id = replyToStoryItem.id;
                 newMsg.reply_to.peer = getMessagesController().getPeer(replyToStoryItem.dialogId);
                 newMsg.replyStory = replyToStoryItem;
+                newMsg.flags |= TLRPC.MESSAGE_FLAG_REPLY;
+            } else if (tetogramReplyTopic > 0) {
+                newMsg.reply_to = new TLRPC.TL_messageReplyHeader();
+                newMsg.reply_to.reply_to_msg_id = tetogramReplyTopic;
+                newMsg.reply_to.reply_to_top_id = tetogramReplyTopic;
+                newMsg.reply_to.forum_topic = true;
+                newMsg.reply_to.flags |= 2 | 8 | 16;
                 newMsg.flags |= TLRPC.MESSAGE_FLAG_REPLY;
             } else if (replyToMsg != null && (replyToTopMsg == null || replyToMsg != replyToTopMsg || replyToTopMsg.getId() != 1)) {
                 newMsg.reply_to = new TLRPC.TL_messageReplyHeader();
@@ -12339,6 +12407,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
     }
 
     public static class SendMessageParams {
+        private boolean tetogramReplyChecked;
         public String message;
         public String caption;
         public TLRPC.MessageMedia location;

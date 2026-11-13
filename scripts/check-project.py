@@ -22,7 +22,7 @@ def read(path):
 def main():
     props = read('gradle.properties')
     require('APP_PACKAGE=org.tetogram.messenger' in props, 'Wrong application ID')
-    require('APP_VERSION_NAME=0.2.1' in props, 'Wrong version')
+    require('APP_VERSION_NAME=0.2.2' in props, 'Wrong version')
     app = read('TMessagesProj_App/build.gradle')
     require('applicationIdSuffix ".beta"' not in app, 'Debug package suffix conflicts with required ID')
     require('abiFilters "armeabi-v7a"' not in app and 'abiFilters "arm64-v8a"' in app, 'Expected ARM64 target')

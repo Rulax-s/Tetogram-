@@ -306,4 +306,5 @@
     <string name="TetogramRemoveExclusion">Разрешить сохранение</string>
     <string name="TetogramExclusionInfo">Выберите чат для исключения. Нажмите существующую запись, чтобы разрешить сохранение. Записи обозначены неизменяемым ID диалога.</string>
     <string name="TetogramExcludeConfirm">Исключить этот чат и удалить его существующий локальный архив? Сообщения Telegram не удаляются.</string>
+    <string name="TetogramDeletedReplyUnsupported">Ответьте на локальную копию текстом или фото/видео/файлом с подписью. Этот тип вложения не поддерживает текстовую цитату.</string>
 </resources>

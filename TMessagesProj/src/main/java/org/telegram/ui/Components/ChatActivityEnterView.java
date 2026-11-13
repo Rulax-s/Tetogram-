@@ -7023,7 +7023,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             replyingMessageObject = messageObject;
             replyingQuote = quote;
             this.replyingTopMessage = replyingTopMessage;
-            if (!(parentFragment != null && parentFragment.isTopic && parentFragment.getThreadMessage() == replyingMessageObject)) {
+            if (!replyingMessageObject.tetogramLocalDeleted && !(parentFragment != null && parentFragment.isTopic && parentFragment.getThreadMessage() == replyingMessageObject)) {
                 setButtons(replyingMessageObject, true);
             }
         } else if (replyingMessageObject == botButtonsMessageObject) {

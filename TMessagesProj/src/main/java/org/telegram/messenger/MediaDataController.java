@@ -8065,9 +8065,25 @@ public class MediaDataController extends BaseController {
                     req.effect = draftMessage.effect;
                     req.flags |= 128;
                 }
-                getConnectionsManager().sendRequest(req, (response, error) -> {
-
-                });
+                if (replyToMessage != null && MessageObject.getDialogId(replyToMessage) == dialogId && !MessageObject.isEphemeral(replyToMessage)
+                        && org.telegram.messenger.tetogram.LabsSettings.enabled(currentAccount)) {
+                    TLRPC.DraftMessage expectedDraft = draftMessage;
+                    org.telegram.messenger.tetogram.DeletedHistory.find(currentAccount, dialogId, replyToMessage.id, archived -> {
+                        if (getDraft(dialogId, threadId) != expectedDraft) return;
+                        if (archived != null) {
+                            if (threadId > 0 && ChatObject.isForum(chat)) {
+                                TLRPC.TL_inputReplyToMessage root = new TLRPC.TL_inputReplyToMessage();
+                                root.reply_to_msg_id = (int)threadId;
+                                root.top_msg_id = (int)threadId;
+                                root.flags |= 1;
+                                req.reply_to = root;
+                            } else req.reply_to = null;
+                        }
+                        getConnectionsManager().sendRequest(req, (response, error) -> {});
+                    });
+                } else {
+                    getConnectionsManager().sendRequest(req, (response, error) -> {});
+                }
             }
             getMessagesController().sortDialogs(null);
             getNotificationCenter().postNotificationName(NotificationCenter.dialogsNeedReload);

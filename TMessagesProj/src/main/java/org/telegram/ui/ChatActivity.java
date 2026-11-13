@@ -5060,7 +5060,7 @@ public class ChatActivity extends BaseFragment implements
                         boolean allowReplyOnOpenTopic = canSendMessageToTopic(message);
                         if (
                             chatMode != 0 && chatMode != MODE_QUICK_REPLIES && chatMode != MODE_SUGGESTIONS && (chatMode != MODE_SAVED || threadMessageId != getUserConfig().getClientUserId()) ||
-                            message.tetogramLocalDeleted ||
+                            message.tetogramLocalDeleted && !canReplyToTetogramDeleted(message) ||
                             threadMessageObjects != null && threadMessageObjects.contains(message) ||
                             getMessageType(message) == 1 && (message.getDialogId() == mergeDialogId || message.needDrawBluredPreview()) ||
                             currentEncryptedChat == null && message.getId() < 0 ||
@@ -31345,6 +31345,12 @@ public class ChatActivity extends BaseFragment implements
         if (replyingMessageObject == null || threadMessageObject == replyingMessageObject) {
             if (draftReplyMessage != null && !(threadMessageObject != null && threadMessageObject.getId() == draftReplyMessage.id)) {
                 replyingMessageObject = new MessageObject(currentAccount, draftReplyMessage, getMessagesController().getUsers(), false, false);
+                if (org.telegram.messenger.tetogram.LabsSettings.enabled(currentAccount) && currentEncryptedChat == null && !replyingMessageObject.isEphemeral()) {
+                    MessageObject restoringReply = replyingMessageObject;
+                    org.telegram.messenger.tetogram.DeletedHistory.find(currentAccount, dialog_id, restoringReply.getId(), archived -> {
+                        if (archived != null && archived.getDialogId() == dialog_id && replyingMessageObject == restoringReply && getParentActivity() != null) showFieldPanelForReply(archived);
+                    });
+                }
                 if (draftMessage.reply_to != null && ((draftMessage.reply_to.flags & 4) != 0 || draftMessage.reply_to.quote_rich != null)) {
                     if (draftMessage.reply_to.quote_rich != null) {
                         replyingQuote = ReplyQuote.fromRich(replyingMessageObject, draftMessage.reply_to.quote_rich, draftMessage.reply_to.quote_offset);
@@ -31758,7 +31764,7 @@ public class ChatActivity extends BaseFragment implements
         if (message == null) {
             return false;
         }
-        if (message.tetogramLocalDeleted) {
+        if (message.tetogramLocalDeleted && !longpress) {
             org.telegram.ui.tetogram.HistoryActivity.showInfo(this, message);
             return true;
         }
@@ -34680,6 +34686,10 @@ public class ChatActivity extends BaseFragment implements
                 }
                 MediaController.saveFile(path, getParentActivity(), 0, null, null);
                 BulletinFactory.createSaveToGalleryBulletin(this, selectedObject.isVideo() && !selectedObject.isLivePhoto(), selectedObject.isLivePhoto(), themeDelegate).show();
+                break;
+            }
+            case 46002: {
+                if (selectedObject != null && selectedObject.tetogramLocalDeleted) org.telegram.ui.tetogram.HistoryActivity.showInfo(this, selectedObject);
                 break;
             }
             case OPTION_REPLY: {
@@ -46541,6 +46551,14 @@ public class ChatActivity extends BaseFragment implements
         return -1;
     }
 
+    private boolean canReplyToTetogramDeleted(MessageObject message) {
+        return message != null && message.currentAccount == currentAccount && message.getDialogId() == dialog_id
+                && chatMode == MODE_DEFAULT && currentEncryptedChat == null && !message.isEphemeral()
+                && (!ChatObject.isForum(currentChat) || canSendMessageToTopic(message)) && (currentChat == null ||
+                !ChatObject.isNotInChat(currentChat) && ChatObject.canSendMessages(currentChat)
+                && (!ChatObject.isChannel(currentChat) || currentChat.megagroup || ChatObject.canPost(currentChat)));
+    }
+
     public void fillMessageMenu(
         MessageObject primaryMessage,
 
@@ -46551,6 +46569,17 @@ public class ChatActivity extends BaseFragment implements
         final MessageObject message = selectedObject;
         final MessageObject.GroupedMessages groupedMessages = selectedObjectGroup;
         final int type = getMessageType(message);
+        if (message.tetogramLocalDeleted) {
+            if (canReplyToTetogramDeleted(message)) {
+                items.add(LocaleController.getString(R.string.Reply));
+                options.add(OPTION_REPLY);
+                icons.add(R.drawable.menu_reply);
+            }
+            items.add(LocaleController.getString(R.string.TetogramLocalInfo));
+            options.add(46002);
+            icons.add(R.drawable.msg_info);
+            return;
+        }
         final boolean isEphemeral = message.isEphemeral();
         final boolean isEphemeralFromBot = isEphemeral && !message.isOut();
 

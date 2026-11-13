@@ -192,6 +192,19 @@ public final class DeletedHistory {
             AndroidUtilities.runOnUIThread(()->callback.run(owner==uid(a) && LabsSettings.visible(a) && !LabsSettings.excluded(a,did) ? page : source));
         });
     }
+    /** Resolve native draft/selected reply IDs after restart or deletion while composing. */
+    public static void find(int a,long did,int mid,Callback<MessageObject> callback) {
+        long owner=uid(a);
+        MessagesStorage.getInstance(a).getStorageQueue().postRunnable(() -> {
+            MessageObject found=null;
+            try {
+                SQLiteCursor c=db(a).queryFinalized("SELECT data,did,deleted,received FROM tetogram_deleted_v1 WHERE account=? AND did=? AND mid=? AND deleted>0",owner,did,mid);
+                try {if(c.next())found=read(a,c);}finally{c.dispose();}
+            }catch(Exception e){FileLog.e("Tetogram reply lookup failed",e);}
+            MessageObject result=found;
+            AndroidUtilities.runOnUIThread(() -> {if(owner!=0 && owner==uid(a))callback.run(result);});
+        });
+    }
     public static final class LocalList extends ArrayList<MessageObject> { public boolean failed; }
     public static void list(int a,long did,String query,int offset,Callback<ArrayList<MessageObject>> callback) {
         long owner=uid(a);

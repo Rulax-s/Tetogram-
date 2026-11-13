@@ -11722,4 +11722,5 @@
     <string name="TetogramRemoveExclusion">Allow saving</string>
     <string name="TetogramExclusionInfo">Select a chat to exclude it. Tap an existing entry to remove its exclusion. Entries use the immutable dialog ID.</string>
     <string name="TetogramExcludeConfirm">Exclude this chat and remove its existing local archive? Telegram messages will not be deleted.</string>
+    <string name="TetogramDeletedReplyUnsupported">Reply to a locally saved message with text or a photo/video/file caption. This attachment type cannot contain a text quote.</string>
 </resources>
