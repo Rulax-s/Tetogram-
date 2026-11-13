@@ -6,8 +6,9 @@ import static org.junit.Assert.*;
 
 public class DeletedReplyPolicyTest {
     @Test public void authorIsAlwaysIncludedBeforeQuote() {
-        assertEquals("Author\nfixture\n\nanswer",DeletedReplyPolicy.prepare("Author","fixture","answer").text);
-        assertEquals("Author\nfixture\n\nanswer",DeletedReplyPolicy.prepare("Author","fixture","answer").text);
+        DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author","fixture","answer");
+        assertEquals("Author\nfixture\n\nanswer",r.text);
+        assertEquals(6,r.authorLength);assertEquals(7,r.quoteOffset);assertEquals(7,r.quoteLength);assertEquals(16,r.entityShift);
     }
     @Test public void shortQuoteHasTwentyCharactersIncludingEllipsis() {
         String q=DeletedReplyPolicy.shortify("1234567890123456789012345",20);

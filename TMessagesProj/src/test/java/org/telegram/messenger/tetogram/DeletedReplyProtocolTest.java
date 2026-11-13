@@ -10,7 +10,7 @@ import org.telegram.tgnet.TLRPC;
 public class DeletedReplyProtocolTest {
     @Test public void actualEntitiesKeepFormattingAndPayloadAfterUnicodePrefix() {
         String body="😀bold link";
-        DeletedReplyPolicy.Result result=DeletedReplyPolicy.prepare("Author 😀","source",body,true);
+        DeletedReplyPolicy.Result result=DeletedReplyPolicy.prepare("Author 😀","source",body);
         ArrayList<TLRPC.MessageEntity> entities=new ArrayList<>();
         TLRPC.TL_messageEntityBold bold=new TLRPC.TL_messageEntityBold();bold.offset=2;bold.length=4;entities.add(bold);
         TLRPC.TL_messageEntityTextUrl link=new TLRPC.TL_messageEntityTextUrl();link.offset=7;link.length=4;link.url="https://example.com/fixture";entities.add(link);
