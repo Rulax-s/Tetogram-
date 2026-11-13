@@ -5148,7 +5148,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                 newMsg.flags |= TLRPC.MESSAGE_FLAG_REPLY;
             } else if (tetogramReplyTopic > 0) {
                 newMsg.reply_to = org.telegram.messenger.tetogram.DeletedReplyProtocol.forumReply(tetogramReplyTopic);
-                newMsg.flags |= TLRPC.MESSAGE_FLAG_REPLY;
+                if (newMsg.reply_to != null) newMsg.flags |= TLRPC.MESSAGE_FLAG_REPLY;
             } else if (replyToMsg != null && (replyToTopMsg == null || replyToMsg != replyToTopMsg || replyToTopMsg.getId() != 1)) {
                 newMsg.reply_to = new TLRPC.TL_messageReplyHeader();
                 if (encryptedChat != null && replyToMsg.messageOwner.random_id != 0) {

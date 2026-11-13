@@ -16,6 +16,7 @@ public final class DeletedReplyProtocol {
     }
     public static TLRPC.TL_messageReplyHeader forumReply(int rootId) {
         if(rootId<=0 || MessageTimelinePolicy.ephemeral(rootId))throw new IllegalArgumentException("Invalid forum root");
+        if(rootId==1)return null; // Native Telegram routes General implicitly; message 1 need not exist.
         TLRPC.TL_messageReplyHeader header=new TLRPC.TL_messageReplyHeader();
         header.reply_to_msg_id=rootId;
         header.reply_to_top_id=rootId;

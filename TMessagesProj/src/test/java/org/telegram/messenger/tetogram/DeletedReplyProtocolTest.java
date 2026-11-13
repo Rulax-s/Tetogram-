@@ -29,6 +29,9 @@ public class DeletedReplyProtocolTest {
         assertEquals(77,restored.reply_to_msg_id);assertEquals(77,restored.reply_to_top_id);assertTrue(restored.forum_topic);
         assertEquals(16|8|2,restored.flags & (16|8|2));
     }
+    @Test public void generalTopicUsesNativeImplicitRouting() {
+        assertNull(DeletedReplyProtocol.forumReply(1));
+    }
     @Test(expected=IllegalArgumentException.class) public void packedEphemeralIdCannotBecomeForumRoot() {
         DeletedReplyProtocol.forumReply(0x60000001);
     }
