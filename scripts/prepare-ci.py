@@ -34,6 +34,8 @@ def main():
     # A stable optional key lets test APKs update without uninstalling account data.
     key = os.environ.get('DEBUG_KEYSTORE_BASE64', '')
     if key:
+        if not os.environ.get('DEBUG_KEYSTORE_PASSWORD'):
+            raise ValueError('Set DEBUG_KEYSTORE_PASSWORD signing secret.')
         try:
             key_bytes = base64.b64decode(key, validate=True)
         except Exception:

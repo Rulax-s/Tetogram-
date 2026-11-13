@@ -50,9 +50,9 @@ android {
         debug {
             storeFile rootProject.file('TMessagesProj/config/tetogram-debug.keystore')
             storeType 'PKCS12'
-            storePassword 'android'
+            storePassword rootProject.ext.tetogram.debugKeyPassword
             keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            keyPassword rootProject.ext.tetogram.debugKeyPassword
         }
 
         release {
