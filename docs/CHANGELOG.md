@@ -76,3 +76,11 @@ Splash Android 12+ использует собственный анимиров�
 - Добавленная цитата не пересекается с автором и ответом, включая его собственные blockquote/pre/code.
 - Свайп/Reply-панель, retry, owner/account/dialog checks и forum routing сохранены; локальная история не меняется.
 - Новые TL regression tests и Android-чек-лист: DELETED_BLOCKQUOTES.md.
+
+## 0.2.4 — кликабельный автор внутри цитаты (проверка сборки)
+
+- Одна blockquote содержит имя и текст; добавлен только один перенос перед ответом.
+- Настоящий TL_inputMessageEntityMentionName по исходному sender user ID/InputUser; без пригодного peer — обычное имя без фиктивной ссылки.
+- Native users cache подгружается на storage queue при необходимости; owner/account/dialog сохраняются.
+- Канонический порядок вложенных entities: quote → mention → bold. Body entities не изменяются, original history не переписывается.
+- Добавлены TL-тесты sender ID/вложенности/fallback/Unicode/разделителя. Проверка нажатия в официальном Telegram требует Android UI; DELETED_MENTIONS.md.

@@ -7,8 +7,8 @@ import static org.junit.Assert.*;
 public class DeletedReplyPolicyTest {
     @Test public void authorIsAlwaysIncludedBeforeQuote() {
         DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author","fixture","answer");
-        assertEquals("Author\nfixture\n\nanswer",r.text);
-        assertEquals(6,r.authorLength);assertEquals(7,r.quoteOffset);assertEquals(7,r.quoteLength);assertEquals(16,r.entityShift);
+        assertEquals("Author\nfixture\nanswer",r.text);
+        assertEquals(6,r.authorLength);assertEquals(0,r.quoteOffset);assertEquals(14,r.quoteLength);assertEquals(15,r.entityShift);
     }
     @Test public void shortQuoteHasTwentyCharactersIncludingEllipsis() {
         String q=DeletedReplyPolicy.shortify("1234567890123456789012345",20);
@@ -23,7 +23,7 @@ public class DeletedReplyPolicyTest {
         for(String cluster:new String[]{"👨‍👩‍👧‍👦","🇷🇺","e\u0301","👍🏽","1️⃣"})
             assertEquals(cluster.repeat(19)+"…",DeletedReplyPolicy.shortify(cluster.repeat(21),20));
     }
-    @Test public void utf16OffsetIncludesAuthorEmojiAndBothSeparators() {
+    @Test public void utf16OffsetIncludesAuthorEmojiAndSingleSeparator() {
         String body="😀bold and link";
         DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("👩🏽‍💻 Author","source",body);
         assertEquals(body,r.text.substring(r.entityShift));
@@ -44,7 +44,7 @@ public class DeletedReplyPolicyTest {
     }
     @Test public void photoCaptionAndEmptyCaptionUseSamePrefix() {
         DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author","Photo","my caption");
-        assertEquals("Author\nPhoto\n\nmy caption",r.text);assertEquals("my caption",r.text.substring(r.entityShift));
+        assertEquals("Author\nPhoto\nmy caption",r.text);assertEquals("my caption",r.text.substring(r.entityShift));
         r=DeletedReplyPolicy.prepare("Author","Photo","");assertEquals("Author\nPhoto",r.text);assertEquals(0,r.entityShift);
     }
     @Test public void retryAndExistingServerMessageAreNotConverted() {
@@ -56,7 +56,7 @@ public class DeletedReplyPolicyTest {
         String input="answer";E e=new E(0,6,"italic");
         for(int i=0;i<10;i++) {
             DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author","source",input);
-            assertEquals("Author\nsource\n\nanswer",r.text);
+            assertEquals("Author\nsource\nanswer",r.text);
             assertEquals(r.entityShift,DeletedReplyPolicy.shiftEntities(Arrays.asList(e),r.entityShift,ENTITIES).get(0).offset);
             assertEquals(0,e.offset);assertEquals("answer",input);
         }
@@ -74,7 +74,7 @@ public class DeletedReplyPolicyTest {
         assertFalse(DeletedReplyPolicy.sameContext(1,-50,1,-50,false,true));
     }
     @Test public void independentRepliesKeepTheirOwnAuthorsAndText() {
-        assertEquals("First\none\n\na",DeletedReplyPolicy.prepare("First","one","a").text);
-        assertEquals("Second\ntwo\n\nb",DeletedReplyPolicy.prepare("Second","two","b").text);
+        assertEquals("First\none\na",DeletedReplyPolicy.prepare("First","one","a").text);
+        assertEquals("Second\ntwo\nb",DeletedReplyPolicy.prepare("Second","two","b").text);
     }
 }

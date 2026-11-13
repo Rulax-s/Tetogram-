@@ -12,24 +12,25 @@ public class DeletedBlockquoteTest {
         for(TLRPC.MessageEntity e:list)if(type.isInstance(e) && e.offset==offset)return e;
         throw new AssertionError("Entity missing: "+type.getSimpleName()+" at "+offset);
     }
-    @Test public void groupAuthorIsBoldAndOnlySourceIsBlockquoted() {
+    @Test public void quoteContainsAuthorAndSourceThenOneSeparator() {
         String source="tea 😀",body="answer";
         DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author 😀",source,body);
         ArrayList<TLRPC.MessageEntity> all=DeletedReplyProtocol.formatEntities(null,r);
-        assertEquals("Author 😀\ntea 😀\n\nanswer",r.text);assertEquals(2,all.size());
+        assertEquals("Author 😀\ntea 😀\nanswer",r.text);assertEquals(2,all.size());
         assertEquals("Author 😀",span(r.text,entity(all,TLRPC.TL_messageEntityBold.class,0)));
         TLRPC.MessageEntity quote=entity(all,TLRPC.TL_messageEntityBlockquote.class,r.quoteOffset);
-        assertEquals(source,span(r.text,quote));assertFalse(quote.collapsed);
-        assertEquals(source.length(),quote.length);assertTrue(quote.offset+quote.length<r.entityShift);
+        assertEquals("Author 😀\n"+source,span(r.text,quote));assertFalse(quote.collapsed);
+        assertEquals("Author 😀\n".length()+source.length(),quote.length);assertEquals(quote.offset+quote.length+1,r.entityShift);
         assertEquals(body,r.text.substring(r.entityShift));assertEquals("tea 😀",source);
     }
     @Test public void multilineQuoteUsesUtf16WithAuthorInEveryChat() {
         DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Name 😀","😀\nчай","О");
         ArrayList<TLRPC.MessageEntity> all=DeletedReplyProtocol.formatEntities(null,r);
-        assertEquals(2,all.size());assertTrue(all.get(1) instanceof TLRPC.TL_messageEntityBlockquote);
-        assertEquals("Name 😀",span(r.text,all.get(0)));
-        assertEquals(8,all.get(1).offset);assertEquals(6,all.get(1).length);
-        assertEquals("😀\nчай",span(r.text,all.get(1)));assertEquals("О",r.text.substring(r.entityShift));
+        assertEquals(2,all.size());
+        TLRPC.MessageEntity q=entity(all,TLRPC.TL_messageEntityBlockquote.class,0);
+        assertEquals("Name 😀",span(r.text,entity(all,TLRPC.TL_messageEntityBold.class,0)));
+        assertEquals(0,q.offset);assertEquals(14,q.length);
+        assertEquals("Name 😀\n😀\nчай",span(r.text,q));assertEquals("О",r.text.substring(r.entityShift));
     }
     @Test public void usersCodeQuoteAndBoldRemainOutsideGeneratedQuote() {
         String body="code\nquote\nbold";
@@ -44,7 +45,7 @@ public class DeletedBlockquoteTest {
             TLRPC.MessageEntity old=original.get(i),copy=entity(all,old.getClass(),old.offset+r.entityShift);
             assertNotSame(old,copy);assertEquals(old.length,copy.length);
             assertEquals(body.substring(old.offset,old.offset+old.length),span(r.text,copy));
-            assertTrue(copy.offset>=r.entityShift);assertTrue(copy.offset>=r.quoteOffset+r.quoteLength+2);
+            assertTrue(copy.offset>=r.entityShift);assertTrue(copy.offset>=r.quoteOffset+r.quoteLength+1);
         }
         assertEquals("java",entity(all,TLRPC.TL_messageEntityPre.class,r.entityShift).language);
         assertTrue(entity(all,TLRPC.TL_messageEntityBlockquote.class,r.entityShift+5).collapsed);
@@ -53,14 +54,15 @@ public class DeletedBlockquoteTest {
     @Test public void trailingWhitespaceIsNotIncludedAndInternalLineBreaksRemain() {
         DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author  ","one\r\ntwo \n\t","\nanswer\n");
         ArrayList<TLRPC.MessageEntity> all=DeletedReplyProtocol.formatEntities(null,r);
-        assertEquals("Author",span(r.text,all.get(0)));assertEquals("one\ntwo",span(r.text,all.get(1)));
+        assertEquals("Author",span(r.text,entity(all,TLRPC.TL_messageEntityBold.class,0)));
+        assertEquals("Author\none\ntwo",span(r.text,entity(all,TLRPC.TL_messageEntityBlockquote.class,0)));
         assertEquals("\nanswer\n",r.text.substring(r.entityShift));
     }
     @Test public void emptyCaptionStillContainsRealBlockquoteEntity() {
         DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author","Photo","");
         ArrayList<TLRPC.MessageEntity> all=DeletedReplyProtocol.formatEntities(null,r);
         assertEquals("Author\nPhoto",r.text);assertEquals(2,all.size());
-        assertEquals("Photo",span(r.text,all.get(1)));assertTrue(all.get(1) instanceof TLRPC.TL_messageEntityBlockquote);
+        assertEquals("Author\nPhoto",span(r.text,entity(all,TLRPC.TL_messageEntityBlockquote.class,0)));
         assertEquals(0,r.entityShift);
     }
     @Test public void generatedEntitiesRoundTripThroughTelegramTlSerialization() {
@@ -86,6 +88,6 @@ public class DeletedBlockquoteTest {
     }
     @Test public void whitespaceOnlySnippetHasNonemptyVisibleRange() {
         DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author"," \n\t","body");
-        assertEquals("…",span(r.text,DeletedReplyProtocol.formatEntities(null,r).get(1)));
+        assertEquals("Author\n…",span(r.text,entity(DeletedReplyProtocol.formatEntities(null,r),TLRPC.TL_messageEntityBlockquote.class,0)));
     }
 }

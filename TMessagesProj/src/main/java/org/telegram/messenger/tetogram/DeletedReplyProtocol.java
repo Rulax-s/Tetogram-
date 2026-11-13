@@ -14,23 +14,54 @@ public final class DeletedReplyProtocol {
             public void offset(TLRPC.MessageEntity e,int value) { e.offset=value; }
         });
     }
-    /** Prefix ranges are disjoint from the user's entities: no quote/code nesting is introduced. */
+    /** One outer quote contains the author mention/bold; the answer stays outside it. */
     public static ArrayList<TLRPC.MessageEntity> formatEntities(ArrayList<TLRPC.MessageEntity> entities,DeletedReplyPolicy.Result result) {
+        return formatEntities(entities,result,0,0,null);
+    }
+    public static ArrayList<TLRPC.MessageEntity> formatEntities(ArrayList<TLRPC.MessageEntity> entities,DeletedReplyPolicy.Result result,
+                                                               long senderId,long currentUserId,TLRPC.InputUser inputUser) {
         ArrayList<TLRPC.MessageEntity> formatted=shiftEntities(entities,result.entityShift);
         if(formatted==null)formatted=new ArrayList<>();
-        if(result.authorLength>0) {
-            TLRPC.TL_messageEntityBold author=new TLRPC.TL_messageEntityBold();
-            author.offset=0;
-            author.length=result.authorLength;
-            formatted.add(author);
-        }
         TLRPC.TL_messageEntityBlockquote quote=new TLRPC.TL_messageEntityBlockquote();
         quote.offset=result.quoteOffset;
         quote.length=result.quoteLength;
         quote.collapsed=false;
         formatted.add(quote);
-        java.util.Collections.sort(formatted,(a,b)->a.offset==b.offset ? Integer.compare(b.length,a.length) : Integer.compare(a.offset,b.offset));
+        if(result.authorLength>0) {
+            TLRPC.InputUser resolved=mentionUser(senderId,currentUserId,inputUser);
+            if(resolved!=null) {
+                TLRPC.TL_inputMessageEntityMentionName mention=new TLRPC.TL_inputMessageEntityMentionName();
+                mention.offset=0;mention.length=result.authorLength;mention.user_id=resolved;
+                formatted.add(mention);
+            }
+            TLRPC.TL_messageEntityBold author=new TLRPC.TL_messageEntityBold();
+            author.offset=0;author.length=result.authorLength;
+            formatted.add(author);
+        }
+        // Outer quote, then continuous mention, then splittable bold (TDLib canonical nesting).
+        java.util.Collections.sort(formatted,(a,b)-> {
+            if(a.offset!=b.offset)return Integer.compare(a.offset,b.offset);
+            if(a.length!=b.length)return Integer.compare(b.length,a.length);
+            return Integer.compare(nestingPriority(a),nestingPriority(b));
+        });
         return formatted;
+    }
+    private static int nestingPriority(TLRPC.MessageEntity e) {
+        if(e instanceof TLRPC.TL_messageEntityBlockquote)return 0;
+        if(e instanceof TLRPC.TL_inputMessageEntityMentionName || e instanceof TLRPC.TL_messageEntityMentionName)return 1;
+        return 2;
+    }
+    private static TLRPC.InputUser mentionUser(long senderId,long currentUserId,TLRPC.InputUser input) {
+        if(senderId<=0 || input==null)return null;
+        if(input instanceof TLRPC.TL_inputUser && input.user_id==senderId && input.access_hash!=0)
+            return TLObject.deepCopy(input,TLRPC.InputUser::TLdeserialize);
+        if(input instanceof TLRPC.TL_inputUserSelf && senderId==currentUserId) {
+            TLRPC.InputUser self=TLObject.deepCopy(input,TLRPC.InputUser::TLdeserialize);
+            self.user_id=senderId; // used by native outgoing URLSpanUserMention; Self wire format stays unchanged
+            return self;
+        }
+        // Empty/min peers and FromMessage refs to deleted content are not a valid profile link.
+        return null;
     }
     public static TLRPC.TL_messageReplyHeader forumReply(int rootId) {
         if(rootId<=0 || MessageTimelinePolicy.ephemeral(rootId))throw new IllegalArgumentException("Invalid forum root");

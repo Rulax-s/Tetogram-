@@ -19,8 +19,8 @@ public final class DeletedReplyPolicy {
         String authorLine=name.isEmpty() ? "" : name+"\n";
         String prefix=authorLine+quote;
         boolean hasBody=body!=null && !body.isEmpty();
-        return new Result(hasBody ? prefix+"\n\n"+body : prefix,hasBody ? prefix.length()+2 : 0,
-                name.length(),authorLine.length(),quote.length());
+        return new Result(hasBody ? prefix+"\n"+body : prefix,hasBody ? prefix.length()+1 : 0,
+                name.length(),0,prefix.length());
     }
     private static String trimWhitespace(String value) {
         int start=0,end=value.length();

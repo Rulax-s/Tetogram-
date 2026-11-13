@@ -41,7 +41,7 @@ def main():
     tools = sdk / 'build-tools/36.0.0'
     badging = subprocess.check_output([str(tools / 'aapt'), 'dump', 'badging', str(apk)], text=True)
     assert "package: name='org.tetogram.messenger'" in badging, 'Wrong application ID'
-    assert "versionName='0.2.3'" in badging, 'Wrong version'
+    assert "versionName='0.2.4'" in badging, 'Wrong version'
     assert "application-label:'Tetogram'" in badging, 'Wrong label'
     assert "native-code: 'arm64-v8a'" in badging, 'ARM64 ABI missing'
     analyzers = [sdk / 'cmdline-tools/latest/bin/apkanalyzer', *sdk.glob('cmdline-tools/*/bin/apkanalyzer')]
