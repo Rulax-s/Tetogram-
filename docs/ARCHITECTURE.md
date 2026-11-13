@@ -65,3 +65,11 @@ MessageTimelinePolicy содержит выделенное без измене�
 ## 0.2.2: Reply на локальную копию
 
 Reply остаётся native: ChatActivity swipe/OPTION_REPLY → обычная панель ChatActivityEnterView → SendMessagesHelper. DeletedReplyPolicy формирует неизменяющий входы префикс/UTF-16 shift; DeletedReplyProtocol клонирует TL entities и формирует forum header. DeletedHistory.find разрешает native draft ID через ту же account DB; MediaDataController не синхронизирует удалённую reply-цель и убирает дублирующий draft payload. UI поле tetogramHistoryOwner связывает копию с Telegram user ID, а не только переиспользуемым slot. Подробности/границы проверок — DELETED_REPLIES.md.
+
+## 0.2.3: native blockquote entities
+
+DeletedReplyPolicy.Result теперь содержит authorLength/quoteOffset/quoteLength/entityShift для конечной UTF-16 строки. DeletedReplyProtocol.formatEntities клонирует entities ответа, добавляет отдельные bold автора и TL_messageEntityBlockquote текста. Диапазоны префикса не пересекаются с ответом и его собственными blockquote/pre/code. Рендерер не меняется: MessageObject → QuoteSpan. Архив и стандартный Reply UI не меняются; DELETED_BLOCKQUOTES.md содержит детали и проверки.
+
+## 0.2.4: mention автора внутри quote
+
+Внешний TL_messageEntityBlockquote охватывает имя и текст. Внутри — TL_inputMessageEntityMentionName по raw from_id.user_id/InputUser того же аккаунта, затем bold имени. Диапазон ответа начинается после одного переноса. Канонический порядок соблюдает правила TDLib: quote → continuous mention → splittable bold. При необходимости Sender User загружается из native users cache на storage queue с проверкой owner UID. Не используйте receiver ID/username или фиктивный URL вместо source sender ID. При недоступном InputUser остаётся plain name; DELETED_MENTIONS.md.

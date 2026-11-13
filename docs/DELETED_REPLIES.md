@@ -1,5 +1,7 @@
 # Reply на локальную удалённую копию — 0.2.2
 
+В 0.2.3 оформление изменено на настоящую TL_messageEntityBlockquote с жирным именем перед ней. Ниже сохранено описание исходной 0.2.2; актуальная подготовка entities и проверки — [DELETED_BLOCKQUOTES.md](DELETED_BLOCKQUOTES.md).
+
 Референс: [AyuGram c9c317cf5b0877763e0e973acaf334251a5d38a8](https://github.com/AyuGram/AyuGram4A/commit/c9c317cf5b0877763e0e973acaf334251a5d38a8), автор ZavaruKitsu, GPL. Изучен полный patch SendMessagesHelper.java/AyuUtils.java. В нём ayuDeleted обнаруживается перед отправкой: имя автора в группе + `> ` + shortify(messageText,20), затем replyToMsg=null. Отдельной системы Reply не создаётся. Медиа без текста покрываются native messageText (Photo/Video/Document и т.п.); автоматической пересылки файла там нет. Tetogram использует тот же подход, адаптированный независимо к текущему Telegram.
 
 ## Интерфейс и отправка

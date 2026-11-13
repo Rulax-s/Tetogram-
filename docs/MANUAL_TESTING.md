@@ -50,3 +50,11 @@ SQL/JUnit проверки в CI подтверждают правила и оп
 ## 0.2.2: Reply на удалённые сообщения
 
 Проверить свайп, native контекстный Reply, preview/отмену, emoji/entities, фото с caption, сеть/retry, draft после перезапуска, forum routing, два аккаунта и отображение в официальном Telegram. Подробный незавершённый Android-чек-лист — [DELETED_REPLIES.md](DELETED_REPLIES.md). JVM/TL serialization tests не подтверждают выполнение жестов или доставку через Telegram.
+
+## 0.2.3: оформление blockquote
+
+Проверить обычный Reply и local Reply через свайп/контекстное меню; имя отдельно жирным, quote только над сохранённым текстом, ответ снаружи. Проверить переносы, emoji, пользовательские bold/link/custom emoji/pre/quote, подпись фото, retry и визуальное отображение в официальном Telegram/AyuGram/Tetogram. Эти Android-сценарии пока не выполнены агентом; подробный чек-лист — [DELETED_BLOCKQUOTES.md](DELETED_BLOCKQUOTES.md).
+
+## 0.2.4: обязательные три проверки в официальном Telegram
+
+Все три пока NOT RUN агентом: (1) имя и текст внутри одной blockquote, ответ следующей строкой снаружи; (2) имя действительно нажимается; (3) открывается профиль исходного автора по правильному ID. Подробная инструкция и границы JVM/TL tests — [DELETED_MENTIONS.md](DELETED_MENTIONS.md). Дополнительно проверить обычный Reply, свайп, fallback без User peer и два автора с одинаковым display name.

@@ -33,3 +33,34 @@ DeletedMentionTest: внешний quote/name mention/bold, точный 64-bit 
 - [ ] **Идентичность:** открывается профиль именно A, а не отправителя ответа/текущего аккаунта/другого участника с таким же именем.
 
 Дополнительно: RU/EN, emoji/ZWJ в имени/тексте, одинаковые display names разных sender IDs, несколько аккаунтов, restart с выгруженным users cache, фото-caption, forum General/другая тема, отсутствие User peer → plain name, обычный Reply и retry. Визуальный результат в AyuGram/Tetogram также требует проверки устройства.
+
+## Результат CI
+
+[Run 43472506292 — success](https://github.com/Rulax-s/Tetogram-/actions/runs/43472506292), APK source `d1f4d26dc45340dab4c8a3844e5a1ea575f8c375`. JUnit task с 55 тестами и 13 SQLite tests пройдены; compileDebugUnitTestJavaWithJavac/testDebugUnitTest реально выполнены. ARM64 assembleAfatDebug — BUILD SUCCESSFUL, 9m 19s. APK package/version/icon/providers/permissions/native ELF/signature — PASS.
+
+[Скачать APK в ZIP](https://github.com/Rulax-s/Tetogram-/actions/runs/43472506292/artifacts/14062820798), доступен до 2026-11-27. Метаданные/sha256 — APK-0.2.4.json. Публичный сертификат совпал с выданной 0.2.2 и CI-сборкой 0.2.3; Secrets не менялись. Native UI/авторизация в официальном Telegram агентом не запускались. **Три официальных UI-пункта выше остаются NOT RUN.**
+
+## Изменённые файлы после 0.2.2
+
+- `README.md`
+- `TMessagesProj/src/main/java/org/telegram/messenger/SendMessagesHelper.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/DeletedReplyPolicy.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/DeletedReplyProtocol.java`
+- `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/DeletedBlockquoteTest.java`
+- `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/DeletedMentionTest.java`
+- `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/DeletedReplyPolicyTest.java`
+- `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/DeletedReplyProtocolTest.java`
+- `docs/APK-0.2.4.json`
+- `docs/ARCHITECTURE.md`
+- `docs/BUILD.md`
+- `docs/CHANGELOG.md`
+- `docs/CUSTOMIZATION.md`
+- `docs/DELETED_BLOCKQUOTES.md`
+- `docs/DELETED_MENTIONS.md`
+- `docs/DELETED_REPLIES.md`
+- `docs/MANUAL_TESTING.md`
+- `docs/TROUBLESHOOTING.md`
+- `docs/VALIDATION.md`
+- `gradle.properties`
+- `scripts/check-project.py`
+- `scripts/verify-apk.py`

@@ -85,3 +85,14 @@ GH_CONFIG_DIR=/data/data/com.termux/files/home/.config/gh \
 - Android gestures, preview/cancel, реальная сеть/retry, restart/draft, установка обновления и отображение в официальном Telegram ещё требуют проверки владельцем. Реальные аккаунты агентом не использовались.
 - Указанный AyuGram c9c317cf изучен; архитектура, список изменений, поддержанные типы и Android-чек-лист — DELETED_REPLIES.md.
 - Source checks и actionlint пройдены. Force push и изменение GitHub Secrets не выполнялись; пользовательские APK/данные не удалялись.
+
+## 0.2.4: исходный автор-упоминание внутри quote
+
+- [CI 43472506292 — success](https://github.com/Rulax-s/Tetogram-/actions/runs/43472506292), APK source `d1f4d26dc45340dab4c8a3844e5a1ea575f8c375`.
+- JUnit task с 55 тестами: 48 существующих и 7 DeletedMentionTest; compileDebugUnitTestJavaWithJavac/testDebugUnitTest реально выполнены. 13 SQLite tests — PASS. Тестируется настоящий TL_inputMessageEntityMentionName, его InputUser/64-bit source ID/hash и UTF-16 ranges, received mention, nesting quote→mention→bold, single separator, fallback и отсутствие мутаций.
+- ARM64 assembleAfatDebug — BUILD SUCCESSFUL, 9m 19s. Package/version 0.2.4/label/icon/providers/permissions/ELF/signature — PASS.
+- APK скачан; SOURCE_COMMIT и CI sha256 совпали. Отдельная копия `/sdcard/Download/Tetogram-0.2.4-debug.apk` сверена, четыре ELF64/AArch64-библиотеки повторно проверены локально.
+- Сертификат совпал с метаданными выданной 0.2.2 и реальным apksigner log успешного run 43462995920 (0.2.3). Package сохранён, version code повышен; реальная установка обновления агентом не выполнялась.
+- Метаданные/checksum/ссылка: APK-0.2.4.json. Логи: build-logs/run-43472506292. Исследование native mentions/TDLib nesting, изменённые файлы и проверки — DELETED_MENTIONS.md.
+- **NOT RUN в официальном Telegram:** вид блока, реальная кликабельность имени, фактическое открытие правильного профиля. В окружении нет adb/emulator/подключённого Android UI tool. JVM/TL round trip не считается end-to-end проверкой этих трёх условий. Реальные аккаунты агентом не использовались.
+- Native свайп/Reply UI и исходный архив не менялись. Source checks, actionlint, git diff --check — PASS. GitHub Secrets не менялись, force push не выполнялся, старые APK/данные не удалялись.

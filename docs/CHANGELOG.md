@@ -69,7 +69,7 @@ Splash Android 12+ использует собственный анимиров�
 
 - CI 43454426141 — success: JUnit task с 40 тестами, 13 SQLite tests, сборка/проверка APK. Метаданные — APK-0.2.2.json; Android runtime ещё требует ручной проверки.
 
-## 0.2.3 — Telegram blockquote в удалённом Reply (проверка сборки)
+## 0.2.3 — Telegram blockquote в удалённом Reply (промежуточная debug APK)
 
 - Текстовый `>` заменён настоящей TL_messageEntityBlockquote; имя автора вынесено в отдельную bold entity перед цитатой.
 - UTF-16 диапазоны рассчитаны по конечной строке; entities ответа клонируются и сдвигаются без потери форматирования.
@@ -77,10 +77,12 @@ Splash Android 12+ использует собственный анимиров�
 - Свайп/Reply-панель, retry, owner/account/dialog checks и forum routing сохранены; локальная история не меняется.
 - Новые TL regression tests и Android-чек-лист: DELETED_BLOCKQUOTES.md.
 
-## 0.2.4 — кликабельный автор внутри цитаты (проверка сборки)
+## 0.2.4 — кликабельный автор внутри цитаты (debug APK)
 
 - Одна blockquote содержит имя и текст; добавлен только один перенос перед ответом.
 - Настоящий TL_inputMessageEntityMentionName по исходному sender user ID/InputUser; без пригодного peer — обычное имя без фиктивной ссылки.
 - Native users cache подгружается на storage queue при необходимости; owner/account/dialog сохраняются.
 - Канонический порядок вложенных entities: quote → mention → bold. Body entities не изменяются, original history не переписывается.
 - Добавлены TL-тесты sender ID/вложенности/fallback/Unicode/разделителя. Проверка нажатия в официальном Telegram требует Android UI; DELETED_MENTIONS.md.
+
+- CI 43472506292 — success: JUnit task (55 tests), 13 SQLite tests, APK и подпись проверены. Реальный тест трёх условий в официальном Telegram пока NOT RUN; DELETED_MENTIONS.md.

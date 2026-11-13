@@ -1,0 +1,26 @@
+{
+  "run_id": 43472506292,
+  "source_commit": "d1f4d26dc45340dab4c8a3844e5a1ea575f8c375",
+  "file_name": "Tetogram-debug.apk",
+  "version": "0.2.4",
+  "application_id": "org.tetogram.messenger",
+  "size_bytes": 70554975,
+  "sha256": "8bc312281762a47ea47279ceadbb69983ab09680f0e1aa298c7bbc90c2692a16",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43472506292/artifacts/14062820798",
+  "artifact_expires_at": "2026-11-27T17:38:15Z",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "signature_certificate_sha256": "147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d",
+  "runtime_tested": false,
+  "official_telegram_ui_checks": {
+    "blockquote_display": "NOT_RUN",
+    "author_clickable": "NOT_RUN",
+    "correct_profile_opened": "NOT_RUN"
+  },
+  "update_compatible_with_verified_0_2_2_and_0_2_3": true,
+  "device_copy": "/sdcard/Download/Tetogram-0.2.4-debug.apk"
+}
