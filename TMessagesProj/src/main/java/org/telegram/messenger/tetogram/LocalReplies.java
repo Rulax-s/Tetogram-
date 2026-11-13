@@ -48,6 +48,7 @@ public final class LocalReplies {
         long owner=UserConfig.getInstance(a).getClientUserId();
         MessagesStorage.getInstance(a).getStorageQueue().postRunnable(()-> {
             ArrayList<MessageObject> originals=new ArrayList<>();ArrayList<Integer> starts=new ArrayList<>();ArrayList<String> hashes=new ArrayList<>();
+            ArrayList<TLRPC.User> users=new ArrayList<>();ArrayList<TLRPC.Chat> chats=new ArrayList<>();java.util.HashSet<Long> peers=new java.util.HashSet<>();
             try {
                 SQLiteDatabase d=db(a);
                 for(MessageObject m:messages) {
@@ -56,11 +57,19 @@ public final class LocalReplies {
                         SQLiteCursor c=d.queryFinalized("SELECT h.data,h.did,h.deleted,h.received,l.body_start,l.prefix_hash FROM tetogram_reply_links_v1 l JOIN tetogram_deleted_v1 h ON h.account=l.owner AND h.did=l.did AND h.mid=l.source_mid AND h.sender=l.sender WHERE l.owner="+owner+" AND l.did="+m.getDialogId()+" AND l.mode="+(m.scheduled?1:0)+" AND l.mid="+m.getId()+" AND h.deleted>0 LIMIT 1");
                         try {if(c.next()){original=DeletedHistory.read(a,c);start=c.intValue(4);hash=c.stringValue(5);}}finally{c.dispose();}
                     }
+                    if(original!=null) {
+                        long sender=original.getFromChatId();
+                        if(peers.add(sender)) {
+                            if(sender>0) {TLRPC.User user=MessagesStorage.getInstance(a).getUser(sender);if(user!=null)users.add(user);}
+                            else if(sender<0) {TLRPC.Chat chat=MessagesStorage.getInstance(a).getChat(-sender);if(chat!=null)chats.add(chat);}
+                        }
+                    }
                     originals.add(original);starts.add(start);hashes.add(hash);
                 }
             }catch(Exception e){FileLog.e("Tetogram reply link load failed",e);}
             AndroidUtilities.runOnUIThread(()-> {
                 if(owner!=UserConfig.getInstance(a).getClientUserId())return;
+                MessagesController.getInstance(a).putUsers(users,true);MessagesController.getInstance(a).putChats(chats,true);
                 for(int i=0;i<originals.size();i++)if(messages.get(i)!=null)messages.get(i).setTetogramLocalReply(originals.get(i),starts.get(i),hashes.get(i),owner);
                 done.run();
             });

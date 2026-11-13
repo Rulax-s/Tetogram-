@@ -30721,8 +30721,10 @@ public class ChatActivity extends BaseFragment implements
     public void tetogramReconcileHistory() {
         if (chatMode != MODE_DEFAULT || currentEncryptedChat != null) return;
         ArrayList<MessageObject> replyRows=new ArrayList<>();
-        for(MessageObject row:messages)if(row!=null && !row.tetogramLocalDeleted)replyRows.add(row);
-        if(!replyRows.isEmpty())org.telegram.messenger.tetogram.LocalReplies.hydrate(currentAccount,replyRows,()-> {if(chatAdapter!=null)chatAdapter.notifyDataSetChanged(false);});
+        for(MessageObject row:messages)if(row!=null && row.hasTetogramLocalReply())replyRows.add(row);
+        if(!replyRows.isEmpty())org.telegram.messenger.tetogram.LocalReplies.hydrate(currentAccount,replyRows,()-> {
+            for(MessageObject row:replyRows)if(!row.hasTetogramLocalReply()) {if(chatAdapter!=null)chatAdapter.notifyDataSetChanged(false);break;}
+        });
 
         for(int i=0;i<2;i++) {
             final int which=i;
