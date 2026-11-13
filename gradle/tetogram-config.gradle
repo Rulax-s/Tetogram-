@@ -1,0 +1,40 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+// Optional ignored file for local builds. CI injects environment variables.
+def localConfig = new Properties()
+def configFile = rootProject.file('tetogram.properties')
+if (configFile.exists()) {
+    configFile.withInputStream { localConfig.load(it) }
+}
+def setting = { String name ->
+    providers.environmentVariable(name).orElse(localConfig.getProperty(name, '')).get().trim()
+}
+def apiId = setting('TELEGRAM_API_ID')
+def apiHash = setting('TELEGRAM_API_HASH')
+ext.tetogram = [
+    apiId: apiId ==~ /[1-9][0-9]{0,8}/ ? apiId : '0',
+    apiHashLiteral: JsonOutput.toJson(apiHash),
+    googleAuthLiteral: JsonOutput.toJson(setting('GOOGLE_AUTH_CLIENT_ID')),
+    safetyNetLiteral: JsonOutput.toJson(setting('SAFETYNET_KEY')),
+    mapsApiKey: setting('GOOGLE_MAPS_API_KEY')
+]
+
+tasks.register('validateTetogramConfiguration') {
+    group = 'verification'
+    description = 'Require owner Telegram API credentials and a matching Firebase Android app.'
+    doLast {
+        if (!(apiId ==~ /[1-9][0-9]{0,8}/) || apiId == '4' || !(apiHash ==~ /[0-9a-fA-F]{32}/)) {
+            throw new GradleException('Set your own TELEGRAM_API_ID and TELEGRAM_API_HASH. See docs/BUILD.md. Values are not logged.')
+        }
+        def firebase = rootProject.file('TMessagesProj_App/google-services.json')
+        if (!firebase.exists()) {
+            throw new GradleException('Provide your own TMessagesProj_App/google-services.json. See docs/BUILD.md.')
+        }
+        def data = new JsonSlurper().parse(firebase)
+        def packages = data.client.collect { it.client_info.android_client_info.package_name }
+        if (!packages.contains('org.tetogram.messenger') || data.project_info.project_number.toString() == '760348033671') {
+            throw new GradleException('Firebase configuration must belong to your project and org.tetogram.messenger.')
+        }
+    }
+}

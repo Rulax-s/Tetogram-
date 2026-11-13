@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="AppName">Telegram</string>
-    <string name="AppNameBeta">Telegram Beta</string>
+    <string name="AppName">Tetogram</string>
+    <string name="AppNameBeta">Tetogram</string>
     <string name="LanguageName">English</string>
     <string name="English">English</string>
     <string name="LanguageNameInEnglish">English</string>
@@ -11679,4 +11679,6 @@
     <string name="FpnvConsentSimSlot">SIM Slot</string>
     <string name="FpnvConsentSimSlotValue">SIM %1$d</string>
     <string name="FpnvConsentPhoneNumber">Phone Number</string>
+    <string name="TetogramAbout">Tetogram %1$s\nUnofficial Telegram client\nDeveloped by the Tetogram project</string>
+    <string name="TetogramIntro">Unofficial Telegram client.\nUses the Telegram API and your existing Telegram account.</string>
 </resources>

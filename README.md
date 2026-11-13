@@ -1,46 +1,28 @@
-## Telegram messenger for Android
+# Tetogram 0.1.0
 
-[Telegram](https://telegram.org) is a messaging app with a focus on speed and security. It’s superfast, simple and free.
-This repo contains the official source code for [Telegram App for Android](https://play.google.com/store/apps/details?id=org.telegram.messenger).
+Tetogram — независимый неофициальный Android-клиент Telegram на базе официальных исходников [DrKLO/Telegram](https://github.com/DrKLO/Telegram). Не связан с Telegram и не является его официальным приложением.
 
-## Creating your Telegram Application
+Цель первой версии — сохранить существующие чаты, навигацию, темы, медиа, звонки и MTProto. Собственный сервер сообщений, Bot API и демонстрационные чаты не используются. Новые пользовательские функции не добавлены.
 
-We welcome all developers to use our API and source code to create applications on our platform.
-There are several things we require from **all developers** for the moment.
+- Application ID: `org.tetogram.messenger`, включая debug без `.beta`.
+- Версия: `0.1.0`, исходная версия Telegram: `13.2.2`.
+- Android 6.0+ (API 23), первая конфигурация — ARM64 (`arm64-v8a`).
+- Русский язык при первом запуске; остальные переводы и выбор языка сохранены.
+- Временная иконка — белая буква T на фиолетовом фоне, без логотипа Telegram.
 
-1. [**Obtain your own api_id**](https://core.telegram.org/api/obtaining_api_id) for your application.
-2. Please **do not** use the name Telegram for your app — or make sure your users understand that it is unofficial.
-3. Kindly **do not** use our standard logo (white paper plane in a blue circle) as your app's logo.
-3. Please study our [**security guidelines**](https://core.telegram.org/mtproto/security_guidelines) and take good care of your users' data and privacy.
-4. Please remember to publish **your** code too in order to comply with the licences.
+**Статус:** исходники и CI подготовлены. APK ещё не собрана, установка и работа с Telegram не проверены. Наличие кода функции не означает, что она работает в этой сборке. Подробности — [проверки и ограничения](docs/VALIDATION.md).
 
-### API, Protocol documentation
+Сборка требует собственных `api_id`/`api_hash` и Firebase Android-приложения. Данные официального Telegram не используются для сборки. Получить API-данные: [my.telegram.org](https://my.telegram.org). Секреты вводятся в GitHub Secrets, не в исходники и не в переписку. Значения, встроенные в APK, технически доступны при анализе APK.
 
-Telegram API manuals: https://core.telegram.org/api
+Документация:
 
-MTproto protocol manuals: https://core.telegram.org/mtproto
+- [Сборка, публикация в GitHub и установка APK](docs/BUILD.md)
+- [Архитектура](docs/ARCHITECTURE.md)
+- [Будущие изменения](docs/CUSTOMIZATION.md)
+- [Неисправности и ограничения сервисов](docs/TROUBLESHOOTING.md)
+- [История изменений](docs/CHANGELOG.md)
+- [Ручное тестирование](docs/MANUAL_TESTING.md)
+- [Исходный commit и версия](docs/UPSTREAM.json)
+- [Оригинальный README Telegram](docs/UPSTREAM_README.md)
 
-### Compilation Guide
-
-**Note**: In order to support [reproducible builds](https://core.telegram.org/reproducible-builds), this repo contains dummy release.keystore,  google-services.json and filled variables inside BuildVars.java. Before publishing your own APKs please make sure to replace all these files with your own.
-
-You will require Android Studio 2025.1.4, Android NDK 27.2.12479018 and Android SDK 36.
-
-1. Clone the Telegram source code with its submodules:
-   ```bash
-   git clone --recursive --shallow-submodules https://github.com/DrKLO/Telegram.git Telegram
-   ```
-   In case you forgot the `--recursive` flag, change to the `Telegram` directory and run:
-   ```bash
-   git submodule init && git submodule update --init --recursive --depth=1
-   ```
-2. Copy your release.keystore into TMessagesProj/config
-3. Fill out RELEASE_KEY_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_STORE_PASSWORD in gradle.properties to access your  release.keystore
-4.  Go to https://console.firebase.google.com/, create two android apps with application IDs org.telegram.messenger and org.telegram.messenger.beta, turn on firebase messaging and download google-services.json, which should be copied to the same folder as TMessagesProj.
-5. Open the project in the Studio (note that it should be opened, NOT imported).
-6. Fill out values in TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java – there’s a link for each of the variables showing where and which data to obtain.
-7. You are ready to compile Telegram.
-
-### Localization
-
-We moved all translations to https://translations.telegram.org/en/android/. Please use it.
+Исходный код — GNU GPL v2 или более поздняя версия, см. [LICENSE](LICENSE). Уведомления авторов сохранены; сторонние библиотеки имеют собственные лицензии. При распространении APK предоставляйте соответствующие исходники с подмодулями, изменениями и инструкциями сборки. Соблюдайте [условия Telegram API](https://core.telegram.org/api/terms). Debug APK предназначена для тестирования, не для публикации в магазине.

@@ -24,12 +24,12 @@ repositories {
 // that consume it. Using subprojects keeps it in one place.
 //   keep:  base/, latin/, maths/, euler/  (\mathbb, \mathcal, \mathfrak still work)
 //   drop:  latin/optional/, maths/optional/  (~290 KB; \textbf/\textit/\mathds fall back)
-//          licences/                          (~20 KB; pure license text files)
+//   Tetogram retains licences/ notices in packaged assets.
 subprojects {
     plugins.withId('com.android.application') {
         android {
             androidResources {
-                ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~:!optional:!licences:!*stmary*:!*eufb*'
+                ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~:!optional:!*stmary*:!*eufb*'
             }
         }
     }
@@ -53,3 +53,5 @@ subprojects {
         }
     }
 }
+// Tetogram: configuration is isolated to keep upstream merges small.
+apply from: rootProject.file('gradle/tetogram-config.gradle')

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="org.telegram.messenger"
-    android:icon="@drawable/ic_launcher_dr"
-    android:smallIcon="@drawable/ic_launcher_dr"
+    android:accountType="org.tetogram.messenger"
+    android:icon="@mipmap/tetogram_launcher"
+    android:smallIcon="@mipmap/tetogram_launcher"
     android:label="@string/AppName"
     android:accountPreferences="@xml/auth_menu"/>

@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/DrKLO/Telegram",
+  "commit": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
+  "version": "13.2.2",
+  "version_code": 7303,
+  "retrieved_utc": "2026-11-13",
+  "clone": "shallow; fetch history before upstream merges"
+}

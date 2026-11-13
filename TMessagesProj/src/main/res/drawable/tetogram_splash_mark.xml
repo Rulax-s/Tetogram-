@@ -1,0 +1,7 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp" android:height="320dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#42307A" android:pathData="M54,0 A54,54 0,1 1,54,108 A54,54 0,1 1,54,0 Z" />
+    <path android:name="tetogram_mark_path" android:fillColor="#FFFFFF"
+        android:pathData="M30,30 L78,30 L78,42 L60,42 L60,78 L48,78 L48,42 L30,42 Z" />
+</vector>

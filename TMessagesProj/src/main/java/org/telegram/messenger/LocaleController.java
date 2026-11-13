@@ -734,7 +734,7 @@ public class LocaleController {
 
         try {
             SharedPreferences preferences = MessagesController.getGlobalMainSettings();
-            String lang = preferences.getString("language", null);
+            String lang = preferences.getString("language", "ru");
             if (lang != null) {
                 currentInfo = getLanguageFromDict(lang);
                 if (currentInfo != null) {
@@ -4784,7 +4784,14 @@ public class LocaleController {
         final Context context = ApplicationLoader.applicationContext;
         String value;
 
-        if (BuildVars.USE_CLOUD_STRINGS) {
+        if (stringRes == R.string.AppName || stringRes == R.string.AppNameBeta
+                || "AppName".equals(key) || "AppNameBeta".equals(key)) {
+            return "Tetogram";
+        }
+        // Fork-only text uses the bundled language pack, never the external Telegram pack.
+        if (BuildVars.USE_CLOUD_STRINGS && stringRes != R.string.TetogramAbout
+                && stringRes != R.string.TetogramIntro
+                && !"TetogramAbout".equals(key) && !"TetogramIntro".equals(key)) {
             value = localizationExternal.getByResNameOrResId(context, key, stringRes);
             if (value != null) {
                 return value;

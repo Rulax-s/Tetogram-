@@ -14,3 +14,19 @@ TMessagesProj_AppHockeyApp/afat/
 TMessagesProj_AppStandalone/afat/
 TMessagesProj_AppHuawei/afat/
 TMessagesProj/jni/ffmpeg/build_android
+
+# Tetogram local/CI configuration and private signing material
+tetogram.properties
+.env
+.env.*
+!.env.example
+**/google-services.json
+*.jks
+*.keystore
+*.p12
+*.pem
+artifacts/
+build-logs/
+
+__pycache__/
+*.pyc

@@ -1,0 +1,4 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/tetogram_splash_mark">
+    <target android:name="tetogram_mark_path" android:animation="@animator/tetogram_splash_alpha" />
+</animated-vector>
