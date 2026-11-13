@@ -21160,16 +21160,27 @@ public class ChatActivity extends BaseFragment implements
                     return;
                 }
                 Uri uri = data.getData();
-                if (uri.toString().contains("video") || String.valueOf(getParentActivity().getContentResolver().getType(uri)).startsWith("video/")) {
+                String pickedMime = null;
+                try { pickedMime = getParentActivity().getContentResolver().getType(uri); } catch(Exception e) { FileLog.e("Tetogram picker MIME unavailable"); }
+                if (uri.toString().contains("video") || pickedMime != null && pickedMime.startsWith("video/")) {
                     String videoPath = null;
                     try {
                         videoPath = AndroidUtilities.getPath(uri);
                     } catch (Exception e) {
                         FileLog.e(e);
                     }
-                    if(videoPath==null)videoPath=MediaController.copyFileToCache(uri,"mp4");
                     if (videoPath == null) {
-                        showAttachmentError();return;
+                        final long pickedOwner=getUserConfig().getClientUserId();
+                        Utilities.globalQueue.postRunnable(()-> {
+                            String cachedPath=MediaController.copyFileToCache(uri,"mp4");
+                            AndroidUtilities.runOnUIThread(()-> {
+                                if(getParentActivity()==null || pickedOwner!=getUserConfig().getClientUserId())return;
+                                if(cachedPath==null) {showAttachmentError();return;}
+                                if(paused)startVideoEdit=cachedPath;else openVideoEditor(cachedPath,null);
+                                afterMessageSend();
+                            });
+                        });
+                        return;
                     }
                     if (paused) {
                         startVideoEdit = videoPath;
