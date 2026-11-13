@@ -96,6 +96,7 @@ import me.vkryl.android.animator.FactorAnimator;
 public class MainTabsActivity extends ViewPagerActivity implements NotificationCenter.NotificationCenterDelegate, FactorAnimator.Target {
 
     public static final int TABS_COUNT = 3;
+    public static final boolean CALLS_TAB_ENABLED = false;
     private static final int POSITION_CHATS = 0;
     private static final int POSITION_CONTACTS = -1;
     private static final int POSITION_CALLS_OR_SETTINGS = 1;
