@@ -38,12 +38,14 @@ def main():
             key_bytes = base64.b64decode(key, validate=True)
         except Exception:
             raise ValueError('DEBUG_KEYSTORE_BASE64 is invalid.') from None
-        key_path = Path.home() / '.android/debug.keystore'
+        key_path = Path(__file__).resolve().parents[1] / 'TMessagesProj/config/tetogram-debug.keystore'
         if key_path.exists() and key_path.read_bytes() != key_bytes:
-            raise ValueError('Refusing to replace an existing debug keystore; use a clean CI runner.')
+            raise ValueError('Refusing to replace an existing Tetogram debug keystore.')
         key_path.parent.mkdir(parents=True, exist_ok=True)
         key_path.write_bytes(key_bytes)
         key_path.chmod(0o600)
+    else:
+        raise ValueError('Set DEBUG_KEYSTORE_BASE64 to keep Tetogram update signatures stable.')
     print('Owner configuration validated; Firebase package matches org.tetogram.messenger. Secret values were not printed.')
 
 

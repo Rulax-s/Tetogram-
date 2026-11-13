@@ -47,7 +47,13 @@ android {
     }
 
     signingConfigs {
-        // Use the Android Gradle plugin debug keystore; never the upstream release key.
+        debug {
+            storeFile rootProject.file('TMessagesProj/config/tetogram-debug.keystore')
+            storeType 'PKCS12'
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
 
         release {
             storeFile rootProject.file(providers.environmentVariable("TETOGRAM_RELEASE_KEYSTORE").orElse("tetogram-release.keystore").get())
