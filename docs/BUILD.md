@@ -49,16 +49,9 @@ base64 -w 0 /путь/к/google-services.json > /tmp/tetogram-firebase.base64
 
 Скопируйте содержимое в Secret через GitHub. Не добавляйте этот файл в Git. Firebase JSON и ключи тоже попадают в APK; Secrets защищают репозиторий и логи, а не от анализа приложения. Ограничьте ключи на стороне Google по своему package name, сертификату и API.
 
-Для стабильной debug-подписи создайте на машине с JDK отдельный тестовый ключ (или в своей доверенной облачной среде):
+Для 0.2.0 обязательны оба Secrets: `DEBUG_KEYSTORE_BASE64` (PKCS12) и `DEBUG_KEYSTORE_PASSWORD`. Постоянный ключ уже настроен. Не заменяйте его при следующих сборках: это нарушит совместимость обновлений. Alias — `androiddebugkey`. Приватный пароль и ключ храните в резервной копии вне Git. CI прекращает сборку при отсутствии конфигурации подписи, не создавая случайный ключ.
 
-```bash
-keytool -genkeypair -keystore tetogram-debug.keystore -storepass android \
-  -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 \
-  -validity 10000 -dname 'CN=Tetogram Debug,O=Tetogram,C=US'
-base64 -w 0 tetogram-debug.keystore > /tmp/tetogram-debug-key.base64
-```
-
-Добавьте base64 в `DEBUG_KEYSTORE_BASE64`. Зарегистрируйте SHA-1/SHA-256 этого сертификата в настройках собственного Firebase/Google OAuth, если интеграция этого требует; на чистом runner без постоянного ключа отпечатки меняются. Пароли и alias здесь стандартные для тестового ключа Android; для выпуска нужен отдельный приватный release-ключ и отдельная конфигурация. Основной модуль не использует upstream dummy release.keystore: release-настройки читаются из TETOGRAM_RELEASE_KEYSTORE, TETOGRAM_RELEASE_STORE_PASSWORD, TETOGRAM_RELEASE_KEY_ALIAS и TETOGRAM_RELEASE_KEY_PASSWORD; release CI пока не настроен. Без Secret AGP создаёт новый debug-ключ на каждом чистом runner. Тогда обновление старой установки может завершиться ошибкой несовпадения сертификатов; не удаляйте приложение с данными ради обновления.
+Зарегистрируйте SHA-1/SHA-256 сертификата в собственном Firebase/Google OAuth, если интеграция этого требует. Для выпуска нужен отдельный release-ключ; release CI пока не настроен.
 
 ## Публикация локального репозитория
 

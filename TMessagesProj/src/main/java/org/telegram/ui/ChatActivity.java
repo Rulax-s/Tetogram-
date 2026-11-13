@@ -27227,7 +27227,13 @@ public class ChatActivity extends BaseFragment implements
                     messagesDict[loadIndex].put(mid, local);
                     if (obj.getGroupId() != 0) {
                         MessageObject.GroupedMessages group = groupedMessagesMap.get(obj.getGroupId());
-                        if (group != null) { int i = group.messages.indexOf(obj); if(i >= 0) group.messages.set(i,local); }
+                        if (group != null) {
+                            int i = group.messages.indexOf(obj);
+                            if (i >= 0) group.messages.set(i, local);
+                            MessageObject.GroupedMessagePosition position = group.positions.remove(obj);
+                            if (position != null) group.positions.put(local, position);
+                            if (group.captionMessage == obj) group.captionMessage = local;
+                        }
                     }
                     if (chatAdapter != null) chatAdapter.notifyDataSetChanged(false);
                     continue;
