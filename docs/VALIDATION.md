@@ -74,3 +74,14 @@ GH_CONFIG_DIR=/data/data/com.termux/files/home/.config/gh \
 - Артефакт, размер, SHA-256, сертификат: APK-0.2.1.json. Логи: build-logs/run-43443980427.
 - Причины обеих ошибок, production policies, изменённые файлы и оставшиеся Android-регрессии — MESSAGE_INTEGRITY.md. Авторизация, отправка, уведомления, Mini Apps и другие runtime-функции на этой сборке агентом не проверялись.
 - GitHub Secrets, Android-настройки и пользовательские данные не менялись, force push не выполнялся. Диагностическое логирование сообщений/сессий не добавлялось.
+
+## 0.2.2: native Reply на удалённые копии
+
+- [CI 43454426141 — success](https://github.com/Rulax-s/Tetogram-/actions/runs/43454426141), APK source `d7dbc837eaa65c55607fda62359b360789b3a939`.
+- JUnit task с 40 тестами: 24 прежних regressions, 12 DeletedReplyPolicy, 4 DeletedReplyProtocol; compileDebugUnitTestJavaWithJavac/testDebugUnitTest выполнены. Реальные TL entities/сериализация forum header включены. 13 SQLite tests — PASS.
+- ARM64 assembleAfatDebug — BUILD SUCCESSFUL, 9m 34s. Package/version 0.2.2/label/icon/providers/permissions/ELF/signature — PASS.
+- Скачанный APK и отдельная копия `/sdcard/Download/Tetogram-0.2.2-debug.apk` совпали с CI sha256; SOURCE_COMMIT сверён. Четыре ELF64/AArch64 библиотеки повторно проверены локально.
+- Сертификат совпал с ранее выданной 0.2.1; package/DB-схема сохранены, version code повышен. Метаданные/ссылка/checksum — APK-0.2.2.json; логи — build-logs/run-43454426141.
+- Android gestures, preview/cancel, реальная сеть/retry, restart/draft, установка обновления и отображение в официальном Telegram ещё требуют проверки владельцем. Реальные аккаунты агентом не использовались.
+- Указанный AyuGram c9c317cf изучен; архитектура, список изменений, поддержанные типы и Android-чек-лист — DELETED_REPLIES.md.
+- Source checks и actionlint пройдены. Force push и изменение GitHub Secrets не выполнялись; пользовательские APK/данные не удалялись.

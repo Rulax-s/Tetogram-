@@ -46,3 +46,7 @@ SQL/JUnit проверки в CI подтверждают правила и оп
 ## 0.2.1: критические ошибки отображения
 
 Дополнительный план повторного воспроизведения и проверки обеих ошибок — [MESSAGE_INTEGRITY.md](MESSAGE_INTEGRITY.md#ручная-проверка-на-android-пока-не-выполнена). Автоматические проверки модели/SQLite не означают, что реальные scroll, Activity recreation и Android process restart уже проверены. Для этого релиза всё ещё нужен тест на устройстве с согласия владельца аккаунтов.
+
+## 0.2.2: Reply на удалённые сообщения
+
+Проверить свайп, native контекстный Reply, preview/отмену, emoji/entities, фото с caption, сеть/retry, draft после перезапуска, forum routing, два аккаунта и отображение в официальном Telegram. Подробный незавершённый Android-чек-лист — [DELETED_REPLIES.md](DELETED_REPLIES.md). JVM/TL serialization tests не подтверждают выполнение жестов или доставку через Telegram.

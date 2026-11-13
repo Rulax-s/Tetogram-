@@ -61,3 +61,7 @@
 DeletedRowPolicy проверяет account/dialog/message и создаёт независимую строку из notification payload. DeletedHistory.copyForRow переносит native stable params через MessageObject.copyStableParams. При любой будущей замене MessageObject сохраняйте adapter stable ID; не используйте mid или 0 как общий RecyclerView ID.
 
 MessageTimelinePolicy содержит выделенное без изменения семантики правило сортировки MessagesStorage. Packed ephemeral IDs не принадлежат обычной серверной последовательности. HistoryPagePolicy.merge сохраняет порядок исходной страницы и не включает ephemeral/pending в выбор regular cursor. Не заменяйте эти механизмы общей сортировкой по ID или timestamp. Разбор причин и регрессии — MESSAGE_INTEGRITY.md.
+
+## 0.2.2: Reply на локальную копию
+
+Reply остаётся native: ChatActivity swipe/OPTION_REPLY → обычная панель ChatActivityEnterView → SendMessagesHelper. DeletedReplyPolicy формирует неизменяющий входы префикс/UTF-16 shift; DeletedReplyProtocol клонирует TL entities и формирует forum header. DeletedHistory.find разрешает native draft ID через ту же account DB; MediaDataController не синхронизирует удалённую reply-цель и убирает дублирующий draft payload. UI поле tetogramHistoryOwner связывает копию с Telegram user ID, а не только переиспользуемым slot. Подробности/границы проверок — DELETED_REPLIES.md.
