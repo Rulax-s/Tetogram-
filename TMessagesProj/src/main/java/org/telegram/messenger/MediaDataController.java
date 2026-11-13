@@ -8072,7 +8072,7 @@ public class MediaDataController extends BaseController {
                         if (getDraft(dialogId, threadId) != expectedDraft) return;
                         if (archived != null) {
                             forgetDeletedDraftPayload(dialogId, threadId, archived.getId());
-                            if (threadId > 0 && ChatObject.isForum(chat)) {
+                            if (threadId > 1 && ChatObject.isForum(chat)) {
                                 TLRPC.TL_inputReplyToMessage root = new TLRPC.TL_inputReplyToMessage();
                                 root.reply_to_msg_id = (int)threadId;
                                 root.top_msg_id = (int)threadId;
