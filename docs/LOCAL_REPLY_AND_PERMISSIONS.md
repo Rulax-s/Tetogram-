@@ -37,3 +37,9 @@ diff -u before.txt after.txt
 ```
 
 Скрипт не меняет разрешений, не выводит сообщения/сессии. Runtime-диагностика по умолчанию выключена: private preference `tetogram_diagnostics/permissions`; при включении пишет только SDK и состояния разрешений в штатный FileLog. Доступ к private preference требует debug-инструментов, автоматически не включается. Все ручные сценарии пока NOT RUN.
+
+## Результат CI
+
+Run [43484887361](https://github.com/Rulax-s/Tetogram-/actions/runs/43484887361), source `bdb7ab3169f1918b6d56160b25ccc73d231f77e8`: BUILD SUCCESSFUL (APK 8m23s, JVM task 1m1s); 70 JUnit/TL методов в 11 классах, 13 history SQLite + 6 link SQLite tests. Source-checks, actionlint, shell syntax, diff check и 22 pinned submodules пройдены. Новые изменения проверены на credential patterns; собственные конфигурация/ключ игнорируются Git, прежний публичный upstream sample keystore не изменён и не используется для Tetogram.
+
+Скачанная APK дополнительно проверена по SHA-256, SOURCE_COMMIT, целостности ZIP, бинарному AndroidManifest (package/versionCode/partial permission), ELF ARM64 и сертификату APK v2 против 0.2.4. Package и постоянная подпись сохранены, code 79 выше предыдущего 69. Это условия совместимости обновления, а не реальный install-тест на Android. Ссылки/хеши — APK-0.2.5.json; полный перечень файлов — CHANGED-0.2.5.txt. Новые runtime-сценарии остаются NOT RUN.
