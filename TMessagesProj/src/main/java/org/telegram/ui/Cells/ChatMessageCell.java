@@ -4354,6 +4354,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (currentMessageObject != null && currentMessageObject.tetogramLocalDeleted) return false;
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) lastTouchDownTime = event.getDownTime();
         if (currentMessageObject == null || delegate != null && !delegate.canPerformActions() || animationRunning) {
             if (currentMessageObject != null && currentMessageObject.richLayout != null
@@ -15698,7 +15699,19 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 currentTimeString = TextUtils.concat(formatString(R.string.MessageScheduledRepeatSeconds, period), ", ", currentTimeString);
             }
         }
+        if (messageObject.tetogramLocalDeleted && org.telegram.messenger.tetogram.LabsSettings.mark(currentAccount)) {
+            android.text.SpannableString label = new android.text.SpannableString("d " + getString(R.string.TetogramDeleted) + " · ");
+            org.telegram.ui.Components.ColoredImageSpan icon = new org.telegram.ui.Components.ColoredImageSpan(R.drawable.msg_delete);
+            icon.setSize(dp(11)); icon.setColorKey(Theme.key_text_RedRegular);
+            label.setSpan(icon, 0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            label.setSpan(new android.text.style.ForegroundColorSpan(getThemedColor(Theme.key_text_RedRegular)), 2, label.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            currentTimeString = TextUtils.concat(label, currentTimeString);
+        }
+        if (messageObject.tetogramLocalDeleted && !org.telegram.messenger.tetogram.LabsSettings.mark(currentAccount)) {
+            currentTimeString = TextUtils.concat(getString(R.string.TetogramDeleted), " · ", currentTimeString);
+        }
         timeTextWidth = timeWidth = (int) Math.ceil(Theme.chat_timePaint.measureText(currentTimeString, 0, currentTimeString == null ? 0 : currentTimeString.length()));
+        if (messageObject.tetogramLocalDeleted && org.telegram.messenger.tetogram.LabsSettings.mark(currentAccount)) { timeWidth += dp(6); timeTextWidth += dp(6); }
         if (currentMessageObject.scheduled && currentMessageObject.messageOwner.date == 0x7FFFFFFE || currentMessageObject.notime) {
             timeWidth -= dp(8);
         }

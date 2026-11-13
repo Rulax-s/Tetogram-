@@ -132,6 +132,8 @@ import java.util.regex.Pattern;
 import me.vkryl.core.BitwiseUtils;
 
 public class MessageObject {
+    public boolean tetogramLocalDeleted;
+    public long tetogramDeletedAt, tetogramReceivedAt;
     private static final int MESSAGE_ID_RESERVED_BITS_MASK = 0x70000000;
     private static final int MESSAGE_ID_EPHEMERAL_BITS_MASK = 0x60000000;
 
@@ -10487,6 +10489,7 @@ public class MessageObject {
     }
 
     public boolean canSetReaction() {
+        if (tetogramLocalDeleted) return false;
         if (isEphemeral()) {
             return false;
         }
@@ -11944,6 +11947,7 @@ public class MessageObject {
     }
 
     public boolean canEditMessage(TLRPC.Chat chat) {
+        if (tetogramLocalDeleted) return false;
         return !isEphemeralAndNotWelcome() && canEditMessage(currentAccount, messageOwner, chat, scheduled);
     }
 
@@ -11952,12 +11956,14 @@ public class MessageObject {
     }
 
     public boolean canForwardMessage() {
+        if (tetogramLocalDeleted) return false;
         if (isQuickReply()) return false;
         if (type == TYPE_GIFT_STARS || type == TYPE_GIFT_THEME_UPDATE || type == TYPE_SUGGEST_BIRTHDAY || type == TYPE_GIFT_OFFER || type == TYPE_SHARING_OFFER || type == TYPE_COMMUNITY_CHANGED) return false;
         return !(messageOwner instanceof TLRPC.TL_message_secret) && !needDrawBluredPreview() && !isLiveLocation() && type != MessageObject.TYPE_PHONE_CALL && !isSponsored() && !messageOwner.noforwards;
     }
 
     public boolean canEditMedia() {
+        if (tetogramLocalDeleted) return false;
         if (isSecretMedia() || isEphemeralAndNotWelcome()) {
             return false;
         } else if (getMedia(messageOwner) instanceof TLRPC.TL_messageMediaPhoto) {
@@ -12089,6 +12095,7 @@ public class MessageObject {
     }
 
     public boolean canDeleteMessage(boolean inScheduleMode, TLRPC.Chat chat) {
+        if (tetogramLocalDeleted) return false;
         return (
             isStory() && messageOwner != null && messageOwner.dialog_id == UserConfig.getInstance(currentAccount).getClientUserId() ||
             eventId == 0 && sponsoredId == null && canDeleteMessage(currentAccount, inScheduleMode, messageOwner, chat) || isEphemeral()

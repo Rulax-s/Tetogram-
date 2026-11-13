@@ -103,6 +103,13 @@ jobs:
             '-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g' --max-workers=2 \
             :TMessagesProj_App:tasks --all 2>&1 | tee build-logs/tasks.log
           grep -Eq '^assembleAfatDebug([[:space:]]|$)' build-logs/tasks.log
+      - name: Test local history privacy policy
+        run: |
+          set -o pipefail
+          python3 scripts/test-history-storage.py 2>&1 | tee build-logs/history-storage-tests.log
+          ./gradlew --no-daemon --no-build-cache --console=plain \
+            '-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g' --max-workers=2 \
+            :TMessagesProj:testDebugUnitTest --stacktrace 2>&1 | tee build-logs/history-policy-tests.log
       - name: Build ARM64 debug APK
         run: |
           set -o pipefail

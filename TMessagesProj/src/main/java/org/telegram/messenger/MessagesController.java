@@ -9346,6 +9346,8 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public void deleteMessages(ArrayList<Integer> messages, ArrayList<Long> randoms, TLRPC.EncryptedChat encryptedChat, long dialogId, boolean forAll, int mode, boolean cacheOnly, long taskId, TLObject taskRequest, int topicId, boolean movedToScheduled, int movedToScheduledMessageId) {
+        if (mode == 0 && taskId == 0 && !cacheOnly && org.telegram.messenger.tetogram.LabsSettings.enabled(currentAccount))
+            org.telegram.messenger.tetogram.DeletedHistory.forgetLocalDelete(currentAccount,dialogId,messages);
         final boolean scheduled = mode == ChatActivity.MODE_SCHEDULED;
         final boolean quickReplies = mode == ChatActivity.MODE_QUICK_REPLIES;
         final boolean welcomeMessages = mode == ChatActivity.MODE_WELCOME_MESSAGES;
@@ -12243,6 +12245,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 getNotificationCenter().postNotificationName(NotificationCenter.scheduledMessagesUpdated, dialogId, objects.size(), false);
             }
 
+            final int tetogramFirstUnread = first_unread_final;
             if (!DialogObject.isEncryptedDialog(dialogId) && mode != ChatActivity.MODE_QUICK_REPLIES) {
                 int finalFirst_unread_final = first_unread_final;
                 Timer.Task t5 = Timer.start(loaderLogger, "loadReplyMessagesForMessages");
@@ -12251,11 +12254,13 @@ public class MessagesController extends BaseController implements NotificationCe
                     if (!needProcess) {
                         getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoadWithoutProcess, classGuid, resCount, isCache, isEnd, last_message_id);
                     } else {
-                        getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, objects, isCache, finalFirst_unread_final, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode);
+                        org.telegram.messenger.tetogram.DeletedHistory.deliver(currentAccount, dialogId, objects, count, max_id, load_type, isCache, isEnd, mode, threadMessageId, page ->
+                            getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, page, isCache, finalFirst_unread_final, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode));
                     }
                 }, classGuid, loaderLogger);
             } else {
-                getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, objects, isCache, first_unread_final, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode);
+                org.telegram.messenger.tetogram.DeletedHistory.deliver(currentAccount, dialogId, objects, count, max_id, load_type, isCache, isEnd, mode, threadMessageId, page ->
+                            getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, page, isCache, tetogramFirstUnread, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode));
             }
 
             if (!messagesToReload.isEmpty()) {
@@ -17636,7 +17641,7 @@ public class MessagesController extends BaseController implements NotificationCe
     protected void deleteMessagesByPush(long dialogId, ArrayList<Integer> ids, long channelId) {
         getMessagesStorage().getStorageQueue().postRunnable(() -> {
             AndroidUtilities.runOnUIThread(() -> {
-                getNotificationCenter().postNotificationName(NotificationCenter.messagesDeleted, ids, channelId, false);
+                org.telegram.messenger.tetogram.DeletedHistory.dispatchDeleted(currentAccount,channelId==0 ? 0 : -channelId,ids);
                 if (channelId == 0) {
                     for (int b = 0, size2 = ids.size(); b < size2; b++) {
                         Integer id = ids.get(b);
@@ -21211,7 +21216,7 @@ public class MessagesController extends BaseController implements NotificationCe
                     if (arrayList == null) {
                         continue;
                     }
-                    getNotificationCenter().postNotificationName(NotificationCenter.messagesDeleted, arrayList, -dialogId, false);
+                    org.telegram.messenger.tetogram.DeletedHistory.dispatchDeleted(currentAccount, dialogId, arrayList);
                     if (dialogId == 0) {
                         for (int b = 0, size2 = arrayList.size(); b < size2; b++) {
                             Integer id = arrayList.get(b);

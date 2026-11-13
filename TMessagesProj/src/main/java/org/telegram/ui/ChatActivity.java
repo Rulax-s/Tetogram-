@@ -1962,6 +1962,7 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public boolean hasDoubleTap(View view, int position) {
+            if (view instanceof ChatMessageCell && ((ChatMessageCell) view).getMessageObject() != null && ((ChatMessageCell) view).getMessageObject().tetogramLocalDeleted) return false;
             if (isQuickRepliesOrWelcomeMessagesMode()) return false;
             // A double tap over a widget is the widget's (dblclick, docs/sdk-v1.md §5.5): the reaction is outside it.
             if (view instanceof ChatMessageCell && ((ChatMessageCell) view).isWidgetPress()) return false;
@@ -3338,6 +3339,7 @@ public class ChatActivity extends BaseFragment implements
 
     @Override
     public void onFragmentDestroy() {
+        AndroidUtilities.cancelRunOnUIThread(tetogramHistoryTick);
         super.onFragmentDestroy();
         if (messageMetricsView != null) {
             messageMetricsView.finish();
@@ -3714,6 +3716,7 @@ public class ChatActivity extends BaseFragment implements
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(final int id) {
+                if (id == 46001) { presentFragment(new org.telegram.ui.tetogram.HistoryActivity(currentAccount, dialog_id)); return; }
                 // the chat's menu is also opened from the sidebar: what it does is in the chat
                 if (id != chat_menu_options && id != chat_menu_topics_panel && id != -1 && topicsPanel != null && topicsPanel.isOpen()) {
                     topicsPanel.close();
@@ -4477,6 +4480,9 @@ public class ChatActivity extends BaseFragment implements
             headerItem.lazilyAddSubItem(rename_business_link, R.drawable.msg_edit, getString(R.string.Rename));
             trackRedHeaderItem(headerItem.lazilyAddSubItem(delete_business_link, R.drawable.msg_delete, getString(R.string.Delete)), true).setColors(Theme.getColor(Theme.key_text_RedRegular), Theme.getColor(Theme.key_text_RedRegular));
         }
+        if (headerItem != null && currentEncryptedChat == null && chatMode == MODE_DEFAULT) {
+            headerItem.lazilyAddSubItem(46001, R.drawable.msg_delete, getString(R.string.TetogramDeletedMessages));
+        }
         if (ChatObject.isForum(currentChat) && isTopic && getParentLayout() != null && getParentLayout().getFragmentStack() != null && chatMode == MODE_DEFAULT) {
             boolean hasMyForum = false;
             for (int i = 0; i < getParentLayout().getFragmentStack().size(); ++i) {
@@ -5054,6 +5060,7 @@ public class ChatActivity extends BaseFragment implements
                         boolean allowReplyOnOpenTopic = canSendMessageToTopic(message);
                         if (
                             chatMode != 0 && chatMode != MODE_QUICK_REPLIES && chatMode != MODE_SUGGESTIONS && (chatMode != MODE_SAVED || threadMessageId != getUserConfig().getClientUserId()) ||
+                            message.tetogramLocalDeleted ||
                             threadMessageObjects != null && threadMessageObjects.contains(message) ||
                             getMessageType(message) == 1 && (message.getDialogId() == mergeDialogId || message.needDrawBluredPreview()) ||
                             currentEncryptedChat == null && message.getId() < 0 ||
@@ -19842,6 +19849,7 @@ public class ChatActivity extends BaseFragment implements
     }
 
     private void addToSelectedMessages(MessageObject messageObject, boolean outside, boolean last) {
+        if (messageObject != null && messageObject.tetogramLocalDeleted) return;
         int prevCantForwardCount = cantForwardMessagesCount;
         if (messageObject != null) {
             if (threadMessageObjects != null && threadMessageObjects.contains(messageObject) && !isThreadChat()) {
@@ -21372,6 +21380,8 @@ public class ChatActivity extends BaseFragment implements
             postponedScrollToLastMessageQueryIndex = 0;
         }
         ArrayList<MessageObject> messArr = (ArrayList<MessageObject>) args[2];
+        final int tetogramPageCount = messArr instanceof org.telegram.messenger.tetogram.DeletedHistory.Page
+                ? ((org.telegram.messenger.tetogram.DeletedHistory.Page) messArr).serverSize : messArr.size();
         layOutWidgetsForSideMenu(messArr);
 
         boolean universalNotify = false;
@@ -21516,7 +21526,7 @@ public class ChatActivity extends BaseFragment implements
         int fnid = (Integer) args[4];
         int last_unread_date = (Integer) args[7];
         int load_type = (Integer) args[8];
-        boolean isEnd = (Boolean) args[9];
+        boolean isEnd = (Boolean) args[9] && !(messArr instanceof org.telegram.messenger.tetogram.DeletedHistory.Page && ((org.telegram.messenger.tetogram.DeletedHistory.Page) messArr).hasMore);
         int loaded_max_id = (Integer) args[12];
         int loaded_mentions_count = chatWasReset ? 0 : (Integer) args[13];
 
@@ -21539,7 +21549,7 @@ public class ChatActivity extends BaseFragment implements
         }
 
         if (postponedScroll) {
-            if (load_type == 0 && isCache && messArr.size() < count) {
+            if (load_type == 0 && isCache && tetogramPageCount < count) {
                 postponedScrollToLastMessageQueryIndex = lastLoadIndex;
                 waitingForLoad.add(lastLoadIndex);
                 getMessagesController().loadMessages(dialog_id, mergeDialogId, false, count, 0, 0, false, 0, classGuid, 0, 0, chatMode, threadMessageId, replyMaxReadId, lastLoadIndex++, isTopic);
@@ -21771,7 +21781,7 @@ public class ChatActivity extends BaseFragment implements
             }
         }
 
-        if (!isTopic && !threadMessageAdded && isThreadChat() && (load_type == 0 && messArr.size() < count || (load_type == 2 || load_type == 3) && endReached[0])) {
+        if (!isTopic && !threadMessageAdded && isThreadChat() && (load_type == 0 && tetogramPageCount < count || (load_type == 2 || load_type == 3) && endReached[0])) {
             TLRPC.Message msg = new TLRPC.TL_message();
             if (threadMessageObject.getRepliesCount() == 0) {
                 if (isComments) {
@@ -22217,7 +22227,7 @@ public class ChatActivity extends BaseFragment implements
         }
 
         if (load_type == 1) {
-            if (!chatWasReset && messArr.size() != count && (!isCache || currentEncryptedChat != null || forwardEndReached[loadIndex])) {
+            if (!chatWasReset && tetogramPageCount != count && (!isCache || currentEncryptedChat != null || forwardEndReached[loadIndex])) {
                 forwardEndReached[loadIndex] = true;
                 if (loadIndex != 1) {
                     first_unread_id = 0;
@@ -22258,7 +22268,7 @@ public class ChatActivity extends BaseFragment implements
             }
             loadingForward = false;
         } else {
-            if (messArr.size() < count && load_type != 3 && load_type != 4) {
+            if (tetogramPageCount < count && load_type != 3 && load_type != 4) {
                 if (isCache) {
                     if (currentEncryptedChat != null || loadIndex == 1 && mergeDialogId != 0 && isEnd) {
                         endReached[loadIndex] = true;
@@ -23141,7 +23151,8 @@ public class ChatActivity extends BaseFragment implements
                 scheduleNowDialog.dismiss();
                 scheduleNowDialog = null;
             }
-            processDeletedMessages(markAsDeletedMessages, channelId, sent, !movedToScheduled);
+            processDeletedMessages(markAsDeletedMessages, channelId, sent, !movedToScheduled,
+                    args.length > 7 && args[7] instanceof java.util.HashMap ? (java.util.HashMap<Integer, MessageObject>) args[7] : null);
             if (movedToScheduled && chatMode != ChatActivity.MODE_SCHEDULED) {
                 getMessagesController().forceNoReload(dialog_id, ChatActivity.MODE_SCHEDULED);
                 openScheduledMessages(scheduledMessageId, true);
@@ -27129,6 +27140,10 @@ public class ChatActivity extends BaseFragment implements
         processDeletedMessages(markAsDeletedMessages, channelId, sent, true);
     }
     private void processDeletedMessages(ArrayList<Integer> markAsDeletedMessages, long channelId, boolean sent, boolean thanos) {
+        processDeletedMessages(markAsDeletedMessages, channelId, sent, thanos, null);
+    }
+
+    private void processDeletedMessages(ArrayList<Integer> markAsDeletedMessages, long channelId, boolean sent, boolean thanos, java.util.HashMap<Integer, MessageObject> localCopies) {
         ArrayList<Integer> removedIndexes = new ArrayList<>();
         ArrayList<Integer> thanosMessagesIndexes = new ArrayList<>();
         final int currentTime = getConnectionsManager().getCurrentTime();
@@ -27200,6 +27215,23 @@ public class ChatActivity extends BaseFragment implements
                 }
                 repliesMessagesDict.remove(mid);
                 updateReplyMessageOwners(mid, null);
+            }
+            if (obj != null && localCopies != null && org.telegram.messenger.tetogram.LabsSettings.visible(currentAccount)
+                    && !org.telegram.messenger.tetogram.LabsSettings.excluded(currentAccount, obj.getDialogId())) {
+                MessageObject local = localCopies.get(mid);
+                if (local != null && local.getDialogId() == obj.getDialogId() && currentEncryptedChat == null && chatMode == MODE_DEFAULT) {
+                    if (selectedMessagesIds[loadIndex].indexOfKey(mid) >= 0) addToSelectedMessages(obj, false);
+                    if (editingMessageObject == obj) hideFieldPanel(true);
+                    int localIndex = messages.indexOf(obj);
+                    if (localIndex >= 0) messages.set(localIndex, local);
+                    messagesDict[loadIndex].put(mid, local);
+                    if (obj.getGroupId() != 0) {
+                        MessageObject.GroupedMessages group = groupedMessagesMap.get(obj.getGroupId());
+                        if (group != null) { int i = group.messages.indexOf(obj); if(i >= 0) group.messages.set(i,local); }
+                    }
+                    if (chatAdapter != null) chatAdapter.notifyDataSetChanged(false);
+                    continue;
+                }
             }
             if (obj != null) {
                 if (obj.messageOwner.reply_to != null && !(obj.messageOwner.action instanceof TLRPC.TL_messageActionPinMessage)) {
@@ -30656,8 +30688,30 @@ public class ChatActivity extends BaseFragment implements
 
     Bulletin.Delegate bulletinDelegate;
 
+    private final Runnable tetogramHistoryTick = new Runnable() {
+        @Override public void run() { tetogramReconcileHistory(); AndroidUtilities.runOnUIThread(this,60000); }
+    };
+    public void tetogramReconcileHistory() {
+        if (chatMode != MODE_DEFAULT || currentEncryptedChat != null) return;
+        for(int i=0;i<2;i++) {
+            final int which=i;
+            final long did=i==0 ? dialog_id : mergeDialogId;
+            if(did==0)continue;
+            ArrayList<Integer> ids=new ArrayList<>();
+            for(int j=0;j<messagesDict[i].size();j++) if(messagesDict[i].valueAt(j).tetogramLocalDeleted) ids.add(messagesDict[i].keyAt(j));
+            if(ids.isEmpty())continue;
+            org.telegram.messenger.tetogram.DeletedHistory.reconcile(currentAccount,did,ids,removed-> {
+                if(getParentActivity()==null || (which==0 ? dialog_id : mergeDialogId)!=did)return;
+                if(!removed.isEmpty()) processDeletedMessages(removed,ChatObject.isChannel(currentChat) && which==0 ? -dialog_id : 0,false,false);
+                if(chatAdapter!=null)chatAdapter.notifyDataSetChanged(false);
+            });
+        }
+    }
+
     @Override
     public void onResume() {
+        AndroidUtilities.cancelRunOnUIThread(tetogramHistoryTick);
+        AndroidUtilities.runOnUIThread(tetogramHistoryTick);
         super.onResume();
         checkShowBlur(false);
         activityResumeTime = System.currentTimeMillis();
@@ -30874,6 +30928,7 @@ public class ChatActivity extends BaseFragment implements
 
     @Override
     public void onPause() {
+        AndroidUtilities.cancelRunOnUIThread(tetogramHistoryTick);
         super.onPause();
         scrolling = false;
         if (scrimPopupWindow != null) {
@@ -31669,6 +31724,10 @@ public class ChatActivity extends BaseFragment implements
         }
         if (message == null) {
             return false;
+        }
+        if (message.tetogramLocalDeleted) {
+            org.telegram.ui.tetogram.HistoryActivity.showInfo(this, message);
+            return true;
         }
         if (!single && TlUtils.isInstance(message.messageOwner.action,
                 TLRPC.TL_messageActionChangeCommunity.class,
@@ -41022,6 +41081,7 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public void didPressBotButton(ChatMessageCell cell, TL_keyboard.KeyboardButtonProto button) {
+            if (cell.getMessageObject() != null && cell.getMessageObject().tetogramLocalDeleted) return;
             if (isQuickRepliesOrWelcomeMessagesMode()) return;
 
             final TL_keyboard.TL_inlineButtonTypeUrl buttonTypeUrl = TLKeyboardHelper.getType(button, TL_keyboard.TL_inlineButtonTypeUrl.class);

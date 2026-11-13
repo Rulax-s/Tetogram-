@@ -51,3 +51,7 @@
 Не добавлены аналитика, сторонний сервер сессий или передача данных владельцу форка. Это описание внесённых изменений, а не полный аудит всего upstream и всех его внешних интеграций.
 
 Брендинг в IntroActivity, DialogsActivity и DialogStoriesCell использует TetogramWordmarkDrawable вместо графического логотипа Telegram. Анимированный знак вводного экрана заменён на T; первая страница сообщает о Telegram API и неофициальном статусе, остальные анимации и страницы сохранены.
+
+## Tetogram Labs / 0.2.0
+
+Отдельный namespace настроек и local history: [DELETED_HISTORY.md](DELETED_HISTORY.md). Основная база и storage queue Telegram сохранены; local-only MessageObject не записывается обратно в messages_v2 и не отправляется на сервер. Новые UI-настройки добавлять через ui/tetogram/LabsPage, без изменений MainTabs.

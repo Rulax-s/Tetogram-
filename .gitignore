@@ -30,3 +30,10 @@ build-logs/
 
 __pycache__/
 *.pyc
+
+# Never publish local message databases or WAL contents
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
