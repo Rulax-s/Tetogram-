@@ -38,6 +38,7 @@ public final class DeletedHistory {
             m.tetogramLocalDeleted = true;
             m.tetogramDeletedAt = snapshot.tetogramDeletedAt;
             m.tetogramReceivedAt = snapshot.tetogramReceivedAt;
+            m.tetogramHistoryOwner = snapshot.tetogramHistoryOwner;
             return m;
         }
     };
@@ -118,6 +119,7 @@ public final class DeletedHistory {
             m.unread = false; m.media_unread = false;
             MessageObject result = new MessageObject(a,m,true,false);
             result.tetogramDeletedAt = c.longValue(2); result.tetogramReceivedAt = c.longValue(3);
+            result.tetogramHistoryOwner = uid(a);
             result.tetogramLocalDeleted = true;
             return result;
         } finally { data.reuse(); }

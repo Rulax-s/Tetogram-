@@ -133,7 +133,7 @@ import me.vkryl.core.BitwiseUtils;
 
 public class MessageObject {
     public boolean tetogramLocalDeleted;
-    public long tetogramDeletedAt, tetogramReceivedAt;
+    public long tetogramDeletedAt, tetogramReceivedAt, tetogramHistoryOwner;
     private static final int MESSAGE_ID_RESERVED_BITS_MASK = 0x70000000;
     private static final int MESSAGE_ID_EPHEMERAL_BITS_MASK = 0x60000000;
 

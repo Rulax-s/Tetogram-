@@ -60,6 +60,11 @@ public class DeletedReplyPolicyTest {
             assertEquals(0,e.offset);assertEquals("answer",input);
         }
     }
+    @Test public void reusedAccountSlotCannotSendPreviousUsersQuote() {
+        assertTrue(DeletedReplyPolicy.sameOwner(123,123));
+        assertFalse(DeletedReplyPolicy.sameOwner(123,456));
+        assertFalse(DeletedReplyPolicy.sameOwner(0,456));
+    }
     @Test public void accountDialogSecretAndEphemeralBoundaries() {
         assertTrue(DeletedReplyPolicy.sameContext(1,-50,1,-50,false,false));
         assertFalse(DeletedReplyPolicy.sameContext(2,-50,1,-50,false,false));

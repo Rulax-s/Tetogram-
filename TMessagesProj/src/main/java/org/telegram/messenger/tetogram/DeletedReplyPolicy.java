@@ -50,6 +50,7 @@ public final class DeletedReplyPolicy {
         return result;
     }
     public static boolean shouldConvert(boolean deleted,boolean retry) { return deleted && !retry; }
+    public static boolean sameOwner(long owner,long currentUser) { return owner!=0 && owner==currentUser; }
     public static boolean sameContext(int account,long dialog,int sourceAccount,long sourceDialog,boolean ephemeral,boolean secret) {
         return account==sourceAccount && dialog==sourceDialog && !ephemeral && !secret;
     }

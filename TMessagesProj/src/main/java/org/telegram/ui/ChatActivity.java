@@ -46569,6 +46569,7 @@ public class ChatActivity extends BaseFragment implements
 
     private boolean canReplyToTetogramDeleted(MessageObject message) {
         return message != null && message.currentAccount == currentAccount && message.getDialogId() == dialog_id
+                && org.telegram.messenger.tetogram.DeletedReplyPolicy.sameOwner(message.tetogramHistoryOwner, getUserConfig().getClientUserId())
                 && chatMode == MODE_DEFAULT && currentEncryptedChat == null && !message.isEphemeral()
                 && (!ChatObject.isForum(currentChat) || canSendMessageToTopic(message)) && (currentChat == null ||
                 !ChatObject.isNotInChat(currentChat) && ChatObject.canSendMessages(currentChat)

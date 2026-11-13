@@ -4566,7 +4566,8 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
 
         int tetogramReplyTopic = 0;
         if (replyToMsg != null && org.telegram.messenger.tetogram.DeletedReplyPolicy.shouldConvert(replyToMsg.tetogramLocalDeleted, retryMessageObject != null)) {
-            if (!org.telegram.messenger.tetogram.DeletedReplyPolicy.sameContext(currentAccount, peer,
+            if (!org.telegram.messenger.tetogram.DeletedReplyPolicy.sameOwner(replyToMsg.tetogramHistoryOwner, getUserConfig().getClientUserId())
+                    || !org.telegram.messenger.tetogram.DeletedReplyPolicy.sameContext(currentAccount, peer,
                     replyToMsg.currentAccount, replyToMsg.getDialogId(), replyToMsg.isEphemeral() || ephemeralReceiverBotId != 0,
                     DialogObject.isEncryptedDialog(peer))) {
                 AndroidUtilities.runOnUIThread(() -> android.widget.Toast.makeText(ApplicationLoader.applicationContext,
