@@ -26,7 +26,7 @@
 
 1. На https://my.telegram.org откройте **API development tools**, создайте своё приложение и получите `api_id`/`api_hash`. Не используйте значения официального клиента.
 2. В https://console.firebase.google.com создайте собственный проект, зарегистрируйте Android-приложение **org.tetogram.messenger**, настройте Cloud Messaging и скачайте `google-services.json`. Не переименовывайте package_name внутри чужого JSON: это не создаёт Firebase-приложение.
-3. Создайте на GitHub [fork DrKLO/Telegram](https://github.com/DrKLO/Telegram/fork) с именем **Tetogram**. Это сохранит полную upstream-историю на сервере без её загрузки на телефон. Подключённый GitHub-аккаунт обнаружен, но доступных репозиториев подключение не вернуло. GitHub CLI и локальная авторизация push не обнаружены. Доступный коннектор не предоставляет создания репозитория или настройки Secrets.
+3. Создайте на GitHub [fork DrKLO/Telegram](https://github.com/DrKLO/Telegram/fork) с именем **Tetogram-**. Это сохранит полную upstream-историю на сервере без её загрузки на телефон. Репозиторий уже создан владельцем; Secrets настроены владельцем в GitHub. Их значения нельзя получить через API, проверка выполняется внутри CI. GitHub CLI установлен, но не авторизован; публикация выполняется через подключение GitHub.
 4. В репозитории откройте **Settings → Secrets and variables → Actions → New repository secret** и добавьте:
 
 | Secret | Требование |
@@ -60,16 +60,16 @@ base64 -w 0 tetogram-debug.keystore > /tmp/tetogram-debug-key.base64
 
 ## Публикация локального репозитория
 
-Рабочая директория: `~/projects/Tetogram`, ветка `main`. Remote `upstream` указывает на DrKLO/Telegram, `origin` подготовлен для `Rulax-s/Tetogram`. GitHub API для этого пути вернул 404: репозиторий пока отсутствует либо недоступен подключению. Сначала проверьте `git status` и подмодули, затем выполните авторизованный push в созданный fork своим обычным способом:
+Рабочая директория: `~/projects/Tetogram`, ветка `master`. Remote `upstream` указывает на DrKLO/Telegram, `origin` подготовлен для `Rulax-s/Tetogram-`. Репозиторий доступен через подключение GitHub с правом записи; default branch — master. Сначала проверьте `git status` и подмодули, затем выполните авторизованный push в созданный fork своим обычным способом:
 
 ```bash
 cd ~/projects/Tetogram
 git remote -v
-# origin уже подготовлен: https://github.com/Rulax-s/Tetogram.git
-git push -u origin main
+# origin уже подготовлен: https://github.com/Rulax-s/Tetogram-.git
+git push -u origin master
 ```
 
-После push установите ветку `main` как default branch в настройках fork и разрешите Actions в его вкладке Actions. При публикации в совершенно пустой репозиторий неглубокая история может быть отклонена сервером; fork уже содержит родительский commit и избегает этой проблемы.
+После push установите ветку `master` как default branch в настройках fork и разрешите Actions в его вкладке Actions. При публикации в совершенно пустой репозиторий неглубокая история может быть отклонена сервером; fork уже содержит родительский commit и избегает этой проблемы.
 
 Нужна собственная GitHub-авторизация с правом записи исходников и workflows. Не помещайте токен в URL remote или в файлы проекта. Если push запросит пароль, используйте штатную GitHub-аутентификацию/credential manager; не отправляйте токен в переписку. Для подключения репозитория к Codex разрешите GitHub-приложению доступ к Tetogram.
 

@@ -19,7 +19,7 @@ def main():
     if not encoded:
         raise ValueError('Set GOOGLE_SERVICES_JSON_BASE64 repository secret.')
     try:
-        raw = base64.b64decode(encoded, validate=True)
+        raw = base64.b64decode(''.join(encoded.split()), validate=True)
         config = json.loads(raw)
         clients = config['client']
         packages = [c['client_info']['android_client_info']['package_name'] for c in clients]
@@ -44,7 +44,7 @@ def main():
         key_path.parent.mkdir(parents=True, exist_ok=True)
         key_path.write_bytes(key_bytes)
         key_path.chmod(0o600)
-    print('Owner configuration validated. Secret values were not printed.')
+    print('Owner configuration validated; Firebase package matches org.tetogram.messenger. Secret values were not printed.')
 
 
 if __name__ == '__main__':
