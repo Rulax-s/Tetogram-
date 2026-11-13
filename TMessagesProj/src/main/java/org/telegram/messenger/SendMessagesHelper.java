@@ -4451,11 +4451,11 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                 ? sendMessageParams.replyQuote.message : sendMessageParams.replyToMsg;
         if (!sendMessageParams.tetogramReplyChecked && sendMessageParams.retryMessageObject == null
                 && replyCandidate != null && !replyCandidate.tetogramLocalDeleted && !replyCandidate.isEphemeral()
-                && replyCandidate.currentAccount == currentAccount && replyCandidate.getDialogId() == sendMessageParams.peer
-                && !DialogObject.isEncryptedDialog(sendMessageParams.peer)
+                && replyCandidate.currentAccount == currentAccount && replyCandidate.getDialogId() != 0
+                && !DialogObject.isEncryptedDialog(replyCandidate.getDialogId()) && !DialogObject.isEncryptedDialog(sendMessageParams.peer)
                 && org.telegram.messenger.tetogram.LabsSettings.enabled(currentAccount)) {
             sendMessageParams.tetogramReplyChecked = true;
-            org.telegram.messenger.tetogram.DeletedHistory.find(currentAccount, sendMessageParams.peer, replyCandidate.getId(), archived -> {
+            org.telegram.messenger.tetogram.DeletedHistory.find(currentAccount, replyCandidate.getDialogId(), replyCandidate.getId(), archived -> {
                 if (archived != null) {
                     sendMessageParams.replyToMsg = archived;
                     sendMessageParams.replyQuote = null;
