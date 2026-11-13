@@ -51,3 +51,15 @@ Actions → Tetogram Android APK → Run workflow → master, либо:
 GH_CONFIG_DIR=/data/data/com.termux/files/home/.config/gh \
   gh workflow run android-build.yml --repo Rulax-s/Tetogram- --ref master
 ```
+
+## 0.2.0: финальная экспериментальная сборка
+
+- [CI 43435783620 — success](https://github.com/Rulax-s/Tetogram-/actions/runs/43435783620), исходный commit `df279bb6a302416a720447705d4e96d684510ce1`.
+- [Скачать артефакт APK](https://github.com/Rulax-s/Tetogram-/actions/runs/43435783620/artifacts/14044991271), доступен до 2026-11-27. Метаданные/контрольная сумма — APK-0.2.0.json.
+- 11 SQLite contract tests: PASS. JUnit: HistoryPolicyTest (4), HistoryPagePolicyTest (4), фактические compileDebugUnitTestJavaWithJavac/testDebugUnitTest — PASS.
+- ARM64 assembleAfatDebug — BUILD SUCCESSFUL (14m 10s). Version 0.2.0, package, label, icon, 6 provider authorities, custom permissions, ELF64/AArch64 и apksigner v1/v2 — PASS.
+- Публичный сертификат SHA-256 совпадает с постоянным локальным ключом: `147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d`.
+- Логи сохранены в build-logs/run-43435783620; APK — artifacts/run-43435783620/Tetogram-debug.apk. CI-сумма, скачанный файл и отдельная копия /sdcard/Download/Tetogram-0.2.0-debug.apk сверены. ELF заголовки повторно проверены локально.
+- SQL reopen не подтверждает Android background lifecycle. Все 12 runtime-сценариев новой функции остаются непроверенными; см. MANUAL_TESTING.md. Реальные аккаунты агентом не использовались.
+- Старый приватный ключ 0.1.0 утрачен: обновление установленной 0.1.0 поверх новым сертификатом невозможно. Ни приложение, ни пользовательские данные не удалялись. Секреты нового постоянного ключа настроены в CI и не коммитились.
+- История редактирования недоступна; файлы медиа не дублируются в архив, поэтому доступность вложений зависит от штатного кеша. Полный список ограничений и изменённых файлов — DELETED_HISTORY.md.

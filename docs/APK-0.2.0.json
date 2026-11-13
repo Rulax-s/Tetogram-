@@ -1,0 +1,21 @@
+{
+  "run_id": 43435783620,
+  "source_commit": "df279bb6a302416a720447705d4e96d684510ce1",
+  "file_name": "Tetogram-debug.apk",
+  "version": "0.2.0",
+  "application_id": "org.tetogram.messenger",
+  "size_bytes": 70545497,
+  "sha256": "c809d81d8816d20e853d67eaf82143649a8c32340f6ce44c953ecdac5d065099",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43435783620/artifacts/14044991271",
+  "artifact_expires_at": "2026-11-27T14:01:19Z",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "signature_certificate_sha256": "147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d",
+  "runtime_tested": false,
+  "update_compatible_with_0_1_0": false,
+  "device_copy": "/sdcard/Download/Tetogram-0.2.0-debug.apk"
+}

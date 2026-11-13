@@ -1,6 +1,6 @@
 # Tetogram Labs и локальные удалённые сообщения (0.2.0)
 
-Статус: код 0.2.0 прошёл SQL contract tests, JUnit и Android-сборку в CI 43427945803. Далее настраивается постоянная подпись; проверки на устройстве всё ещё требуются. Версия 0.1.0 подтверждена владельцем как установленная и работающая; это не подтверждает новую функцию.
+Статус: финальный commit df279bb6a302416a720447705d4e96d684510ce1 прошёл 11 SQL contract tests, 8 JUnit tests и Android-сборку в CI 43435783620. APK проверен и подписан постоянным сертификатом 0.2.0. Проверки на устройстве всё ещё требуются. Версия 0.1.0 подтверждена владельцем как установленная и работающая; это не подтверждает новую функцию.
 
 ## Аудит перед изменениями
 
@@ -57,3 +57,46 @@
 - MessageObject, ChatActivity, ChatMessageCell: флаги overlay, native bubbles/пагинация, безопасные действия и красная отметка.
 
 Для обновления установленной 0.1.0 есть отдельное ограничение подписи: старый приватный ключ не сохранён владельцем. Приложение/данные агентом не удалялись. Новая стабильная тестовая подпись описана в BUILD.md.
+
+## Изменённые файлы относительно исходной master e77a801
+
+- `.github/workflows/android-build.yml`
+- `.gitignore`
+- `README.md`
+- `TMessagesProj/build.gradle`
+- `TMessagesProj/src/main/AndroidManifest.xml`
+- `TMessagesProj/src/main/java/org/telegram/messenger/MessageObject.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/MessagesController.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/MessagesStorage.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/SendMessagesHelper.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/DeletedHistory.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/HistoryPagePolicy.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/HistoryPolicy.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/LabsSettings.java`
+- `TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java`
+- `TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java`
+- `TMessagesProj/src/main/java/org/telegram/ui/SettingsActivity.java`
+- `TMessagesProj/src/main/java/org/telegram/ui/tetogram/ExcludedChatsActivity.java`
+- `TMessagesProj/src/main/java/org/telegram/ui/tetogram/HistoryActivity.java`
+- `TMessagesProj/src/main/java/org/telegram/ui/tetogram/LabsActivity.java`
+- `TMessagesProj/src/main/java/org/telegram/ui/tetogram/LabsPage.java`
+- `TMessagesProj/src/main/res/drawable/tetogram_labs.xml`
+- `TMessagesProj/src/main/res/values-ru/strings.xml`
+- `TMessagesProj/src/main/res/values/strings.xml`
+- `TMessagesProj/src/main/res/xml/tetogram_backup_rules.xml`
+- `TMessagesProj/src/main/res/xml/tetogram_data_extraction_rules.xml`
+- `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/HistoryPagePolicyTest.java`
+- `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/HistoryPolicyTest.java`
+- `TMessagesProj_App/build.gradle`
+- `docs/ARCHITECTURE.md`
+- `docs/BUILD.md`
+- `docs/CHANGELOG.md`
+- `docs/CUSTOMIZATION.md`
+- `docs/DELETED_HISTORY.md`
+- `gradle.properties`
+- `gradle/tetogram-config.gradle`
+- `scripts/check-project.py`
+- `scripts/prepare-ci.py`
+- `scripts/test-history-storage.py`
+- `scripts/verify-apk.py`
+- `tetogram.properties.example`
