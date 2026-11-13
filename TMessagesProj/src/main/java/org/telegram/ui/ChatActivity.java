@@ -31376,6 +31376,21 @@ public class ChatActivity extends BaseFragment implements
                 }
             }
         }
+        if (draftReplyMessage == null && draftMessage != null && draftMessage.reply_to != null
+                && draftMessage.reply_to.reply_to_msg_id > 0 && currentEncryptedChat == null
+                && !MessageObject.isEphemeralMessageId(draftMessage.reply_to.reply_to_msg_id)
+                && org.telegram.messenger.tetogram.LabsSettings.enabled(currentAccount)) {
+            TLRPC.DraftMessage expectedDraft = draftMessage;
+            MessageObject previousReply = replyingMessageObject;
+            long restoringDialog = dialog_id;
+            long restoringThread = topicId != null ? topicId : threadMessageId;
+            org.telegram.messenger.tetogram.DeletedHistory.find(currentAccount, restoringDialog, draftMessage.reply_to.reply_to_msg_id, archived -> {
+                if (archived != null && dialog_id == restoringDialog && replyingMessageObject == previousReply
+                        && getMediaDataController().getDraft(restoringDialog, restoringThread) == expectedDraft && getParentActivity() != null) {
+                    showFieldPanelForReply(archived);
+                }
+            });
+        }
     }
 
     private void checkNewMessagesOnQuoteEdit(boolean update) {

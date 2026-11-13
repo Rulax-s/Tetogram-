@@ -8071,6 +8071,7 @@ public class MediaDataController extends BaseController {
                     org.telegram.messenger.tetogram.DeletedHistory.find(currentAccount, dialogId, replyToMessage.id, archived -> {
                         if (getDraft(dialogId, threadId) != expectedDraft) return;
                         if (archived != null) {
+                            forgetDeletedDraftPayload(dialogId, threadId, archived.getId());
                             if (threadId > 0 && ChatObject.isForum(chat)) {
                                 TLRPC.TL_inputReplyToMessage root = new TLRPC.TL_inputReplyToMessage();
                                 root.reply_to_msg_id = (int)threadId;
@@ -8088,6 +8089,16 @@ public class MediaDataController extends BaseController {
             getMessagesController().sortDialogs(null);
             getNotificationCenter().postNotificationName(NotificationCenter.dialogsNeedReload);
         }
+    }
+
+    /** Keep the native draft's reply ID, but leave deleted text solely in its existing archive. */
+    private void forgetDeletedDraftPayload(long dialogId,long threadId,int messageId) {
+        LongSparseArray<TLRPC.Message> replies = draftMessages.get(dialogId);
+        TLRPC.Message cached = replies == null ? null : replies.get(threadId);
+        if (cached == null || cached.id != messageId) return;
+        replies.remove(threadId);
+        if (replies.size() == 0) draftMessages.remove(dialogId);
+        draftPreferences.edit().remove(threadId == 0 ? "r_" + dialogId : "rt_" + dialogId + "_" + threadId).apply();
     }
 
     private static boolean suggestedPostEquals(TLRPC.SuggestedPost a, TLRPC.SuggestedPost b) {

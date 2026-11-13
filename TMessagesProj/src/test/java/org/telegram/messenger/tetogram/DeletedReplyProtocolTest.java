@@ -17,7 +17,7 @@ public class DeletedReplyProtocolTest {
         TLRPC.TL_messageEntityCustomEmoji emoji=new TLRPC.TL_messageEntityCustomEmoji();emoji.offset=0;emoji.length=2;emoji.document_id=12345;entities.add(emoji);
         ArrayList<TLRPC.MessageEntity> shifted=DeletedReplyProtocol.shiftEntities(entities,result.entityShift);
         assertEquals("bold",result.text.substring(shifted.get(0).offset,shifted.get(0).offset+shifted.get(0).length));
-        assertEquals(link.url,shifted.get(1).url);assertEquals(12345L,shifted.get(2).document_id);
+        assertEquals(link.url,shifted.get(1).url);assertEquals(12345L,((TLRPC.TL_messageEntityCustomEmoji)shifted.get(2)).document_id);
         assertTrue(shifted.get(0) instanceof TLRPC.TL_messageEntityBold);assertTrue(shifted.get(2) instanceof TLRPC.TL_messageEntityCustomEmoji);
         assertEquals(2,bold.offset);assertEquals(7,link.offset);assertEquals(0,emoji.offset);assertNotSame(emoji,shifted.get(2));
     }
