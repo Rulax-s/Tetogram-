@@ -43,3 +43,37 @@ Overlay больше не пересортировывает весь исход
 - [ ] Повторить в группе/канале, с двумя аккаунтами и одинаковыми IDs разных чатов; проверить replies, send, forward, уведомления, папки, secret chat, Mini Apps.
 
 История редактирования в базовой master 0.2.0 отсутствовала и была явно недоступна; это исправление её не удаляет и не объявляет реализованной.
+
+## Результат CI
+
+[Run 43443980427 — success](https://github.com/Rulax-s/Tetogram-/actions/runs/43443980427), commit `b0a29bea5f445faf6aac068b0f753b23ccde7bd8`. 13 SQLite tests и JUnit task с 24 тестами (4 HistoryPolicy, 4 HistoryPagePolicy, 7 DeletedRowPolicy, 9 MessageTimelinePolicy) пройдены. Фактические compileDebugUnitTestJavaWithJavac/testDebugUnitTest выполнены, не NO-SOURCE. ARM64 assembleAfatDebug — BUILD SUCCESSFUL, 14m 47s. Проверка package/version/icon/providers/permissions/native ELF/signature — PASS.
+
+Сертификат SHA-256 `147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d` совпадает с ранее выданной постоянной 0.2.0. Secrets не менялись. Ветка master опубликована обычным push. Установка обновления и реальное воспроизведение на Android ещё не выполнялись агентом.
+
+[Артефакт APK](https://github.com/Rulax-s/Tetogram-/actions/runs/43443980427/artifacts/14048850926), срок хранения до 2026-11-27. Метаданные и checksum — APK-0.2.1.json.
+
+## Изменённые файлы исправления
+
+- `README.md`
+- `TMessagesProj/src/main/java/org/telegram/messenger/MessagesStorage.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/DeletedHistory.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/DeletedRowPolicy.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/HistoryPagePolicy.java`
+- `TMessagesProj/src/main/java/org/telegram/messenger/tetogram/MessageTimelinePolicy.java`
+- `TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java`
+- `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/DeletedRowPolicyTest.java`
+- `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/MessageTimelinePolicyTest.java`
+- `docs/APK-0.2.1.json`
+- `docs/ARCHITECTURE.md`
+- `docs/BUILD.md`
+- `docs/CHANGELOG.md`
+- `docs/CUSTOMIZATION.md`
+- `docs/DELETED_HISTORY.md`
+- `docs/MANUAL_TESTING.md`
+- `docs/MESSAGE_INTEGRITY.md`
+- `docs/TROUBLESHOOTING.md`
+- `docs/VALIDATION.md`
+- `gradle.properties`
+- `scripts/check-project.py`
+- `scripts/test-history-storage.py`
+- `scripts/verify-apk.py`

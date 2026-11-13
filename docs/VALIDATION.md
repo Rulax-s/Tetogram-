@@ -63,3 +63,14 @@ GH_CONFIG_DIR=/data/data/com.termux/files/home/.config/gh \
 - SQL reopen не подтверждает Android background lifecycle. Все 12 runtime-сценариев новой функции остаются непроверенными; см. MANUAL_TESTING.md. Реальные аккаунты агентом не использовались.
 - Старый приватный ключ 0.1.0 утрачен: обновление установленной 0.1.0 поверх новым сертификатом невозможно. Ни приложение, ни пользовательские данные не удалялись. Секреты нового постоянного ключа настроены в CI и не коммитились.
 - История редактирования недоступна; файлы медиа не дублируются в архив, поэтому доступность вложений зависит от штатного кеша. Полный список ограничений и изменённых файлов — DELETED_HISTORY.md.
+
+## 0.2.1: исправление критических дефектов отображения
+
+- [CI 43443980427 — success](https://github.com/Rulax-s/Tetogram-/actions/runs/43443980427), APK source `b0a29bea5f445faf6aac068b0f753b23ccde7bd8`.
+- 13 SQLite contract tests, JUnit task с 24 тестами — PASS; compileDebugUnitTestJavaWithJavac и testDebugUnitTest реально выполнены. Тесты модели не являются RecyclerView/Activity instrumentation.
+- ARM64 assembleAfatDebug — BUILD SUCCESSFUL, 14m 47s. APK package/version 0.2.1/label/icon/providers/permissions/ELF/signature — PASS.
+- Скачанный APK и отдельная копия `/sdcard/Download/Tetogram-0.2.1-debug.apk` сверены с CI sha256; source commit проверен. Четыре ELF64/AArch64-библиотеки повторно проверены локально.
+- Сертификат совпал с метаданными ранее выданной 0.2.0. Package и DB-схема сохранены, версия повышена; реальная установка обновления на Android агентом не выполнялась.
+- Артефакт, размер, SHA-256, сертификат: APK-0.2.1.json. Логи: build-logs/run-43443980427.
+- Причины обеих ошибок, production policies, изменённые файлы и оставшиеся Android-регрессии — MESSAGE_INTEGRITY.md. Авторизация, отправка, уведомления, Mini Apps и другие runtime-функции на этой сборке агентом не проверялись.
+- GitHub Secrets, Android-настройки и пользовательские данные не менялись, force push не выполнялся. Диагностическое логирование сообщений/сессий не добавлялось.

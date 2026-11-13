@@ -55,3 +55,9 @@
 ## Tetogram Labs / 0.2.0
 
 Отдельный namespace настроек и local history: [DELETED_HISTORY.md](DELETED_HISTORY.md). Основная база и storage queue Telegram сохранены; local-only MessageObject не записывается обратно в messages_v2 и не отправляется на сервер. Новые UI-настройки добавлять через ui/tetogram/LabsPage, без изменений MainTabs.
+
+## 0.2.1: идентичность строк и mixed timeline
+
+DeletedRowPolicy проверяет account/dialog/message и создаёт независимую строку из notification payload. DeletedHistory.copyForRow переносит native stable params через MessageObject.copyStableParams. При любой будущей замене MessageObject сохраняйте adapter stable ID; не используйте mid или 0 как общий RecyclerView ID.
+
+MessageTimelinePolicy содержит выделенное без изменения семантики правило сортировки MessagesStorage. Packed ephemeral IDs не принадлежат обычной серверной последовательности. HistoryPagePolicy.merge сохраняет порядок исходной страницы и не включает ephemeral/pending в выбор regular cursor. Не заменяйте эти механизмы общей сортировкой по ID или timestamp. Разбор причин и регрессии — MESSAGE_INTEGRITY.md.
