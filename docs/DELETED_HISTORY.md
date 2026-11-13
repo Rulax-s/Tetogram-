@@ -88,11 +88,14 @@
 - `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/HistoryPagePolicyTest.java`
 - `TMessagesProj/src/test/java/org/telegram/messenger/tetogram/HistoryPolicyTest.java`
 - `TMessagesProj_App/build.gradle`
+- `docs/APK-0.2.0.json`
 - `docs/ARCHITECTURE.md`
 - `docs/BUILD.md`
 - `docs/CHANGELOG.md`
 - `docs/CUSTOMIZATION.md`
 - `docs/DELETED_HISTORY.md`
+- `docs/MANUAL_TESTING.md`
+- `docs/VALIDATION.md`
 - `gradle.properties`
 - `gradle/tetogram-config.gradle`
 - `scripts/check-project.py`
