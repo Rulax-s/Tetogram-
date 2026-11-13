@@ -4588,12 +4588,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
             org.telegram.messenger.tetogram.DeletedReplyPolicy.Result quoted = org.telegram.messenger.tetogram.DeletedReplyPolicy.prepare(
                     name, source, textReply ? message : caption, !DialogObject.isUserDialog(peer));
             if (textReply) message = quoted.text; else caption = quoted.text;
-            entities = org.telegram.messenger.tetogram.DeletedReplyPolicy.shiftEntities(entities,quoted.entityShift,
-                    new org.telegram.messenger.tetogram.DeletedReplyPolicy.Entity<TLRPC.MessageEntity>() {
-                        public TLRPC.MessageEntity copy(TLRPC.MessageEntity e) { return TLObject.deepCopy(e, TLRPC.MessageEntity::TLdeserialize); }
-                        public int offset(TLRPC.MessageEntity e) { return e.offset; }
-                        public void offset(TLRPC.MessageEntity e,int value) { e.offset=value; }
-                    });
+            entities = org.telegram.messenger.tetogram.DeletedReplyProtocol.shiftEntities(entities,quoted.entityShift);
             if (replyToTopMsg != null && replyToTopMsg.currentAccount == currentAccount && replyToTopMsg.getDialogId() == peer
                     && replyToTopMsg.getId() != replyToMsg.getId() && !replyToTopMsg.tetogramLocalDeleted && !replyToTopMsg.isEphemeral()) {
                 replyToMsg = replyToTopMsg;
@@ -5151,11 +5146,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                 newMsg.replyStory = replyToStoryItem;
                 newMsg.flags |= TLRPC.MESSAGE_FLAG_REPLY;
             } else if (tetogramReplyTopic > 0) {
-                newMsg.reply_to = new TLRPC.TL_messageReplyHeader();
-                newMsg.reply_to.reply_to_msg_id = tetogramReplyTopic;
-                newMsg.reply_to.reply_to_top_id = tetogramReplyTopic;
-                newMsg.reply_to.forum_topic = true;
-                newMsg.reply_to.flags |= 2 | 8 | 16;
+                newMsg.reply_to = org.telegram.messenger.tetogram.DeletedReplyProtocol.forumReply(tetogramReplyTopic);
                 newMsg.flags |= TLRPC.MESSAGE_FLAG_REPLY;
             } else if (replyToMsg != null && (replyToTopMsg == null || replyToMsg != replyToTopMsg || replyToTopMsg.getId() != 1)) {
                 newMsg.reply_to = new TLRPC.TL_messageReplyHeader();
