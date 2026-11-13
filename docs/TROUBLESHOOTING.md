@@ -2,7 +2,7 @@
 
 ## Текущее состояние
 
-APK не получена. На телефоне нет JDK, Android SDK/NDK и Android Studio; они намеренно не устанавливались. Cloud workflow ещё не запускался: нет доступного репозитория Tetogram с настроенными Secrets. Нельзя считать рабочими авторизацию, чаты, push, звонки и другие runtime-функции до реальной проверки.
+APK не получена. На телефоне нет JDK, Android SDK/NDK и Android Studio; они намеренно не устанавливались. Cloud workflow опубликован в Rulax-s/Tetogram- и запущен. GitHub заблокировал выделение runner по billing issue аккаунта; необходимые Secret names присутствуют, но значения и Firebase package пока не проверены в CI. Нельзя считать рабочими авторизацию, чаты, push, звонки и другие runtime-функции до реальной проверки.
 
 ## Сеть и подмодули
 
@@ -41,3 +41,9 @@ Google Services plugin применяется к APK-модулю: он гене
 При `INSTALL_FAILED_UPDATE_INCOMPATIBLE` сравните подписи. Новый debug-ключ не обновляет старую установку. Используйте сохранённый DEBUG_KEYSTORE_BASE64; не удаляйте приложение автоматически, потому что удалятся сессии и локальные данные.
 
 При ошибке установки рядом с Telegram проверьте package, resolved authorities, custom permissions и accountType из merged manifest и ресурсов. Совпадающие Java class names и обработчики tg:// не означают одинаковый package. Реальную совместную установку всё равно нужно проверить.
+
+## GitHub account locked due to a billing issue
+
+Run: https://github.com/Rulax-s/Tetogram-/actions/runs/43408428079 . GitHub не запустил даже source-checks; build помечен skipped. Отсутствие логов (`log not found`) здесь объясняется отсутствием runner. Это не ошибка Gradle и не повод отключать компоненты или менять API-данные. Владелец должен устранить указанную GitHub проблему в https://github.com/settings/billing . После этого повторить workflow; дальнейшие ошибки исследовать уже по реальным логам шагов.
+
+Проверка GitHub-подключения дала 403 на создание blob несмотря на права аккаунта в repo metadata. Действующая CLI-авторизация нашлась в конфигурации Termux; её использование через GH_CONFIG_DIR позволило выполнить обычный Git push без копирования токена и без изменения глобальных Git credentials.

@@ -24,6 +24,8 @@
 
 ## Действия владельца
 
+В Rulax-s/Tetogram- репозиторий и три обязательных Secret names уже настроены. Текущий блокер — GitHub account billing lock, см. VALIDATION.md; повторно получать API-данные для устранения этой ошибки не требуется.
+
 1. На https://my.telegram.org откройте **API development tools**, создайте своё приложение и получите `api_id`/`api_hash`. Не используйте значения официального клиента.
 2. В https://console.firebase.google.com создайте собственный проект, зарегистрируйте Android-приложение **org.tetogram.messenger**, настройте Cloud Messaging и скачайте `google-services.json`. Не переименовывайте package_name внутри чужого JSON: это не создаёт Firebase-приложение.
 3. Создайте на GitHub [fork DrKLO/Telegram](https://github.com/DrKLO/Telegram/fork) с именем **Tetogram-**. Это сохранит полную upstream-историю на сервере без её загрузки на телефон. Репозиторий уже создан владельцем; Secrets настроены владельцем в GitHub. Их значения нельзя получить через API, проверка выполняется внутри CI. Обнаружена действующая авторизация GitHub CLI в конфигурации Termux; Debian использует её через GH_CONFIG_DIR без копирования токена. Подключение GitHub доступно для чтения, но попытка записи через него вернула 403; публикация выполняется штатным CLI.
