@@ -14,6 +14,24 @@ public final class DeletedReplyProtocol {
             public void offset(TLRPC.MessageEntity e,int value) { e.offset=value; }
         });
     }
+    /** Prefix ranges are disjoint from the user's entities: no quote/code nesting is introduced. */
+    public static ArrayList<TLRPC.MessageEntity> formatEntities(ArrayList<TLRPC.MessageEntity> entities,DeletedReplyPolicy.Result result) {
+        ArrayList<TLRPC.MessageEntity> formatted=shiftEntities(entities,result.entityShift);
+        if(formatted==null)formatted=new ArrayList<>();
+        if(result.authorLength>0) {
+            TLRPC.TL_messageEntityBold author=new TLRPC.TL_messageEntityBold();
+            author.offset=0;
+            author.length=result.authorLength;
+            formatted.add(author);
+        }
+        TLRPC.TL_messageEntityBlockquote quote=new TLRPC.TL_messageEntityBlockquote();
+        quote.offset=result.quoteOffset;
+        quote.length=result.quoteLength;
+        quote.collapsed=false;
+        formatted.add(quote);
+        java.util.Collections.sort(formatted,(a,b)->a.offset==b.offset ? Integer.compare(b.length,a.length) : Integer.compare(a.offset,b.offset));
+        return formatted;
+    }
     public static TLRPC.TL_messageReplyHeader forumReply(int rootId) {
         if(rootId<=0 || MessageTimelinePolicy.ephemeral(rootId))throw new IllegalArgumentException("Invalid forum root");
         if(rootId==1)return null; // Native Telegram routes General implicitly; message 1 need not exist.

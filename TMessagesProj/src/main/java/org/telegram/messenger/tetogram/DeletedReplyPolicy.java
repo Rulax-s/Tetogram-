@@ -6,12 +6,35 @@ public final class DeletedReplyPolicy {
     private DeletedReplyPolicy() {}
     public static final class Result {
         public final String text;
-        public final int entityShift;
-        Result(String text, int shift) { this.text=text;entityShift=shift; }
+        public final int entityShift, authorLength, quoteOffset, quoteLength;
+        Result(String text,int shift,int authorLength,int quoteOffset,int quoteLength) {
+            this.text=text;entityShift=shift;this.authorLength=authorLength;
+            this.quoteOffset=quoteOffset;this.quoteLength=quoteLength;
+        }
     }
     public static Result prepare(String author,String source,String body,boolean group) {
-        String prefix=(group ? author.replace('\n',' ').replace('\r',' ')+"\n" : "")+"> "+shortify(source,20);
-        return body==null || body.isEmpty() ? new Result(prefix,0) : new Result(prefix+"\n\n"+body,prefix.length()+2);
+        String name=group ? trimWhitespace(author.replace('\n',' ').replace('\r',' ')) : "";
+        String quote=trimWhitespace(shortify(source==null ? "" : source.replace("\r\n","\n").replace('\r','\n'),20));
+        if(quote.isEmpty())quote="…"; // a valid visible range, including whitespace-only media captions
+        String authorLine=name.isEmpty() ? "" : name+"\n";
+        String prefix=authorLine+quote;
+        boolean hasBody=body!=null && !body.isEmpty();
+        return new Result(hasBody ? prefix+"\n\n"+body : prefix,hasBody ? prefix.length()+2 : 0,
+                name.length(),authorLine.length(),quote.length());
+    }
+    private static String trimWhitespace(String value) {
+        int start=0,end=value.length();
+        while(start<end) {
+            int cp=value.codePointAt(start);
+            if(!Character.isWhitespace(cp) && !Character.isSpaceChar(cp))break;
+            start+=Character.charCount(cp);
+        }
+        while(end>start) {
+            int cp=value.codePointBefore(end);
+            if(!Character.isWhitespace(cp) && !Character.isSpaceChar(cp))break;
+            end-=Character.charCount(cp);
+        }
+        return value.substring(start,end);
     }
     /** Extended emoji/combining clusters; never split a UTF-16 pair, ZWJ chain or flag. */
     public static String shortify(String text,int limit) {

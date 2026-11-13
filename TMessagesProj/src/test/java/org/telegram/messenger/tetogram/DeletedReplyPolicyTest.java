@@ -6,8 +6,8 @@ import static org.junit.Assert.*;
 
 public class DeletedReplyPolicyTest {
     @Test public void groupIncludesAuthorAndPrivateOmitsIt() {
-        assertEquals("Author\n> fixture\n\nanswer",DeletedReplyPolicy.prepare("Author","fixture","answer",true).text);
-        assertEquals("> fixture\n\nanswer",DeletedReplyPolicy.prepare("Author","fixture","answer",false).text);
+        assertEquals("Author\nfixture\n\nanswer",DeletedReplyPolicy.prepare("Author","fixture","answer",true).text);
+        assertEquals("fixture\n\nanswer",DeletedReplyPolicy.prepare("Author","fixture","answer",false).text);
     }
     @Test public void shortQuoteHasTwentyCharactersIncludingEllipsis() {
         String q=DeletedReplyPolicy.shortify("1234567890123456789012345",20);
@@ -43,8 +43,8 @@ public class DeletedReplyPolicyTest {
     }
     @Test public void photoCaptionAndEmptyCaptionUseSamePrefix() {
         DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author","Photo","my caption",true);
-        assertEquals("Author\n> Photo\n\nmy caption",r.text);assertEquals("my caption",r.text.substring(r.entityShift));
-        r=DeletedReplyPolicy.prepare("Author","Photo","",true);assertEquals("Author\n> Photo",r.text);assertEquals(0,r.entityShift);
+        assertEquals("Author\nPhoto\n\nmy caption",r.text);assertEquals("my caption",r.text.substring(r.entityShift));
+        r=DeletedReplyPolicy.prepare("Author","Photo","",true);assertEquals("Author\nPhoto",r.text);assertEquals(0,r.entityShift);
     }
     @Test public void retryAndExistingServerMessageAreNotConverted() {
         assertTrue(DeletedReplyPolicy.shouldConvert(true,false));
@@ -55,7 +55,7 @@ public class DeletedReplyPolicyTest {
         String input="answer";E e=new E(0,6,"italic");
         for(int i=0;i<10;i++) {
             DeletedReplyPolicy.Result r=DeletedReplyPolicy.prepare("Author","source",input,true);
-            assertEquals("Author\n> source\n\nanswer",r.text);
+            assertEquals("Author\nsource\n\nanswer",r.text);
             assertEquals(r.entityShift,DeletedReplyPolicy.shiftEntities(Arrays.asList(e),r.entityShift,ENTITIES).get(0).offset);
             assertEquals(0,e.offset);assertEquals("answer",input);
         }
@@ -73,7 +73,7 @@ public class DeletedReplyPolicyTest {
         assertFalse(DeletedReplyPolicy.sameContext(1,-50,1,-50,false,true));
     }
     @Test public void independentRepliesKeepTheirOwnAuthorsAndText() {
-        assertEquals("First\n> one\n\na",DeletedReplyPolicy.prepare("First","one","a",true).text);
-        assertEquals("Second\n> two\n\nb",DeletedReplyPolicy.prepare("Second","two","b",true).text);
+        assertEquals("First\none\n\na",DeletedReplyPolicy.prepare("First","one","a",true).text);
+        assertEquals("Second\ntwo\n\nb",DeletedReplyPolicy.prepare("Second","two","b",true).text);
     }
 }

@@ -4589,7 +4589,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
             org.telegram.messenger.tetogram.DeletedReplyPolicy.Result quoted = org.telegram.messenger.tetogram.DeletedReplyPolicy.prepare(
                     name, source, textReply ? message : caption, !DialogObject.isUserDialog(peer));
             if (textReply) message = quoted.text; else caption = quoted.text;
-            entities = org.telegram.messenger.tetogram.DeletedReplyProtocol.shiftEntities(entities,quoted.entityShift);
+            entities = org.telegram.messenger.tetogram.DeletedReplyProtocol.formatEntities(entities,quoted);
             if (replyToTopMsg != null && replyToTopMsg.currentAccount == currentAccount && replyToTopMsg.getDialogId() == peer
                     && replyToTopMsg.getId() != replyToMsg.getId() && !replyToTopMsg.tetogramLocalDeleted && !replyToTopMsg.isEphemeral()) {
                 replyToMsg = replyToTopMsg;

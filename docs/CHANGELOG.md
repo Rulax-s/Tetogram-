@@ -68,3 +68,11 @@ Splash Android 12+ использует собственный анимиров�
 - Добавлены JVM regression tests. Runtime-проверки на Android ещё требуются; DELETED_REPLIES.md.
 
 - CI 43454426141 — success: JUnit task с 40 тестами, 13 SQLite tests, сборка/проверка APK. Метаданные — APK-0.2.2.json; Android runtime ещё требует ручной проверки.
+
+## 0.2.3 — Telegram blockquote в удалённом Reply (проверка сборки)
+
+- Текстовый `>` заменён настоящей TL_messageEntityBlockquote; имя автора вынесено в отдельную bold entity перед цитатой.
+- UTF-16 диапазоны рассчитаны по конечной строке; entities ответа клонируются и сдвигаются без потери форматирования.
+- Добавленная цитата не пересекается с автором и ответом, включая его собственные blockquote/pre/code.
+- Свайп/Reply-панель, retry, owner/account/dialog checks и forum routing сохранены; локальная история не меняется.
+- Новые TL regression tests и Android-чек-лист: DELETED_BLOCKQUOTES.md.
