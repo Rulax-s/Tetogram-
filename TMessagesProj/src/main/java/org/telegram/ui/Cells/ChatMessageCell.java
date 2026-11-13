@@ -16674,11 +16674,11 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                         mess = mess.replace('\n', ' ');
                         stringFinalText = Emoji.replaceEmoji(mess, textPaint.getFontMetricsInt(), true);
                         if (messageObject.getDisplayReplyMessageObject().messageOwner != null) {
-                            stringFinalText = MessageObject.replaceAnimatedEmoji(stringFinalText, messageObject.getDisplayReplyMessageObject().messageOwner.entities, textPaint.getFontMetricsInt(), true);
+                            stringFinalText = MessageObject.replaceAnimatedEmoji(stringFinalText, messageObject.getDisplayReplyMessageObject().getDisplayEntities(), textPaint.getFontMetricsInt(), true);
                         }
                         stringFinalText = TextUtils.ellipsize(stringFinalText, textPaint, maxWidth, TextUtils.TruncateAt.END);
                         if (stringFinalText instanceof Spannable && messageObject.getDisplayReplyMessageObject().messageOwner != null) {
-                            MediaDataController.addTextStyleRuns(messageObject.getDisplayReplyMessageObject().messageOwner.entities, messageObject.getDisplayReplyMessageObject().caption, (Spannable) stringFinalText);
+                            MediaDataController.addTextStyleRuns(messageObject.getDisplayReplyMessageObject().getDisplayEntities(), messageObject.getDisplayReplyMessageObject().caption, (Spannable) stringFinalText);
                             stringFinalText = TextUtils.ellipsize(stringFinalText, textPaint, maxWidth, TextUtils.TruncateAt.END);
                         }
                     } else if (messageObject.getDisplayReplyMessageObject() != null && messageObject.getDisplayReplyMessageObject().messageText != null && messageObject.getDisplayReplyMessageObject().messageText.length() > 0) {
@@ -16694,7 +16694,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                         mess = AndroidUtilities.replaceNewLines(mess);
                         stringFinalText = Emoji.replaceEmoji(mess, textPaint.getFontMetricsInt(), true);
                         if (messageObject.getDisplayReplyMessageObject().messageOwner != null) {
-                            stringFinalText = MessageObject.replaceAnimatedEmoji(stringFinalText, messageObject.getDisplayReplyMessageObject().messageOwner.entities, textPaint.getFontMetricsInt(), true);
+                            stringFinalText = MessageObject.replaceAnimatedEmoji(stringFinalText, messageObject.getDisplayReplyMessageObject().getDisplayEntities(), textPaint.getFontMetricsInt(), true);
                         }
                         stringFinalText = TextUtils.ellipsize(stringFinalText, textPaint, maxWidth, TextUtils.TruncateAt.END);
                         if (stringFinalText instanceof Spannable) {

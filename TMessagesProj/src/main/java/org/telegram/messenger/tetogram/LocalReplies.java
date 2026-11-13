@@ -7,7 +7,7 @@ import org.telegram.tgnet.*;
 public final class LocalReplies {
     private LocalReplies() {}
     public static final String SCHEMA="CREATE TABLE IF NOT EXISTS tetogram_reply_links_v1 (owner INTEGER NOT NULL,did INTEGER NOT NULL,random_id INTEGER NOT NULL,mid INTEGER NOT NULL,mode INTEGER NOT NULL,source_mid INTEGER NOT NULL,sender INTEGER NOT NULL,body_start INTEGER NOT NULL,prefix_hash TEXT NOT NULL,PRIMARY KEY(owner,did,random_id,mode))";
-    private static SQLiteDatabase db(int a) throws Exception { SQLiteDatabase d=DeletedHistory.db(a);d.executeFast(SCHEMA).stepThis().dispose();return d; }
+    private static SQLiteDatabase db(int a) throws Exception { SQLiteDatabase d=DeletedHistory.db(a);d.executeFast(SCHEMA).stepThis().dispose();d.executeFast("CREATE INDEX IF NOT EXISTS tetogram_reply_mid_v1 ON tetogram_reply_links_v1(owner,did,mode,mid)").stepThis().dispose();return d; }
     public static void remember(MessageObject sent,MessageObject source,int start) {
         if(start<=0 || source==null || sent.isEphemeral() || sent.getDialogId()!=source.getDialogId())return;
         int a=sent.currentAccount; long owner=UserConfig.getInstance(a).getClientUserId();
@@ -25,7 +25,7 @@ public final class LocalReplies {
             } catch(Exception e){FileLog.e("Tetogram reply link write failed",e);}
         });
     }
-    private static MessageObject cloneSource(MessageObject source) {
+    public static MessageObject cloneSource(MessageObject source) {
         MessageObject copy=new MessageObject(source.currentAccount,TLObject.deepCopy(source.messageOwner,TLRPC.Message::TLdeserialize),true,false);
         copy.tetogramHistoryOwner=source.tetogramHistoryOwner;copy.tetogramLocalDeleted=true;
         copy.tetogramDeletedAt=source.tetogramDeletedAt;copy.tetogramReceivedAt=source.tetogramReceivedAt;return copy;
@@ -38,6 +38,11 @@ public final class LocalReplies {
             SQLitePreparedStatement s=d.executeFast("UPDATE tetogram_reply_links_v1 SET mid=?"+(mode>=0?",mode="+mode:"")+" WHERE owner=? AND did=? AND "+(random!=0?"random_id=?":"mode="+(mode==1?1:0)+" AND mid=?"));
             try{s.bindInteger(1,newId);s.bindLong(2,owner);s.bindLong(3,did);s.bindLong(4,random!=0?random:oldId);s.step();}finally{s.dispose();}
         }catch(Exception e){FileLog.e("Tetogram reply link remap failed",e);}
+    }
+    /** Storage queue only. Clear source IDs as well as original text on explicit history removal. */
+    public static void erase(int a,long owner,long did,int sourceId) throws Exception {
+        SQLiteDatabase d=db(a);
+        d.executeFast("DELETE FROM tetogram_reply_links_v1 WHERE owner="+owner+(did==0?"":" AND did="+did)+(sourceId==0?"":" AND source_mid="+sourceId)).stepThis().dispose();
     }
     public static void hydrate(int a,ArrayList<MessageObject> messages,Runnable done) {
         long owner=UserConfig.getInstance(a).getClientUserId();

@@ -4,7 +4,7 @@
 
 Сетевой TL Message остаётся настоящей цитатой с mention исходного автора, как в 0.2.4. `messageOwner.message`, `entities`, `reply_to` не подменяются. Отдельные display-accessors MessageObject используются ChatMessageCell для штатной линии Reply, имени, сниппета и текста ответа. Обычные Reply проходят прежний путь. UI-заголовок никогда не записывается в owner и не сериализуется. Темы, размеры и отступы задаёт исходный ChatMessageCell.
 
-`LocalReplies` добавляет таблицу `tetogram_reply_links_v1` в существующую SQLite-базу MessagesStorage: Telegram user ID, dialog ID, random ID, текущий message ID, namespace обычных/запланированных сообщений, исходный message/sender ID, UTF-16 смещение ответа, SHA-256 префикса. Текст оригинала повторно не сохраняется. Подтверждение отправки обновляет ID по owner/dialog/random ID/namespace. При загрузке страницы связь соединяется с существующей таблицей архива и создаёт отдельный MessageObject исходника для каждого ответа. Аккаунт проверяется также перед UI callback. Порядок и stable ID строк не меняются.
+`LocalReplies` добавляет таблицу `tetogram_reply_links_v1` в существующую SQLite-базу MessagesStorage: Telegram user ID, dialog ID, random ID, текущий message ID, namespace обычных/запланированных сообщений, исходный message/sender ID, UTF-16 смещение ответа, SHA-256 префикса. Текст оригинала повторно не сохраняется. При явной очистке удаляются также соответствующие связи. Подтверждение отправки обновляет ID по owner/dialog/random ID/namespace. При загрузке страницы связь соединяется с существующей таблицей архива и создаёт отдельный MessageObject исходника для каждого ответа. Аккаунт проверяется также перед UI callback. Порядок и stable ID строк не меняются.
 
 Нажатие на Reply повторно проверяет архив и использует штатный переход с подсветкой. Очистка/истечение retention приводит к серверной цитате при обновлении, onResume, очередной минутной сверке или нажатии. Префикс проверяется по UTF-16 границе и хешу: изменённая цитата безопасно остаётся серверной. Редактирование/пересылка используют canonical wire view; координаты выбранного фрагмента ответа переводятся в серверный текст.
 
@@ -23,7 +23,7 @@
 
 ## Проверки
 
-JVM: PermissionPolicy (API 22–36, full/partial/single type/revoke/regrant, notification states), LocalReplyPolicy (UTF-16/emoji, hash, body edit/prefix edit). Реальный SQLite: account/dialog/mode isolation, temp→server ID, restart, retry, два автора, несколько ответов и очистка оригинала. Это не тесты Android RecyclerView/свайпа/сервера.
+JVM: LocalReplyProtocol (реальные TL entities, смещения emoji/форматирования, независимость wire, вложенная цитата в тексте ответа); PermissionPolicy (API 22–36, full/partial/single type/revoke/regrant, notification states), LocalReplyPolicy (UTF-16/emoji, hash, body edit/prefix edit). Реальный SQLite: account/dialog/mode isolation, temp→server ID, restart, retry, два автора, несколько ответов и очистка оригинала. Это не тесты Android RecyclerView/свайпа/сервера.
 
 На Android вручную: свайп и меню Reply, предпросмотр, текст/emoji/entities/фото с подписью, send/retry, переход и подсветка, reopen/restart, два аккаунта, группы/каналы/форумные темы, редактирование и пересылка, очистка исходника. Официальный Telegram: та же отправка должна остаться блок-цитатой с кликабельным правильным автором. Предыдущая 0.2.4 подтверждена владельцем как работающая; новая версия не считается проверенной владельцем автоматически.
 

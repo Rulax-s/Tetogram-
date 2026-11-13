@@ -226,6 +226,7 @@ public final class DeletedHistory {
             try {
                 SQLiteDatabase db=db(a);
                 db.executeFast("DELETE FROM tetogram_deleted_v1 WHERE account="+owner+(did==0 ? "" : " AND did="+did)+(mid==0 ? "" : " AND mid="+mid)).stepThis().dispose();
+                LocalReplies.erase(a,owner,did,mid);
                 db.executeFast("PRAGMA wal_checkpoint(TRUNCATE)").stepThis().dispose();
                 success=true;
             } catch(Exception e) { FileLog.e("Tetogram history erase failed",e); }

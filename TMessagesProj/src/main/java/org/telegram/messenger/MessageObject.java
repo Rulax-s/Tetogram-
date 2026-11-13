@@ -774,6 +774,12 @@ public class MessageObject {
     }
 
     public void copyStableParams(MessageObject old) {
+        if(old!=this && old.hasTetogramLocalReply() && currentAccount==old.currentAccount && getDialogId()==old.getDialogId()
+                && (getId()==old.getId() || messageOwner.random_id!=0 && messageOwner.random_id==old.messageOwner.random_id)) {
+            tetogramReplySource=org.telegram.messenger.tetogram.LocalReplies.cloneSource(old.tetogramReplySource);
+            tetogramReplyBodyStart=old.tetogramReplyBodyStart;tetogramReplyHash=old.tetogramReplyHash;tetogramReplyOwner=old.tetogramReplyOwner;
+            tetogramValidatedWire=null;
+        }
         stableId = old.stableId;
         messageOwner.premiumEffectWasPlayed = old.messageOwner.premiumEffectWasPlayed;
         forcePlayEffect = old.forcePlayEffect;
@@ -3983,19 +3989,12 @@ public class MessageObject {
     public MessageObject tetogramWireView() {
         if(!hasTetogramLocalReply())return this;
         MessageObject copy=new MessageObject(currentAccount,org.telegram.tgnet.TLObject.deepCopy(messageOwner,TLRPC.Message::TLdeserialize),true,false);
-        copy.copyStableParams(this);copy.scheduled=scheduled;return copy;
+        copy.copyStableParams(this);copy.tetogramReplySource=null;copy.scheduled=scheduled;return copy;
     }
     public String getDisplayText() { return hasTetogramLocalReply()?messageOwner.message.substring(tetogramReplyBodyStart):messageOwner.message; }
     public ArrayList<TLRPC.MessageEntity> getDisplayEntities() {
         if(!hasTetogramLocalReply())return getEntities();
-        ArrayList<TLRPC.MessageEntity> out=new ArrayList<>();
-        if(messageOwner.entities!=null)for(TLRPC.MessageEntity e:messageOwner.entities) {
-            if(e.offset>=tetogramReplyBodyStart && e.length>=0 && (long)e.offset+e.length<=messageOwner.message.length()) {
-                TLRPC.MessageEntity copy=org.telegram.tgnet.TLObject.deepCopy(e,TLRPC.MessageEntity::TLdeserialize);
-                copy.offset-=tetogramReplyBodyStart;out.add(copy);
-            }
-        }
-        return out;
+        return org.telegram.messenger.tetogram.LocalReplyProtocol.bodyEntities(messageOwner.entities,tetogramReplyBodyStart,messageOwner.message.length());
     }
     public MessageObject getDisplayReplyMessageObject() { return hasTetogramLocalReply()?tetogramReplySource:replyMessageObject; }
     public boolean hasDisplayReplyMessageObject() { return hasTetogramLocalReply() || hasValidReplyMessageObject(); }
@@ -4014,6 +4013,7 @@ public class MessageObject {
     }
 
     public void applyNewText(CharSequence text) {
+        if(hasTetogramLocalReply() && TextUtils.equals(text,messageOwner.message))text=getDisplayText();
         if (TextUtils.isEmpty(text)) {
             return;
         }
