@@ -27225,6 +27225,11 @@ public class ChatActivity extends BaseFragment implements
                     int localIndex = messages.indexOf(obj);
                     if (localIndex >= 0) messages.set(localIndex, local);
                     messagesDict[loadIndex].put(mid, local);
+                    ArrayList<MessageObject> dayMessages = messagesByDays.get(obj.dateKey);
+                    if (dayMessages != null) {
+                        int dayIndex = dayMessages.indexOf(obj);
+                        if (dayIndex >= 0) dayMessages.set(dayIndex, local);
+                    }
                     if (obj.getGroupId() != 0) {
                         MessageObject.GroupedMessages group = groupedMessagesMap.get(obj.getGroupId());
                         if (group != null) {
