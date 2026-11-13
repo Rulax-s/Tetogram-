@@ -15,6 +15,8 @@ class Links(unittest.TestCase):
   self.put();self.db.execute('UPDATE tetogram_reply_links_v1 SET mid=? WHERE owner=? AND did=? AND mode=? AND random_id=?',(42,1,-50,0,123));self.db.commit();self.db.close();self.db=sqlite3.connect(self.path);self.assertEqual(self.rows(),[(1,-50,42,0,11,101)])
  def test_account_chat_and_scheduled_isolation(self):
   self.put();self.put(owner=2);self.put(did=-51);self.put(mode=1);self.db.execute('UPDATE tetogram_reply_links_v1 SET mid=42 WHERE owner=1 AND did=-50 AND mode=0 AND random_id=123');self.assertEqual(sum(row[2]==42 for row in self.rows()),1);self.assertEqual(len(self.rows()),4)
+ def test_scheduled_delivery_keeps_normal_message_with_same_id(self):
+  self.put(random=123,mid=42,mode=1,source=11,sender=101);self.put(random=124,mid=42,mode=0,source=12,sender=102);self.db.execute("UPDATE tetogram_reply_links_v1 SET mid=99,mode=0 WHERE owner=1 AND did=-50 AND mode=1 AND random_id=123");self.assertEqual(self.rows(),[(1,-50,42,0,12,102),(1,-50,99,0,11,101)])
  def test_retry_is_idempotent(self):self.put();self.put();self.assertEqual(len(self.rows()),1)
  def test_two_authors_and_multiple_replies(self):
   self.put(random=123,mid=41,source=11,sender=101);self.put(random=124,mid=42,source=12,sender=102);self.put(random=125,mid=43,source=11,sender=101);self.assertEqual([row[4:] for row in self.rows()],[(11,101),(12,102),(11,101)])

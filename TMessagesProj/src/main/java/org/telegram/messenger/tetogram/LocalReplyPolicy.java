@@ -11,5 +11,7 @@ public final class LocalReplyPolicy {
             StringBuilder out=new StringBuilder();for(byte b:digest)out.append(String.format(java.util.Locale.ROOT,"%02x",b&255));return out.toString();
         } catch(Exception e) { throw new IllegalStateException(e); }
     }
+    public static int sourceMode(int oldId,int mode) { return oldId>0?1:mode; }
+    public static int targetMode(int oldId,int mode) { return oldId>0?0:mode; }
     public static boolean valid(String text,int start,String hash) { return hash!=null && !hash.isEmpty() && hash.equals(prefix(text,start)); }
 }

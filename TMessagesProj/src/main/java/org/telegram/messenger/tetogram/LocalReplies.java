@@ -35,7 +35,9 @@ public final class LocalReplies {
         try {
             SQLiteDatabase d=db(a);long owner=UserConfig.getInstance(a).getClientUserId();
             if(mode>1)return;
-            SQLitePreparedStatement s=d.executeFast("UPDATE tetogram_reply_links_v1 SET mid=?"+(mode>=0?",mode="+mode:"")+" WHERE owner=? AND did=? AND "+(random!=0?"random_id=?":"mode="+(mode==1?1:0)+" AND mid=?"));
+            int sourceMode=LocalReplyPolicy.sourceMode(oldId,mode),targetMode=LocalReplyPolicy.targetMode(oldId,mode);
+            String scope=sourceMode>=0?"mode="+sourceMode:"mid="+oldId;
+            SQLitePreparedStatement s=d.executeFast("UPDATE tetogram_reply_links_v1 SET mid=?"+(targetMode>=0?",mode="+targetMode:"")+" WHERE owner=? AND did=? AND "+scope+" AND "+(random!=0?"random_id=?":"mid=?"));
             try{s.bindInteger(1,newId);s.bindLong(2,owner);s.bindLong(3,did);s.bindLong(4,random!=0?random:oldId);s.step();}finally{s.dispose();}
         }catch(Exception e){FileLog.e("Tetogram reply link remap failed",e);}
     }
