@@ -12,8 +12,8 @@ public final class DeletedReplyPolicy {
             this.quoteOffset=quoteOffset;this.quoteLength=quoteLength;
         }
     }
-    public static Result prepare(String author,String source,String body,boolean group) {
-        String name=group ? trimWhitespace(author.replace('\n',' ').replace('\r',' ')) : "";
+    public static Result prepare(String author,String source,String body) {
+        String name=trimWhitespace(author.replace('\n',' ').replace('\r',' '));
         String quote=trimWhitespace(shortify(source==null ? "" : source.replace("\r\n","\n").replace('\r','\n'),20));
         if(quote.isEmpty())quote="…"; // a valid visible range, including whitespace-only media captions
         String authorLine=name.isEmpty() ? "" : name+"\n";

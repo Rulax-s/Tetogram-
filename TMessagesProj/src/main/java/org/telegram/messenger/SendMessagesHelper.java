@@ -4587,7 +4587,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
             if (TextUtils.isEmpty(source)) source = TextUtils.isEmpty(replyToMsg.messageText) ? LocaleController.getString(R.string.TetogramMetadataOnly) : replyToMsg.messageText.toString();
             boolean textReply = !TextUtils.isEmpty(message);
             org.telegram.messenger.tetogram.DeletedReplyPolicy.Result quoted = org.telegram.messenger.tetogram.DeletedReplyPolicy.prepare(
-                    name, source, textReply ? message : caption, !DialogObject.isUserDialog(peer));
+                    name, source, textReply ? message : caption);
             if (textReply) message = quoted.text; else caption = quoted.text;
             entities = org.telegram.messenger.tetogram.DeletedReplyProtocol.formatEntities(entities,quoted);
             if (replyToTopMsg != null && replyToTopMsg.currentAccount == currentAccount && replyToTopMsg.getDialogId() == peer
