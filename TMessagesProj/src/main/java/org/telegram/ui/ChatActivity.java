@@ -26677,7 +26677,12 @@ public class ChatActivity extends BaseFragment implements
                         for (int b = 0; b < size; b++) {
                             final MessageObject lastMessage = messages.get(b);
                             if (lastMessage.type >= 0 && lastMessage.messageOwner.date > 0) {
-                                if (chatMode != MODE_SCHEDULED && lastMessage.messageOwner.id > 0 && obj.messageOwner.id > 0 && lastMessage.messageOwner.id < obj.messageOwner.id || lastMessage.messageOwner.date < obj.messageOwner.date || lastMessage.messageOwner.date == obj.messageOwner.date) {
+                                boolean ephemeralPair = chatMode == MODE_DEFAULT &&
+                                        (MessageObject.isEphemeralMessageId(lastMessage.getId()) || MessageObject.isEphemeralMessageId(obj.getId()));
+                                boolean insertBefore = ephemeralPair
+                                        ? org.telegram.messenger.tetogram.MessageTimelinePolicy.compare(obj.getId(), obj.messageOwner.date, lastMessage.getId(), lastMessage.messageOwner.date) < 0
+                                        : (chatMode != MODE_SCHEDULED && lastMessage.messageOwner.id > 0 && obj.messageOwner.id > 0 && lastMessage.messageOwner.id < obj.messageOwner.id || lastMessage.messageOwner.date < obj.messageOwner.date || lastMessage.messageOwner.date == obj.messageOwner.date);
+                                if (insertBefore) {
                                     MessageObject.GroupedMessages lastGroupedMessages;
                                     if (lastMessage.getGroupId() != 0) {
                                         lastGroupedMessages = groupedMessagesMap.get(lastMessage.getGroupId());
@@ -27219,7 +27224,12 @@ public class ChatActivity extends BaseFragment implements
             if (obj != null && localCopies != null && org.telegram.messenger.tetogram.LabsSettings.visible(currentAccount)
                     && !org.telegram.messenger.tetogram.LabsSettings.excluded(currentAccount, obj.getDialogId())) {
                 MessageObject local = localCopies.get(mid);
-                if (local != null && local.getDialogId() == obj.getDialogId() && currentEncryptedChat == null && chatMode == MODE_DEFAULT) {
+                if (local != null && org.telegram.messenger.tetogram.MessageTimelinePolicy.sameMessage(
+                        obj.currentAccount, obj.getDialogId(), obj.getId(), local.currentAccount, local.getDialogId(), local.getId())
+                        && local.currentAccount == currentAccount && currentEncryptedChat == null && chatMode == MODE_DEFAULT) {
+                    // The notification payload can be shared by multiple open fragments. UI state
+                    // (especially stableId) must belong to this row, never to that shared payload.
+                    local = org.telegram.messenger.tetogram.DeletedHistory.copyForRow(obj, local, () -> lastStableId++);
                     if (selectedMessagesIds[loadIndex].indexOfKey(mid) >= 0) addToSelectedMessages(obj, false);
                     if (editingMessageObject == obj) hideFieldPanel(true);
                     int localIndex = messages.indexOf(obj);
@@ -27229,6 +27239,18 @@ public class ChatActivity extends BaseFragment implements
                     if (dayMessages != null) {
                         int dayIndex = dayMessages.indexOf(obj);
                         if (dayIndex >= 0) dayMessages.set(dayIndex, local);
+                    }
+                    if (filteredMessagesDict != null && filteredMessagesDict.get(mid) == obj) filteredMessagesDict.put(mid, local);
+                    if (chatAdapter != null && chatAdapter.filteredMessages != null) {
+                        int filteredIndex = chatAdapter.filteredMessages.indexOf(obj);
+                        if (filteredIndex >= 0) chatAdapter.filteredMessages.set(filteredIndex, local);
+                    }
+                    if (filteredMessagesByDays != null) {
+                        ArrayList<MessageObject> filteredDay = filteredMessagesByDays.get(obj.dateKeyInt);
+                        if (filteredDay != null) {
+                            int filteredIndex = filteredDay.indexOf(obj);
+                            if (filteredIndex >= 0) filteredDay.set(filteredIndex, local);
+                        }
                     }
                     if (obj.getGroupId() != 0) {
                         MessageObject.GroupedMessages group = groupedMessagesMap.get(obj.getGroupId());

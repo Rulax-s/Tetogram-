@@ -46,3 +46,12 @@ Splash Android 12+ использует собственный анимиров�
 - Добавлены SQLite contract tests и JUnit policy tests, CI дополнен запуском тестов.
 - Финальный commit df279bb успешно собран в CI run 43435783620: SQL/JUnit, проверка APK и постоянной подписи пройдены. Runtime-сценарии версии 0.2.0 на Android не проверены.
 - Исправлено сохранение расположения и подписи сообщения при замене локальной копией в медиаальбоме. Детали в DELETED_HISTORY.md.
+
+## 0.2.1 — исправление идентичности и порядка (проверка сборки)
+
+- Локальные удалённые сообщения сохраняют stable ID исходной строки; каждый фрагмент получает независимый MessageObject/TL payload.
+- Сопоставление по account/dialog/message; согласованы индексы обычного/filtered списка и альбомов.
+- Packed ephemeral IDs исключены из regular cursor bounds/trim; overlay сохраняет native порядок серверной страницы.
+- Native ephemeral comparator переиспользован в SQLite и live insertion для поздно пришедших эфемерных сообщений.
+- Добавлены регрессионные тесты policies. Android-проверки ещё требуются; подробности — MESSAGE_INTEGRITY.md.
+- GitHub Secrets и правила видимости/TTL не менялись.

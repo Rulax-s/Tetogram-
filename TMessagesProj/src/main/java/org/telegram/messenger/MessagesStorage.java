@@ -9961,45 +9961,8 @@ public class MessagesStorage extends BaseController {
                     }
                 }
 
-                Collections.sort(res.messages, (lhs, rhs) -> {
-                    if (MessageObject.isEphemeralMessageId(lhs.id) || MessageObject.isEphemeralMessageId(rhs.id)) {
-                        if (lhs.date > rhs.date) {
-                            return -1;
-                        } else if (lhs.date < rhs.date) {
-                            return 1;
-                        } else if (MessageObject.isEphemeralMessageId(lhs.id) && !MessageObject.isEphemeralMessageId(rhs.id)) {
-                            return -1;
-                        } else if (!MessageObject.isEphemeralMessageId(lhs.id) && MessageObject.isEphemeralMessageId(rhs.id)) {
-                            return 1;
-                        } else if (lhs.id > rhs.id) {
-                            return 1;
-                        } else if (lhs.id < rhs.id) {
-                            return -1;
-                        }
-                        return 0;
-                    }
-
-                    if (lhs.id > 0 && rhs.id > 0) {
-                        if (lhs.id > rhs.id) {
-                            return -1;
-                        } else if (lhs.id < rhs.id) {
-                            return 1;
-                        }
-                    } else if (lhs.id < 0 && rhs.id < 0) {
-                        if (lhs.id < rhs.id) {
-                            return -1;
-                        } else if (lhs.id > rhs.id) {
-                            return 1;
-                        }
-                    } else {
-                        if (lhs.date > rhs.date) {
-                            return -1;
-                        } else if (lhs.date < rhs.date) {
-                            return 1;
-                        }
-                    }
-                    return 0;
-                });
+                Collections.sort(res.messages, (lhs, rhs) ->
+                        org.telegram.messenger.tetogram.MessageTimelinePolicy.compare(lhs.id, lhs.date, rhs.id, rhs.date));
 
                 if (!DialogObject.isEncryptedDialog(dialogId)) {
                     final SparseIntArray anchorBindings = ephemeralWelcomeAnchorsState.getAnchorBindings(dialogId);

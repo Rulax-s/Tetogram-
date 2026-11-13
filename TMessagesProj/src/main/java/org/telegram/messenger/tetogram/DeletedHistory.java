@@ -25,6 +25,26 @@ public final class DeletedHistory {
     public static final String SCHEMA = "CREATE TABLE IF NOT EXISTS tetogram_deleted_v1 (account INTEGER NOT NULL, did INTEGER NOT NULL, mid INTEGER NOT NULL, channel INTEGER NOT NULL, sender INTEGER NOT NULL, text TEXT NOT NULL, search_text TEXT NOT NULL, topic INTEGER NOT NULL, sent INTEGER NOT NULL, received INTEGER NOT NULL, deleted INTEGER NOT NULL DEFAULT 0, data BLOB NOT NULL, PRIMARY KEY(account,did,mid))";
     public static final String MARK_GLOBAL = "UPDATE tetogram_deleted_v1 SET deleted=? WHERE account=? AND mid=? AND deleted=0 AND channel=0";
     public static final String MARK_CHANNEL = "UPDATE tetogram_deleted_v1 SET deleted=? WHERE account=? AND mid=? AND deleted=0 AND did=? AND channel=?";
+    private static final DeletedRowPolicy.Row<MessageObject> ROW = new DeletedRowPolicy.Row<MessageObject>() {
+        public int account(MessageObject m) { return m.currentAccount; }
+        public long dialog(MessageObject m) { return m.getDialogId(); }
+        public int id(MessageObject m) { return m.getId(); }
+        public int stableId(MessageObject m) { return m.stableId; }
+        public void stableId(MessageObject m, int id) { m.stableId = id; }
+        public void copyStableParams(MessageObject m, MessageObject original) { m.copyStableParams(original); }
+        public MessageObject clonePayload(MessageObject snapshot) {
+            MessageObject m = new MessageObject(snapshot.currentAccount,
+                    org.telegram.tgnet.TLObject.deepCopy(snapshot.messageOwner, TLRPC.Message::TLdeserialize), true, false);
+            m.tetogramLocalDeleted = true;
+            m.tetogramDeletedAt = snapshot.tetogramDeletedAt;
+            m.tetogramReceivedAt = snapshot.tetogramReceivedAt;
+            return m;
+        }
+    };
+    /** UI-thread only: keep stock stable params without sharing mutable MessageObjects across fragments. */
+    public static MessageObject copyForRow(MessageObject original, MessageObject payload, java.util.function.IntSupplier allocate) {
+        return DeletedRowPolicy.replace(original, payload, ROW, allocate);
+    }
     private static long uid(int a) { return UserConfig.getInstance(a).getClientUserId(); }
     private static SQLiteDatabase db(int a) throws Exception {
         SQLiteDatabase db = MessagesStorage.getInstance(a).getDatabase();
@@ -147,7 +167,7 @@ public final class DeletedHistory {
                 SQLiteDatabase db=db(a);
                 int low=Integer.MAX_VALUE, high=0;
                 HashSet<Integer> known=new HashSet<>();
-                for(MessageObject m:source) if(m.getId()>0) { low=Math.min(low,m.getId()); high=Math.max(high,m.getId()); known.add(m.getId()); }
+                for(MessageObject m:source) if(m.getId()>0 && !m.isEphemeral()) { low=Math.min(low,m.getId()); high=Math.max(high,m.getId()); known.add(m.getId()); }
                 boolean serverEnd=(!cache && source.size()<count) || end;
                 String range;
                 if(loadType==0) range="mid>="+(serverEnd || high==0 ? 1 : low)+" AND mid<="+(anchor>0 ? anchor : Integer.MAX_VALUE);
@@ -156,13 +176,17 @@ public final class DeletedHistory {
                 String order=HistoryPagePolicy.archiveOrder(anchor,loadType);
                 SQLiteCursor c=db.queryFinalized("SELECT data,did,deleted,received FROM tetogram_deleted_v1 WHERE account="+owner+" AND did="+did+" AND deleted>0 "+(thread==0 ? "" : " AND (topic="+thread+" OR mid="+thread+") ")+" AND "+range+" ORDER BY "+order+" LIMIT "+(Math.max(count,30)+1));
                 int added=0;
+                ArrayList<MessageObject> archived = new ArrayList<>();
                 try { while(c.next()) {
                     MessageObject m=read(a,c);
                     if(m==null || known.contains(m.getId())) continue;
                     if(added++>=Math.max(count,30)) { page.serverSize=count; page.hasMore=true; break; }
-                    page.add(m);
+                    archived.add(m);
                 }} finally { c.dispose(); }
-                if(HistoryPagePolicy.trim(page,count,anchor,loadType,MessageObject::getId)) { page.hasMore=true; page.serverSize=count; }
+                if(HistoryPagePolicy.merge(page,source,archived,count,anchor,loadType,new HistoryPagePolicy.Message<MessageObject>() {
+                    @Override public int get(MessageObject m) { return m.getId(); }
+                    @Override public int date(MessageObject m) { return m.messageOwner.date; }
+                })) { page.hasMore=true; page.serverSize=count; }
 
             } catch(Exception e) { FileLog.e("Tetogram history page failed",e); }
             AndroidUtilities.runOnUIThread(()->callback.run(owner==uid(a) && LabsSettings.visible(a) && !LabsSettings.excluded(a,did) ? page : source));
