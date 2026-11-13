@@ -8,6 +8,12 @@
 
 package org.telegram.ui;
 
+import org.telegram.messenger.tetogram.SectionConfig;
+import org.telegram.messenger.tetogram.SectionsStore;
+import org.telegram.messenger.tetogram.SectionDialogs;
+import org.telegram.ui.tetogram.SectionMenu;
+import org.telegram.ui.tetogram.SectionsActivity;
+
 import static org.telegram.messenger.AndroidUtilities.dp;
 import static org.telegram.messenger.AndroidUtilities.dpf2;
 import static org.telegram.messenger.AndroidUtilities.lerp;
@@ -516,6 +522,97 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private HintView2 storyPremiumHint;
     private boolean canShowStoryHint;
     private boolean storyHintShown;
+    private SectionConfig tetogramSections;
+    private String tetogramSectionId;
+    private long tetogramSectionsOwner;
+    private boolean tetogramRebuilding;
+    private final ArrayList<String> tetogramTabs=new ArrayList<>();
+    private SectionMenu tetogramSectionMenu;
+    public boolean isTetogramSectionList() { return !onlySelect && initialDialogsType==DIALOGS_TYPE_DEFAULT && folderId==0 && communityId==0 && !inPreviewMode && TextUtils.isEmpty(searchString); }
+    public void openTetogramSections() { presentFragment(tetogramSectionId==null || tetogramSectionId.isEmpty()?new SectionsActivity(currentAccount):new SectionsActivity(currentAccount,tetogramSectionId)); }
+    private void tetogramReadSections() {
+        long owner=getUserConfig().getClientUserId();
+        try {
+            SectionConfig c=SectionsStore.load(currentAccount);
+            if(tetogramSectionId==null || owner!=tetogramSectionsOwner)tetogramSectionId=c.initial();
+            else if(c.section(tetogramSectionId)==null)tetogramSectionId=c.initial();
+            tetogramSections=c;tetogramSectionsOwner=owner;
+        } catch(Exception e) { FileLog.e("Tetogram sections configuration unavailable");tetogramSections=null; }
+    }
+    private String tetogramTabKey(int index) { return index>=0 && index<tetogramTabs.size()?tetogramTabs.get(index):SectionConfig.OWN; }
+    private void tetogramRememberVisibleTab() {
+        if(!isTetogramSectionList() || tetogramRebuilding || tetogramSections==null || viewPages==null)return;
+        SectionConfig.Section section=tetogramSections.section(tetogramSectionId);if(section==null)return;
+        String key=tetogramTabKey(viewPages[0].selectedType);
+        if(!section.lastFolder.equals(key)){section.lastFolder=key;SectionsStore.save(currentAccount,tetogramSectionsOwner,tetogramSections);}
+    }
+    private void tetogramChooseSection(String id) {
+        tetogramReadSections();if(tetogramSections==null || tetogramSections.section(id)==null)return;
+        tetogramSectionId=id;tetogramSections.selectedId=id;SectionsStore.save(currentAccount,tetogramSectionsOwner,tetogramSections);
+        if(tetogramSectionMenu!=null)tetogramSectionMenu.collapse();
+        updateFilterTabs(true,true);hideFloatingButton(false);
+    }
+    private void tetogramToggleSections() {
+        if(tetogramSectionMenu==null)return;
+        if(tetogramSectionMenu.expanded()){tetogramSectionMenu.collapse();return;}
+        tetogramReadSections();if(tetogramSections==null || tetogramSections.sections.isEmpty()){presentFragment(new SectionsActivity(currentAccount));return;}
+        tetogramSectionMenu.populate(tetogramSections,tetogramSectionId,this::tetogramChooseSection);
+        FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)tetogramSectionMenu.getLayoutParams();lp.height=Math.min(dp(56*tetogramSections.sections.size()+8),Math.max(dp(56),(int)(AndroidUtilities.displaySize.y*.55f)));tetogramSectionMenu.setLayoutParams(lp);tetogramSectionMenu.expand();
+    }
+    private ArrayList<MessagesController.DialogFilter> tetogramPageFilters() {
+        if(!isTetogramSectionList())return getMessagesController().getDialogFilters();
+        ArrayList<MessagesController.DialogFilter> result=new ArrayList<>();for(String key:tetogramTabs)result.add(SectionDialogs.server(currentAccount,key));return result;
+    }
+    private ArrayList<TLRPC.Dialog> tetogramProjection(int index) {
+        if(tetogramSections==null || tetogramSectionsOwner!=getUserConfig().getClientUserId())tetogramReadSections();
+        if(tetogramSections==null || !tetogramSections.configured)return getMessagesController().getDialogs(0);
+        SectionConfig.Section section=tetogramSections.section(tetogramSectionId);if(section==null)return new ArrayList<>();
+        String key=tetogramTabKey(index);MessagesController.DialogFilter server=SectionDialogs.server(currentAccount,key);
+        if(server!=null && server.locked)return new ArrayList<>();
+        SectionConfig.Scope scope=tetogramSections.folders.containsKey(key)?tetogramSections.folders.get(key):section;
+        return SectionDialogs.project(currentAccount,scope);
+    }
+    public ArrayList<TLRPC.Dialog> getDialogsArrayForAdapter(DialogsAdapter adapter,int account,int type,int fid,boolean frozen) {
+        if(isTetogramSectionList() && type==DIALOGS_TYPE_DEFAULT && fid==0 && !frozen && viewPages!=null) {
+            for(ViewPage page:viewPages)if(page!=null && page.dialogsAdapter==adapter)return tetogramProjection(page.selectedType);
+        }
+        return getDialogsArray(account,type,fid,frozen);
+    }
+    private ArrayList<TLRPC.Dialog> tetogramDialogsForPage(ViewPage page,int fid,boolean frozen) {
+        return getDialogsArrayForAdapter(page.dialogsAdapter,currentAccount,page.dialogsType,fid,frozen);
+    }
+    private void tetogramSwitchPage(boolean animated) {
+        if(viewPages==null || viewPages.length==0)return;int index=animated && viewPages.length>1?1:0;
+        ViewPage page=viewPages[index];MessagesController.DialogFilter filter=SectionDialogs.server(currentAccount,tetogramTabKey(page.selectedType));
+        page.dialogsType=DIALOGS_TYPE_DEFAULT;
+        if(filter!=null && !filter.locked){page.dialogsType=viewPages[index==0?1:0].dialogsType==7?8:7;getMessagesController().selectDialogFilter(filter,page.dialogsType==8?1:0);page.listView.setScrollEnabled(true);}
+        page.isLocked=filter!=null && filter.locked;page.dialogsAdapter.setDialogsType(page.dialogsType);page.listView.updatePullState();page.dialogsAdapter.notifyDataSetChanged();page.layoutManager.scrollToPositionWithOffset(0,(int)scrollYOffset);checkListLoad(page);
+    }
+    private void tetogramUpdateTabs(boolean animated) {
+        if(viewPages==null || viewPages.length<2 || viewPages[0]==null || viewPages[1]==null || viewPages[0].dialogsAdapter==null || viewPages[1].dialogsAdapter==null)return;
+        tetogramRebuilding=true;
+        try {
+            if(tabsAnimation!=null){tabsAnimation.cancel();tabsAnimation=null;}
+            filterTabsView.stopAnimatingIndicator();startedTracking=false;maybeStartTracking=false;tabsAnimationInProgress=false;
+            viewPages[0].setTranslationX(0);viewPages[1].setVisibility(View.GONE);filterTabsView.setEnabled(true);actionBar.setEnabled(true);
+            tetogramReadSections();tetogramTabs.clear();SectionConfig.Section section=tetogramSections==null?null:tetogramSections.section(tetogramSectionId);
+            if(section!=null){ArrayList<String> available=new ArrayList<>();for(String key:section.tabs)if(SectionDialogs.server(currentAccount,key)!=null || tetogramSections.folders.containsKey(key))available.add(key);tetogramTabs.addAll(section.visibleTabs(available));}
+            filterTabsView.removeTabs();filterTabsView.resetTabId();
+            int selected=section==null?0:Math.max(0,tetogramTabs.indexOf(section.lastFolder));
+            for(int i=0;i<tetogramTabs.size();i++){
+                String key=tetogramTabs.get(i);MessagesController.DialogFilter server=SectionDialogs.server(currentAccount,key);SectionConfig.Folder local=tetogramSections.folders.get(key);
+                String name=server!=null?server.name:local!=null?local.name:getString(R.string.TetogramSectionOwn);
+                int token=server!=null?server.id:local!=null?local.token:0;
+                filterTabsView.addTab(i,token,name,server==null?null:server.entities,server==null || server.title_noanimate,SectionConfig.OWN.equals(key),server!=null && server.locked);
+            }
+            canShowFilterTabsView=!tetogramTabs.isEmpty();
+            filterTabsView.finishAddingTabs(false);if(!tetogramTabs.isEmpty())filterTabsView.selectTabWithId(selected,1);
+            viewPages[0].selectedType=selected;viewPages[1].selectedType=selected;viewPages[1].dialogsType=0;viewPages[1].dialogsAdapter.setDialogsType(0);
+            tetogramSwitchPage(false);updateFilterTabsVisibility(animated);
+            if(tetogramSectionMenu!=null)tetogramSectionMenu.collapse();
+        } finally {tetogramRebuilding=false;}
+    }
+
     private FragmentFloatingButton floatingButton3;
     private FragmentFloatingButton floatingButtonStories;
     private ButtonWithCounterView addChatsToCommunityButton;
@@ -1544,6 +1641,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                                     viewPages[0] = viewPages[1];
                                     viewPages[1] = tempPage;
                                     filterTabsView.selectTabWithId(viewPages[0].selectedType, 1.0f);
+                                    tetogramRememberVisibleTab();
                                     updateCounters(false);
                                     viewPages[0].dialogsAdapter.resume();
                                     viewPages[1].dialogsAdapter.pause();
@@ -2051,7 +2149,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 RecyclerView.ViewHolder holder = parentPage.listView.findViewHolderForAdapterPosition(pos);
                 if (holder != null) {
                     int top = holder.itemView.getTop();
-                    if (parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && hasHiddenArchive() && parentPage.archivePullViewState == ARCHIVE_ITEM_STATE_HIDDEN) {
+                    if (parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && hasHiddenArchiveForPage(parentPage) && parentPage.archivePullViewState == ARCHIVE_ITEM_STATE_HIDDEN) {
                         pos = Math.max(1, pos);
                     }
                     ignoreLayout = true;
@@ -2059,7 +2157,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     ignoreLayout = false;
                 }
             } else if (pos == RecyclerView.NO_POSITION && firstLayout) {
-                parentPage.layoutManager.scrollToPositionWithOffset(parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && hasHiddenArchive() ? 1 : 0, (int) scrollYOffset);
+                parentPage.layoutManager.scrollToPositionWithOffset(parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && hasHiddenArchiveForPage(parentPage) ? 1 : 0, (int) scrollYOffset);
             }
 
             ignoreLayout = true;
@@ -2105,7 +2203,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             ignoreLayout = false;
 
             if (firstLayout && getMessagesController().dialogsLoaded) {
-                if (parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && hasHiddenArchive()) {
+                if (parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && hasHiddenArchiveForPage(parentPage)) {
                     ignoreLayout = true;
                     LinearLayoutManager layoutManager = (LinearLayoutManager) getLayoutManager();
                     layoutManager.scrollToPositionWithOffset(1, (int) scrollYOffset);
@@ -2241,7 +2339,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 }
             }
             boolean result = super.onTouchEvent(e);
-            if (parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && parentPage.archivePullViewState == ARCHIVE_ITEM_STATE_HIDDEN && hasHiddenArchive()) {
+            if (parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && parentPage.archivePullViewState == ARCHIVE_ITEM_STATE_HIDDEN && hasHiddenArchiveForPage(parentPage)) {
                 LinearLayoutManager layoutManager = (LinearLayoutManager) getLayoutManager();
                 int currentPosition = layoutManager.findFirstVisibleItemPosition();
                 if (currentPosition == 0) {
@@ -2365,7 +2463,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                         int p = adapter.findDialogPosition(anchorView.getDialogId());
                         int offset = (int) (anchorView.getTop() - anchorListView.getPaddingTop() + scrollOffset);
                         if (p >= 0) {
-                            boolean hasArchive = parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && parentPage.archivePullViewState == ARCHIVE_ITEM_STATE_HIDDEN && hasHiddenArchive();
+                            boolean hasArchive = parentPage.dialogsType == DIALOGS_TYPE_DEFAULT && parentPage.archivePullViewState == ARCHIVE_ITEM_STATE_HIDDEN && hasHiddenArchiveForPage(parentPage);
                             int fixedOffset = adapter.fixScrollGap(this, p, offset, hasArchive, hasStories, canShowFilterTabsView, opened);
                             ((LinearLayoutManager) animationSupportListView.getLayoutManager()).scrollToPositionWithOffset(p, fixedOffset);
                         }
@@ -2573,7 +2671,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                                         parentPage.listView.smoothScrollBy(0, -dp(SharedConfig.useThreeLinesLayout ? 76 : 70));
                                     }
                                 }
-                                ArrayList<TLRPC.Dialog> dialogs = getDialogsArray(currentAccount, parentPage.dialogsType, folderId, false);
+                                ArrayList<TLRPC.Dialog> dialogs = tetogramDialogsForPage(parentPage,folderId,false);
                                 frozenDialogsList.add(0, dialogs.get(0));
                                 parentPage.updateList(true);
                                 AndroidUtilities.runOnUIThread(() -> setDialogsListFrozen(false), 300);
@@ -3492,6 +3590,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     }
                 }
             };
+            filterTabsView.setLocalOnlyTabs(isTetogramSectionList());
             filterTabsView.setVisibility(View.GONE);
             canShowFilterTabsView = false;
             animatorFilterTabsVisible.setValue(false, false);
@@ -3549,7 +3648,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     }
 
                     ArrayList<MessagesController.DialogFilter> dialogFilters = getMessagesController().getDialogFilters();
-                    if (!tab.isDefault && (tab.id < 0 || tab.id >= dialogFilters.size())) {
+                    if (!isTetogramSectionList() && !tab.isDefault && (tab.id < 0 || tab.id >= dialogFilters.size())) {
                         return;
                     }
                     viewPages[1].selectedType = tab.id;
@@ -3582,6 +3681,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                         viewPages[0] = viewPages[1];
                         viewPages[1] = tempPage;
                         viewPages[1].setVisibility(View.GONE);
+                        tetogramRememberVisibleTab();
                         showScrollbars(true);
                         updateCounters(false);
                         filterTabsView.stopAnimatingIndicator();
@@ -3593,6 +3693,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
                 @Override
                 public int getTabCounter(int tabId) {
+                    if(isTetogramSectionList()) {
+                        if(tetogramSections==null)return 0;String key=tetogramTabKey(tabId);MessagesController.DialogFilter server=SectionDialogs.server(currentAccount,key);if(server!=null)return server.unreadCount;
+                        SectionConfig.Section section=tetogramSections.section(tetogramSectionId);SectionConfig.Scope scope=tetogramSections.folders.containsKey(key)?tetogramSections.folders.get(key):section;
+                        int count=0;if(scope!=null)for(TLRPC.Dialog d:getMessagesController().getAllDialogs())if(!(d instanceof TLRPC.TL_dialogFolder) && SectionDialogs.includes(currentAccount,scope,d) && (getMessagesController().getDialogUnreadCount(d)>0 || d.unread_mark))count++;return count;
+                    }
                     if (initialDialogsType == DIALOGS_TYPE_FORWARD) {
                         return 0;
                     }
@@ -3608,6 +3713,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
                 @Override
                 public boolean didSelectTab(FilterTabsView.TabView tabView, boolean selected) {
+                    if(isTetogramSectionList()) {openTetogramSections();return true;}
                     if (initialDialogsType != DIALOGS_TYPE_DEFAULT) {
                         return false;
                     }
@@ -3764,6 +3870,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
                 @Override
                 public void onDeletePressed(int id) {
+                    if(isTetogramSectionList())return;
                     showDeleteAlert(getMessagesController().getDialogFilters().get(id));
                 }
             });
@@ -4110,7 +4217,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     if (hasStories && !rightSlidingDialogContainer.hasFragment() && !fixScrollYAfterArchiveOpened) {
                         pTop -= dp(DialogStoriesCell.HEIGHT_IN_DP);
                     }
-                    boolean hasHiddenArchive = !fixScrollYAfterArchiveOpened && viewPage.dialogsType == DIALOGS_TYPE_DEFAULT && !onlySelect && folderId == 0 && communityId == 0 && getMessagesController().hasHiddenArchive() && viewPage.archivePullViewState == ARCHIVE_ITEM_STATE_HIDDEN;
+                    boolean hasHiddenArchive = !fixScrollYAfterArchiveOpened && viewPage.dialogsType == DIALOGS_TYPE_DEFAULT && !onlySelect && folderId == 0 && communityId == 0 && hasHiddenArchiveForPage(viewPage) && viewPage.archivePullViewState == ARCHIVE_ITEM_STATE_HIDDEN;
                     if ((hasHiddenArchive || (hasStories && !rightSlidingDialogContainer.hasFragment())) && dy < 0) {
                         viewPage.listView.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
                         int currentPosition = viewPage.layoutManager.findFirstVisibleItemPosition();
@@ -4656,7 +4763,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
         floatingButton3 = new FragmentFloatingButton(context, resourceProvider);
         contentView.addView(floatingButton3, FragmentFloatingButton.createDefaultLayoutParams());
+        if(isTetogramSectionList()) {
+            FrameLayout.LayoutParams buttonParams=(FrameLayout.LayoutParams)floatingButton3.getLayoutParams();buttonParams.gravity=Gravity.RIGHT|Gravity.BOTTOM;floatingButton3.setLayoutParams(buttonParams);
+            tetogramSectionMenu=new SectionMenu(context,resourceProvider);
+            contentView.addView(tetogramSectionMenu,LayoutHelper.createFrame(64,56,Gravity.RIGHT|Gravity.BOTTOM,0,0,12,72));
+            floatingButton3.setOnLongClickListener(v->{presentFragment(new SectionsActivity(currentAccount));return true;});
+        }
         floatingButton3.setOnClickListener(v -> {
+            if(isTetogramSectionList()){tetogramToggleSections();return;}
             if (parentLayout != null && parentLayout.isInPreviewMode()) {
                 finishPreviewFragment();
                 return;
@@ -4679,7 +4793,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
         });
 
-        if (!isArchive() && initialDialogsType == DIALOGS_TYPE_DEFAULT) {
+        if (!isTetogramSectionList() && !isArchive() && initialDialogsType == DIALOGS_TYPE_DEFAULT) {
             if (MessagesController.getInstance(currentAccount).getMainSettings().getBoolean("storyhint", true)) {
                 storyHint = new HintView2(context, HintView2.DIRECTION_RIGHT)
                         .setRounding(8)
@@ -6704,6 +6818,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 return;
             }
         }
+        if(isTetogramSectionList()) {
+            int tab=tetogramTabs.indexOf("tg:"+fid);
+            if(tab<0){openTetogramSections();return;}
+            FilterTabsView.Tab value=filterTabsView.getTab(tab);if(value!=null)filterTabsView.scrollToTab(value,tab);return;
+        }
         int index = filterTabsView.getTabsCount() - 1;
         ArrayList<MessagesController.DialogFilter> filters = getMessagesController().getDialogFilters();
         for (int i = 0; i < filters.size(); ++i) {
@@ -6725,6 +6844,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     }
 
     public void switchToCurrentSelectedMode(boolean animated) {
+        if(isTetogramSectionList()){tetogramSwitchPage(animated);return;}
         for (int a = 0; a < viewPages.length; a++) {
             viewPages[a].listView.stopScroll();
         }
@@ -6777,6 +6897,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         if (filterTabsView == null || inPreviewMode || searchIsShowed || (rightSlidingDialogContainer != null && rightSlidingDialogContainer.hasFragment())) {
             return;
         }
+        if(isTetogramSectionList()){tetogramUpdateTabs(animated);return;}
         if (filterOptions != null) {
             filterOptions.dismiss();
             filterOptions = null;
@@ -6944,6 +7065,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onResume() {
         super.onResume();
+        if(isTetogramSectionList() && filterTabsView!=null)updateFilterTabs(true,false);
         if (dialogStoriesCell != null) {
             dialogStoriesCell.onResume();
         }
@@ -7163,6 +7285,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     @Override
     public void onPause() {
+        if(tetogramSectionMenu!=null)tetogramSectionMenu.collapse();
         super.onPause();
         if (storiesBulletin != null) {
             storiesBulletin.hide();
@@ -7741,7 +7864,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         int visibleItemCount = Math.abs(lastVisibleItem - firstVisibleItem) + 1;
         if (lastVisibleItem != RecyclerView.NO_POSITION) {
             RecyclerView.ViewHolder holder = viewPage.listView.findViewHolderForAdapterPosition(lastVisibleItem);
-            if (floatingForceVisible = holder != null && holder.getItemViewType() == 11) {
+            if (floatingForceVisible = !isTetogramSectionList() && holder != null && holder.getItemViewType() == 11) {
                 hideFloatingButton(false);
             }
         } else {
@@ -7752,11 +7875,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         boolean load = false;
         boolean loadFromCache = false;
         if (viewPage.dialogsType == DIALOGS_TYPE_FOLDER1 || viewPage.dialogsType == DIALOGS_TYPE_FOLDER2) {
-            ArrayList<MessagesController.DialogFilter> dialogFilters = getMessagesController().getDialogFilters();
+            ArrayList<MessagesController.DialogFilter> dialogFilters = tetogramPageFilters();
             if (viewPage.selectedType >= 0 && viewPage.selectedType < dialogFilters.size()) {
                 MessagesController.DialogFilter filter = dialogFilters.get(viewPage.selectedType);
-                if ((filter.flags & MessagesController.DIALOG_FILTER_FLAG_EXCLUDE_ARCHIVED) == 0) {
-                    if (visibleItemCount > 0 && lastVisibleItem >= getDialogsArray(currentAccount, viewPage.dialogsType, 1, dialogsListFrozen).size() - 10 ||
+                if (filter!=null && (filter.flags & MessagesController.DIALOG_FILTER_FLAG_EXCLUDE_ARCHIVED) == 0) {
+                    if (visibleItemCount > 0 && lastVisibleItem >= tetogramDialogsForPage(viewPage,1,dialogsListFrozen).size() - 10 ||
                             visibleItemCount == 0 && !getMessagesController().isDialogsEndReached(1)) {
                         loadArchivedFromCache = !getMessagesController().isDialogsEndReached(1);
                         if (loadArchivedFromCache || !getMessagesController().isServerDialogsEndReached(1)) {
@@ -7766,7 +7889,15 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 }
             }
         }
-        if (visibleItemCount > 0 && lastVisibleItem >= getDialogsArray(currentAccount, viewPage.dialogsType, folderId, dialogsListFrozen).size() - 10 ||
+        if(isTetogramSectionList() && viewPage.dialogsType==0 && tetogramSections!=null && tetogramSections.configured) {
+            SectionConfig.Section section=tetogramSections.section(tetogramSectionId);
+            String key=tetogramTabKey(viewPage.selectedType);SectionConfig.Scope scope=tetogramSections.folders.containsKey(key)?tetogramSections.folders.get(key):section;
+            if(scope!=null && (!scope.chats.isEmpty() || scope.flags!=0 && (scope.flags&128)==0)) {
+                loadArchivedFromCache=!getMessagesController().isDialogsEndReached(1);
+                loadArchived=loadArchivedFromCache || !getMessagesController().isServerDialogsEndReached(1);
+            }
+        }
+        if (visibleItemCount > 0 && lastVisibleItem >= tetogramDialogsForPage(viewPage,folderId,dialogsListFrozen).size() - 10 ||
                 visibleItemCount == 0 && (viewPage.dialogsType == 7 || viewPage.dialogsType == 8) && !getMessagesController().isDialogsEndReached(folderId)) {
             loadFromCache = !getMessagesController().isDialogsEndReached(folderId);
             if (loadFromCache || !getMessagesController().isServerDialogsEndReached(folderId)) {
@@ -8784,11 +8915,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private void updateFloatingButtonVisibility(boolean animated) {
         final boolean isVisible = !(onlySelect && initialDialogsType != 10 || folderId != 0 || communityId != 0 || inPreviewMode || (searching && !onlySelect) || floatingButtonHidden);
 
+        if(!isVisible && tetogramSectionMenu!=null)tetogramSectionMenu.collapse();
         if (floatingButton3 != null) {
             floatingButton3.setButtonVisible(isVisible, animated);
         }
         if (floatingButtonStories != null) {
-            floatingButtonStories.setButtonVisible(isVisible, animated);
+            floatingButtonStories.setButtonVisible(isVisible && !isTetogramSectionList(), animated);
         }
     }
 
@@ -8799,6 +8931,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
         if (floatingButton3 != null) {
             floatingButton3.setTranslationY(baseTranslationY);
+            if(tetogramSectionMenu!=null)tetogramSectionMenu.setTranslationY(baseTranslationY);
         }
         if (floatingButtonStories != null) {
             floatingButtonStories.setTranslationY(baseTranslationY - dp(52));
@@ -8823,6 +8956,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             return;
         }
 
+        if(isTetogramSectionList()) {
+            floatingButton3.setImageResource(R.drawable.tetogram_sections_arrow);
+            floatingButton3.setContentDescription(getString(R.string.TetogramSections));
+            if(floatingButtonStories!=null)floatingButtonStories.setButtonVisible(false,false);
+            return;
+        }
         if (initialDialogsType == DIALOGS_TYPE_WIDGET) {
             floatingButton3.setImageResource(R.drawable.floating_check);
             floatingButton3.setContentDescription(LocaleController.getString(R.string.Done));
@@ -8832,8 +8971,19 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
     }
 
-    public boolean hasHiddenArchive() {
-        return !onlySelect && initialDialogsType == DIALOGS_TYPE_DEFAULT && communityId == 0 && folderId == 0 && getMessagesController().hasHiddenArchive();
+    public boolean hasHiddenArchive() {return hasHiddenArchiveForPage(viewPages==null || viewPages.length==0?null:viewPages[0]);}
+    private boolean hasHiddenArchiveForPage(ViewPage page) {
+        if(onlySelect || initialDialogsType!=DIALOGS_TYPE_DEFAULT || communityId!=0 || folderId!=0 || !getMessagesController().hasHiddenArchive())return false;
+        if(isTetogramSectionList() && tetogramSections!=null && tetogramSections.configured) {
+            if(page==null || page.dialogsType!=DIALOGS_TYPE_DEFAULT)return false;
+            for(TLRPC.Dialog d:tetogramProjection(page.selectedType))if(d instanceof TLRPC.TL_dialogFolder)return true;
+            return false;
+        }
+        return true;
+    }
+    public boolean tetogramHasArchive(DialogsAdapter adapter) {
+        for(TLRPC.Dialog d:getDialogsArrayForAdapter(adapter,currentAccount,adapter.getDialogsType(),0,false))if(d instanceof TLRPC.TL_dialogFolder)return true;
+        return false;
     }
 
     private boolean waitingForDialogsAnimationEnd(ViewPage viewPage) {
@@ -10490,7 +10640,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
         } else if (id == NotificationCenter.dialogsUnreadCounterChanged) {
             if (filterTabsView != null && filterTabsView.getVisibility() == View.VISIBLE) {
-                filterTabsView.notifyTabCounterChanged(filterTabsView.getDefaultTabId());
+                if(isTetogramSectionList())filterTabsView.checkTabsCounter();else filterTabsView.notifyTabCounterChanged(filterTabsView.getDefaultTabId());
             }
         } else if (id == NotificationCenter.dialogsUnreadPollVotesCounterChanged) {
             updateVisibleRows(0);
@@ -10930,6 +11080,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             return frozenDialogsList;
         }
         MessagesController messagesController = AccountInstance.getInstance(currentAccount).getMessagesController();
+        if(isTetogramSectionList() && dialogsType==DIALOGS_TYPE_DEFAULT && folderId==0)return tetogramProjection(viewPages==null || viewPages.length==0 || viewPages[0]==null?0:viewPages[0].selectedType);
         if (dialogsType == DIALOGS_TYPE_DEFAULT) {
             return messagesController.getDialogs(folderId);
         } else if (dialogsType == DIALOGS_TYPE_WIDGET || dialogsType == DIALOGS_TYPE_IMPORT_HISTORY) {
@@ -11102,6 +11253,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             return;
         }
 
+        if(hide && tetogramSectionMenu!=null)tetogramSectionMenu.collapse();
         floatingButtonHidden = hide;
         updateFloatingButtonVisibility(true);
 
@@ -13296,6 +13448,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         io.setColors(getThemedColor(Theme.key_actionBarDefaultTitle), getThemedColor(Theme.key_actionBarDefaultTitle));
         io.setDimAlpha(0x08);
 
+        if(isTetogramSectionList()) {
+            io.add(R.drawable.filled_fab_compose_32,getString(R.string.NewMessageTitle),this::openWriteContacts);
+            io.add(R.drawable.outline_fab_story_24,getString(R.string.StoryPrivacyButtonPost),this::openStoriesRecorder);
+            io.add(R.drawable.tetogram_labs,getString(R.string.TetogramSections),()->presentFragment(new SectionsActivity(currentAccount)));
+            io.add(R.drawable.msg_archive,getString(R.string.Archive),()->{Bundle args=new Bundle();args.putInt("folderId",1);DialogsActivity archive=new DialogsActivity(args);archive.setCurrentAccount(currentAccount);presentFragment(archive);});
+        }
         final Activity activity = getParentActivity();
         final LaunchActivity launchActivity;
         if (activity instanceof LaunchActivity) {
@@ -14254,6 +14412,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     }
                     if (floatingButton3 != null) {
                         floatingButton3.updateColors();
+                        if(tetogramSectionMenu!=null)tetogramSectionMenu.collapse();
                     }
                     if (floatingButtonStories != null) {
                         floatingButtonStories.updateColors();

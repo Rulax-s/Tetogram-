@@ -32,7 +32,7 @@ public final class LabsActivity extends LabsPage {
         items.add(UItem.asHeader(getString(R.string.TetogramEditHistory)));
         items.add(UItem.asShadow(getString(R.string.TetogramEditUnavailable)));
         items.add(UItem.asHeader(getString(R.string.TetogramInterfaceSection)));
-        items.add(UItem.asShadow(getString(R.string.TetogramInterfaceFuture)));
+        items.add(UItem.asButton(11,getString(R.string.TetogramSections)));
         items.add(UItem.asHeader(getString(R.string.TetogramInformation)));
         items.add(UItem.asButton(8,"Tetogram",BuildVars.BUILD_VERSION_STRING));
         items.add(UItem.asButton(9,"Telegram","13.2.2"));
@@ -46,6 +46,7 @@ public final class LabsActivity extends LabsPage {
     private void refresh() { if(list!=null) list.adapter.update(true); }
     @Override protected void click(UItem item,View view,int position,float x,float y) {
         switch(item.id) {
+            case 11: presentFragment(new SectionsActivity(currentAccount)); break;
             case 1:
                 if(LabsSettings.enabled(currentAccount)) { LabsSettings.prefs(currentAccount).edit().putBoolean("save_deleted",false).apply(); refresh(); }
                 else if(LabsSettings.prefs(currentAccount).getBoolean("consent_v1",false)) enable();

@@ -73,3 +73,5 @@ DeletedReplyPolicy.Result теперь содержит authorLength/quoteOffset
 ## 0.2.4: mention автора внутри quote
 
 Внешний TL_messageEntityBlockquote охватывает имя и текст. Внутри — TL_inputMessageEntityMentionName по raw from_id.user_id/InputUser того же аккаунта, затем bold имени. Диапазон ответа начинается после одного переноса. Канонический порядок соблюдает правила TDLib: quote → continuous mention → splittable bold. При необходимости Sender User загружается из native users cache на storage queue с проверкой owner UID. Не используйте receiver ID/username или фиктивный URL вместо source sender ID. При недоступном InputUser остаётся plain name; DELETED_MENTIONS.md.
+
+Пользовательские разделы 0.3.0: `messenger/tetogram/SectionConfig`, `SectionsStore`, `SectionDialogs`; редактор `ui/tetogram/SectionsActivity`, плавающее меню `SectionMenu`. Интеграция ограничена главным DialogsActivity, его adapter/empty cell и MainTabsActivity. См. [SECTIONS.md](SECTIONS.md) для ключей, вкладок и ручного чек-листа. Данные разделов не содержат копий сообщений.

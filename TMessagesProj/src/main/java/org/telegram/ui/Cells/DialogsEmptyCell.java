@@ -187,6 +187,12 @@ public class DialogsEmptyCell extends LinearLayout {
         subtitleView.setText(help, false);
     }
 
+    public void setSectionEmpty(Runnable action) {
+        titleView.setText(LocaleController.getString(R.string.NoChats));
+        subtitleView.setText(LocaleController.getString(R.string.TetogramSectionEmpty),false);
+        titleView.setOnClickListener(v->action.run());subtitleView.setOnClickListener(v->action.run());
+    }
+
     public boolean isUtyanAnimationTriggered() {
         return utyanAnimationTriggered;
     }

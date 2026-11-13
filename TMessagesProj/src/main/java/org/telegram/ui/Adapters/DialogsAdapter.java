@@ -542,7 +542,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
     }
 
     public void updateHasHints() {
-        hasHints = folderId == 0 && dialogsType == DialogsActivity.DIALOGS_TYPE_DEFAULT && !isOnlySelect && !MessagesController.getInstance(currentAccount).hintDialogs.isEmpty();
+        hasHints = !parentFragment.isTetogramSectionList() && folderId == 0 && dialogsType == DialogsActivity.DIALOGS_TYPE_DEFAULT && !isOnlySelect && !MessagesController.getInstance(currentAccount).hintDialogs.isEmpty();
     }
 
     boolean isCalculatingDiff;
@@ -910,6 +910,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
     public int lastDialogsEmptyType = -1;
 
     public int dialogsEmptyType() {
+        if(parentFragment.isTetogramSectionList())return DialogsEmptyCell.TYPE_FILTER_NO_CHATS_TO_DISPLAY;
         if (dialogsType == 7 || dialogsType == 8) {
             if (MessagesController.getInstance(currentAccount).isDialogsEndReached(folderId)) {
                 return DialogsEmptyCell.TYPE_FILTER_NO_CHATS_TO_DISPLAY;
@@ -1072,6 +1073,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
                 DialogsEmptyCell cell = (DialogsEmptyCell) holder.itemView;
                 int fromDialogsEmptyType = lastDialogsEmptyType;
                 cell.setType(lastDialogsEmptyType = dialogsEmptyType(), isOnlySelect);
+                if(parentFragment.isTetogramSectionList()){cell.setSectionEmpty(parentFragment::openTetogramSections);parentFragment.setScrollDisabled(false);break;}
                 if (dialogsType != 7 && dialogsType != 8) {
                     cell.setOnUtyanAnimationEndListener(() -> parentFragment.setScrollDisabled(false));
                     cell.setOnUtyanAnimationUpdateListener(progress -> parentFragment.setContactsAlpha(progress));
@@ -1250,7 +1252,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
     }
 
     public void moveDialogs(RecyclerListView recyclerView, int fromPosition, int toPosition) {
-        ArrayList<TLRPC.Dialog> dialogs = parentFragment.getDialogsArray(currentAccount, dialogsType, folderId, false);
+        ArrayList<TLRPC.Dialog> dialogs = parentFragment.getDialogsArrayForAdapter(this,currentAccount, dialogsType, folderId, false);
         int fromIndex = fixPosition(fromPosition);
         int toIndex = fixPosition(toPosition);
         TLRPC.Dialog fromDialog = dialogs.get(fromIndex);
@@ -1267,6 +1269,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
             toDialog.pinnedNum = oldNum;
         }
         Collections.swap(dialogs, fromIndex, toIndex);
+        if(parentFragment.isTetogramSectionList() && dialogsType==0)MessagesController.getInstance(currentAccount).sortDialogs(null);
         updateList(null);
     }
 
@@ -1508,7 +1511,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
 
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             int size = itemInternals.size();
-            boolean hasArchive = folderId == 0 && dialogsType == 0 && MessagesController.getInstance(currentAccount).dialogs_dict.get(DialogObject.makeFolderDialogId(1)) != null;
+            boolean hasArchive = folderId == 0 && dialogsType == 0 && (parentFragment.isTetogramSectionList()?parentFragment.tetogramHasArchive(DialogsAdapter.this):MessagesController.getInstance(currentAccount).dialogs_dict.get(DialogObject.makeFolderDialogId(1)) != null);
             View parent = (View) getParent();
             int height;
             int blurOffset = 0;
@@ -1662,7 +1665,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
         if (communityId != 0) {
             array = messagesController.getDialogsByCommunity(communityId);
         } else {
-            array = parentFragment.getDialogsArray(currentAccount, dialogsType, folderId, dialogsListFrozen);
+            array = parentFragment.getDialogsArrayForAdapter(this,currentAccount, dialogsType, folderId, dialogsListFrozen);
             if (array == null) {
                 array = new ArrayList<>();
             }
@@ -1675,7 +1678,8 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
             return;
         }
 
-        if (!hasHints && dialogsType == 0 && folderId == 0 && messagesController.isDialogsEndReached(folderId) && !forceUpdatingContacts) {
+        if(parentFragment.isTetogramSectionList()){onlineContacts=null;forceUpdatingContacts=false;}
+        if (!parentFragment.isTetogramSectionList() && !hasHints && dialogsType == 0 && folderId == 0 && messagesController.isDialogsEndReached(folderId) && !forceUpdatingContacts) {
             if (messagesController.getAllFoldersDialogsCount() <= 10 && ContactsController.getInstance(currentAccount).doneLoadingContacts && !ContactsController.getInstance(currentAccount).contacts.isEmpty()) {
                 onlineContacts = new ArrayList<>(ContactsController.getInstance(currentAccount).contacts);
                 long selfId = UserConfig.getInstance(currentAccount).clientUserId;
@@ -1823,7 +1827,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
                 }
             }
 
-            if (communityId == 0 && !forceShowEmptyCell && dialogsType != 7 && dialogsType != 8 && !MessagesController.getInstance(currentAccount).isDialogsEndReached(folderId)) {
+            if (communityId == 0 && !forceShowEmptyCell && dialogsType != 7 && dialogsType != 8 && !MessagesController.getInstance(currentAccount).isDialogsEndReached(folderId) && !(parentFragment.isTetogramSectionList() && dialogsCount==0)) {
                 if (dialogsCount != 0) {
                     itemInternals.add(new ItemInternal(VIEW_TYPE_FLICKER));
                 }

@@ -803,6 +803,8 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         items.add(SettingCell.Factory.of(7, IconBackgroundColors.BLUE_ALT.top, IconBackgroundColors.BLUE_ALT.bottom, R.drawable.settings_folders, getString(R.string.SettingsFolders), getString(R.string.SettingsFoldersInfo)));
         items.add(SettingCell.Factory.of(8, IconBackgroundColors.CYAN.top, IconBackgroundColors.CYAN.bottom, R.drawable.settings_devices, getString(R.string.SettingsDevices), getString(R.string.SettingsDevicesInfo)));
         items.add(SettingCell.Factory.of(9, IconBackgroundColors.ORANGE_DEEP.top, IconBackgroundColors.ORANGE_DEEP.bottom, R.drawable.settings_power, getString(R.string.SettingsPowerSaving), getString(R.string.SettingsPowerSavingInfo)));
+        items.add(SettingCell.Factory.of(46001,IconBackgroundColors.BLUE.top,IconBackgroundColors.BLUE.bottom,R.drawable.outline_groups_24,getString(R.string.MainTabsContacts)));
+        items.add(SettingCell.Factory.of(46002,IconBackgroundColors.GREEN.top,IconBackgroundColors.GREEN.bottom,R.drawable.menu_call_create,getString(R.string.MainTabsCalls)));
         items.add(SettingCell.Factory.of(46000, IconBackgroundColors.PURPLE.top, IconBackgroundColors.PURPLE.bottom, R.drawable.tetogram_labs, getString(R.string.TetogramLabs)));
         items.add(SettingCell.Factory.of(10, IconBackgroundColors.PURPLE.top, IconBackgroundColors.PURPLE.bottom, R.drawable.settings_language, getString(R.string.SettingsLanguage), LocaleController.getCurrentLanguageName()));
 
@@ -918,6 +920,13 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             return;
         }
         switch (item.id) {
+            case 46001: {
+                Bundle contactsArgs=new Bundle();contactsArgs.putBoolean("needPhonebook",true);
+                ContactsActivity contacts=new ContactsActivity(contactsArgs);contacts.setCurrentAccount(currentAccount);presentSettingFragment(contacts);break;
+            }
+            case 46002: {
+                CallLogActivity calls=new CallLogActivity(new Bundle());calls.setCurrentAccount(currentAccount);presentSettingFragment(calls);break;
+            }
             case 46000:
                 presentSettingFragment(new org.telegram.ui.tetogram.LabsActivity(currentAccount));
                 break;
