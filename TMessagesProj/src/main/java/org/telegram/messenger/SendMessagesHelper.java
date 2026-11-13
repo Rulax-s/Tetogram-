@@ -2247,6 +2247,14 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
         if (messages == null || messages.isEmpty()) {
             return 0;
         }
+        for (MessageObject candidate : messages) {
+            if (candidate.tetogramLocalDeleted) {
+                ArrayList<MessageObject> serverMessages = new ArrayList<>();
+                for (MessageObject message : messages) if (!message.tetogramLocalDeleted) serverMessages.add(message);
+                return sendMessage(serverMessages, peer, forwardFromMyName, hideCaption, notify, scheduleDate,
+                        scheduleRepeatPeriod, replyToTopMsg, video_timestamp, payStars, monoForumPeerId, suggestionParams);
+            }
+        }
         int sendResult = 0;
         long myId = getUserConfig().getClientUserId();
         boolean isChannel = false;

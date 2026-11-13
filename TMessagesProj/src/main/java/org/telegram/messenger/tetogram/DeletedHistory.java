@@ -153,7 +153,7 @@ public final class DeletedHistory {
                 if(loadType==0) range="mid>="+(serverEnd || high==0 ? 1 : low)+" AND mid<="+(anchor>0 ? anchor : Integer.MAX_VALUE);
                 else if(loadType==1) range="mid>"+anchor+" AND mid<="+(serverEnd ? Integer.MAX_VALUE : Math.max(high,anchor));
                 else range=high>0 ? "mid BETWEEN "+(serverEnd && anchor==0 ? 1 : low)+" AND "+(anchor==0 ? Integer.MAX_VALUE : high) : "mid>0";
-                String order=(loadType==2 || loadType==3 || loadType==4) && high==0 && anchor>0 ? "ABS(mid-"+anchor+"),mid DESC" : "mid DESC";
+                String order=HistoryPagePolicy.archiveOrder(anchor,loadType);
                 SQLiteCursor c=db.queryFinalized("SELECT data,did,deleted,received FROM tetogram_deleted_v1 WHERE account="+owner+" AND did="+did+" AND deleted>0 "+(thread==0 ? "" : " AND (topic="+thread+" OR mid="+thread+") ")+" AND "+range+" ORDER BY "+order+" LIMIT "+(Math.max(count,30)+1));
                 int added=0;
                 try { while(c.next()) {
@@ -162,12 +162,8 @@ public final class DeletedHistory {
                     if(added++>=Math.max(count,30)) { page.serverSize=count; page.hasMore=true; break; }
                     page.add(m);
                 }} finally { c.dispose(); }
-                int limit=Math.max(count,1);
-                if((loadType==2 || loadType==3 || loadType==4) && anchor>0) Collections.sort(page,(x,y)->Long.compare(Math.abs((long)x.getId()-anchor),Math.abs((long)y.getId()-anchor)));
-                else if(loadType==1) Collections.sort(page,(x,y)->Integer.compare(x.getId(),y.getId()));
-                else Collections.sort(page,(x,y)->Integer.compare(y.getId(),x.getId()));
-                if(page.size()>limit) { page.subList(limit,page.size()).clear(); page.hasMore=true; page.serverSize=count; }
-                Collections.sort(page,(x,y)->Integer.compare(y.getId(),x.getId()));
+                if(HistoryPagePolicy.trim(page,count,anchor,loadType,MessageObject::getId)) { page.hasMore=true; page.serverSize=count; }
+
             } catch(Exception e) { FileLog.e("Tetogram history page failed",e); }
             AndroidUtilities.runOnUIThread(()->callback.run(owner==uid(a) && LabsSettings.visible(a) && !LabsSettings.excluded(a,did) ? page : source));
         });

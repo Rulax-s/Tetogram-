@@ -12254,12 +12254,12 @@ public class MessagesController extends BaseController implements NotificationCe
                     if (!needProcess) {
                         getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoadWithoutProcess, classGuid, resCount, isCache, isEnd, last_message_id);
                     } else {
-                        org.telegram.messenger.tetogram.DeletedHistory.deliver(currentAccount, dialogId, objects, count, max_id, load_type, isCache, isEnd, mode, threadMessageId, page ->
+                        org.telegram.messenger.tetogram.DeletedHistory.deliver(currentAccount, dialogId, objects, count, load_type==LOAD_FROM_UNREAD && max_id==0 ? first_unread : max_id, load_type, isCache, isEnd, mode, threadMessageId, page ->
                             getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, page, isCache, finalFirst_unread_final, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode));
                     }
                 }, classGuid, loaderLogger);
             } else {
-                org.telegram.messenger.tetogram.DeletedHistory.deliver(currentAccount, dialogId, objects, count, max_id, load_type, isCache, isEnd, mode, threadMessageId, page ->
+                org.telegram.messenger.tetogram.DeletedHistory.deliver(currentAccount, dialogId, objects, count, load_type==LOAD_FROM_UNREAD && max_id==0 ? first_unread : max_id, load_type, isCache, isEnd, mode, threadMessageId, page ->
                             getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, page, isCache, tetogramFirstUnread, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode));
             }
 
