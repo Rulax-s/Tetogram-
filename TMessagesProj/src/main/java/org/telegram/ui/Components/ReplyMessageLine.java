@@ -392,27 +392,27 @@ public class ReplyMessageLine {
         } else if (type == TYPE_REPLY && (
             messageObject.overrideLinkColor >= 0 ||
             messageObject.messageOwner != null &&
-            messageObject.replyMessageObject != null &&
-            messageObject.messageOwner.reply_to != null && (messageObject.messageOwner.reply_to.reply_from == null || TextUtils.isEmpty(messageObject.messageOwner.reply_to.reply_from.from_name)) &&
-            messageObject.replyMessageObject.messageOwner != null &&
-            messageObject.replyMessageObject.messageOwner.from_id != null && (
-                messageObject.replyMessageObject.isFromUser() ||
+            messageObject.getDisplayReplyMessageObject() != null &&
+            messageObject.getDisplayReplyHeader() != null && (messageObject.getDisplayReplyHeader().reply_from == null || TextUtils.isEmpty(messageObject.getDisplayReplyHeader().reply_from.from_name)) &&
+            messageObject.getDisplayReplyMessageObject().messageOwner != null &&
+            messageObject.getDisplayReplyMessageObject().messageOwner.from_id != null && (
+                messageObject.getDisplayReplyMessageObject().isFromUser() ||
                 DialogObject.isEncryptedDialog(messageObject.getDialogId()) ||
-                messageObject.replyMessageObject.isFromChannel()
+                messageObject.getDisplayReplyMessageObject().isFromChannel()
         ))) {
             int colorId;
             if (messageObject.overrideLinkColor >= 0) {
                 colorId = messageObject.overrideLinkColor;
-            } else if (DialogObject.isEncryptedDialog(messageObject.replyMessageObject.getDialogId())) {
-                TLRPC.User user = messageObject.replyMessageObject.isOutOwner() ? UserConfig.getInstance(messageObject.replyMessageObject.currentAccount).getCurrentUser() : currentUser;
+            } else if (DialogObject.isEncryptedDialog(messageObject.getDisplayReplyMessageObject().getDialogId())) {
+                TLRPC.User user = messageObject.getDisplayReplyMessageObject().isOutOwner() ? UserConfig.getInstance(messageObject.getDisplayReplyMessageObject().currentAccount).getCurrentUser() : currentUser;
                 if (user != null) {
                     colorId = UserObject.getColorId(user);
                     emojiDocumentId = UserObject.getEmojiId(user);
                 } else {
                     colorId = 0;
                 }
-            } else if (messageObject.replyMessageObject.isFromUser()) {
-                TLRPC.User user = MessagesController.getInstance(messageObject.currentAccount).getUser(messageObject.replyMessageObject.messageOwner.from_id.user_id);
+            } else if (messageObject.getDisplayReplyMessageObject().isFromUser()) {
+                TLRPC.User user = MessagesController.getInstance(messageObject.currentAccount).getUser(messageObject.getDisplayReplyMessageObject().messageOwner.from_id.user_id);
                 if (!(messageObject.isOutOwner() || type == TYPE_CODE) && user != null && user.color instanceof TLRPC.TL_peerColorCollectible) {
                     return resolveCollectionColor(messageObject, (TLRPC.TL_peerColorCollectible) user.color, resourcesProvider);
                 }
@@ -422,8 +422,8 @@ public class ReplyMessageLine {
                 } else {
                     colorId = 0;
                 }
-            } else if (messageObject.replyMessageObject.isFromChannel()) {
-                TLRPC.Chat chat = MessagesController.getInstance(messageObject.currentAccount).getChat(messageObject.replyMessageObject.messageOwner.from_id.channel_id);
+            } else if (messageObject.getDisplayReplyMessageObject().isFromChannel()) {
+                TLRPC.Chat chat = MessagesController.getInstance(messageObject.currentAccount).getChat(messageObject.getDisplayReplyMessageObject().messageOwner.from_id.channel_id);
                 if (!(messageObject.isOutOwner() || type == TYPE_CODE) && chat != null && chat.color instanceof TLRPC.TL_peerColorCollectible) {
                     return resolveCollectionColor(messageObject, (TLRPC.TL_peerColorCollectible) chat.color, resourcesProvider);
                 }
@@ -436,7 +436,7 @@ public class ReplyMessageLine {
             } else {
                 colorId = 0;
             }
-            resolveColor(messageObject.replyMessageObject, colorId, resourcesProvider);
+            resolveColor(messageObject.getDisplayReplyMessageObject(), colorId, resourcesProvider);
             backgroundColor = Theme.multAlpha(color1, 0.10f);
             nameColor = color1;
         } else {

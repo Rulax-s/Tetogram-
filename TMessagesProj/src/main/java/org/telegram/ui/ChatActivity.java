@@ -14471,20 +14471,9 @@ public class ChatActivity extends BaseFragment implements
             }
         } else if (which == attach_gallery) {
             final Activity activity = getParentActivity();
-            if (Build.VERSION.SDK_INT >= 33) {
-                if (activity.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                    try {
-                        getParentActivity().requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO}, BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE);
-                    } catch (Throwable ignore) {}
-                    return;
-                }
-            } else if (Build.VERSION.SDK_INT >= 23) {
-                if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    try {
-                        getParentActivity().requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE);
-                    } catch (Throwable ignore) {}
-                    return;
-                }
+            if (!org.telegram.messenger.tetogram.AndroidPermissions.gallery(activity)) {
+                try { org.telegram.messenger.tetogram.AndroidPermissions.requestGallery(activity,BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE,false); } catch(Throwable ignore) {}
+                return;
             }
             boolean allowGifs;
             if (ChatObject.isChannel(currentChat) && currentChat.banned_rights != null && currentChat.banned_rights.send_gifs) {
@@ -14509,6 +14498,10 @@ public class ChatActivity extends BaseFragment implements
                 @Override
                 public void startPhotoSelectActivity() {
                     try {
+                        if(Build.VERSION.SDK_INT>=33) {
+                            Intent picker=new Intent(MediaStore.ACTION_PICK_IMAGES);
+                            if(picker.resolveActivity(getParentActivity().getPackageManager())!=null) {startActivityForResult(picker,1);return;}
+                        }
                         Intent videoPickerIntent = new Intent();
                         videoPickerIntent.setType("video/*");
                         videoPickerIntent.setAction(Intent.ACTION_GET_CONTENT);
@@ -15189,7 +15182,7 @@ public class ChatActivity extends BaseFragment implements
             return new ReplyQuote(
                 messageObject.getDialogId(),
                 messageObject,
-                start, end
+                messageObject.displayToWireOffset(start), messageObject.displayToWireOffset(end)
             );
         }
 
@@ -15404,7 +15397,7 @@ public class ChatActivity extends BaseFragment implements
     }
 
     public void showFieldPanelForEdit(boolean show, MessageObject messageObjectToEdit) {
-        showFieldPanel(show, null, messageObjectToEdit, null, null, true, 0, null, false, 0, true);
+        showFieldPanel(show, null, messageObjectToEdit==null?null:messageObjectToEdit.tetogramWireView(), null, null, true, 0, null, false, 0, true);
     }
 
     public void showFieldPanelForSuggestionParams(MessageSuggestionParams suggestionParams) {
@@ -21167,15 +21160,16 @@ public class ChatActivity extends BaseFragment implements
                     return;
                 }
                 Uri uri = data.getData();
-                if (uri.toString().contains("video")) {
+                if (uri.toString().contains("video") || String.valueOf(getParentActivity().getContentResolver().getType(uri)).startsWith("video/")) {
                     String videoPath = null;
                     try {
                         videoPath = AndroidUtilities.getPath(uri);
                     } catch (Exception e) {
                         FileLog.e(e);
                     }
+                    if(videoPath==null)videoPath=MediaController.copyFileToCache(uri,"mp4");
                     if (videoPath == null) {
-                        showAttachmentError();
+                        showAttachmentError();return;
                     }
                     if (paused) {
                         startVideoEdit = videoPath;
@@ -30726,6 +30720,10 @@ public class ChatActivity extends BaseFragment implements
     };
     public void tetogramReconcileHistory() {
         if (chatMode != MODE_DEFAULT || currentEncryptedChat != null) return;
+        ArrayList<MessageObject> replyRows=new ArrayList<>();
+        for(MessageObject row:messages)if(row!=null && !row.tetogramLocalDeleted)replyRows.add(row);
+        if(!replyRows.isEmpty())org.telegram.messenger.tetogram.LocalReplies.hydrate(currentAccount,replyRows,()-> {if(chatAdapter!=null)chatAdapter.notifyDataSetChanged(false);});
+
         for(int i=0;i<2;i++) {
             final int which=i;
             final long did=i==0 ? dialog_id : mergeDialogId;
@@ -42083,6 +42081,15 @@ public class ChatActivity extends BaseFragment implements
             }
             MessageObject messageObject = cell.getMessageObject();
             if (messageObject == null) return;
+            if(messageObject.hasTetogramLocalReply()) {
+                int sourceId=messageObject.getDisplayReplyMsgId();
+                org.telegram.messenger.tetogram.DeletedHistory.find(currentAccount,dialog_id,sourceId,source-> {
+                    if(getParentActivity()==null)return;
+                    if(source!=null)scrollToMessageId(sourceId,messageObject.getId(),true,0,true,0);
+                    else { messageObject.setTetogramLocalReply(null,0,null,0); if(chatAdapter!=null)chatAdapter.notifyDataSetChanged(false); }
+                });
+                return;
+            }
             if (messageObject.isReplyToStory() && messageObject.messageOwner.replyStory != null) {
                 if (messageObject.messageOwner.replyStory instanceof TL_stories.TL_storyItemDeleted) {
                     BulletinFactory.of(ChatActivity.this).createSimpleBulletin(R.raw.story_bomb1, LocaleController.getString(R.string.StoryNotFound)).show();

@@ -86,3 +86,11 @@ Splash Android 12+ использует собственный анимиров�
 - Добавлены TL-тесты sender ID/вложенности/fallback/Unicode/разделителя. Проверка нажатия в официальном Telegram требует Android UI; DELETED_MENTIONS.md.
 
 - CI 43472506292 — success: JUnit task (55 tests), 13 SQLite tests, APK и подпись проверены. Реальный тест трёх условий в официальном Telegram пока NOT RUN; DELETED_MENTIONS.md.
+
+## 0.2.5 — локальный Reply и проверки разрешений
+
+- Новые ответы на удалённые сообщения внутри Tetogram используют штатное оформление Reply; серверная блок-цитата и упоминание сохраняются.
+- Добавлены локальные связи в той же базе аккаунта, remap временных ID, восстановление при загрузке, проверка префикса, fallback после очистки исходника и штатный переход с подсветкой.
+- Исправлены требования обоих media grants, обработка selected-only callback, gates MediaStore и повторная проверка notification grant. Добавлены Android 14 partial-access manifest/request и Photo Picker внешнего выбора.
+- versionCode 7; applicationId и постоянная подпись без изменений. Добавлены JVM/SQLite регрессии и безопасная диагностика; подробности/ручной checklist в LOCAL_REPLY_AND_PERMISSIONS.md.
+- Реальная причина возможного отзыва полного grant при обновлении на устройстве не подтверждена; ADB-сравнение подготовлено. Новые UI-сценарии не объявляются проверенными на Android.

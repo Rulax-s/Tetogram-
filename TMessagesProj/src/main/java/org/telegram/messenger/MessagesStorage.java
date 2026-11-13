@@ -13989,6 +13989,7 @@ public class MessagesStorage extends BaseController {
 
         final long selfId = getUserConfig().getClientUserId();
         oldMessageId = _oldId;
+        org.telegram.messenger.tetogram.LocalReplies.remap(currentAccount,dialogId,randomId,oldMessageId,newId,scheduled);
         if (_oldId < 0 && scheduled == 1) {
             SQLitePreparedStatement state = null;
             try {

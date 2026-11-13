@@ -3889,7 +3889,7 @@ public class MessageObject {
             if (type == TYPE_ARTICLE) {
                 generateLayout(null);
             } else {
-                applyNewText(messageOwner.message);
+                applyNewText(getDisplayText());
                 generateCaption();
             }
             return replyUpdated || true;
@@ -3945,10 +3945,72 @@ public class MessageObject {
         }
     }
 
+    private String tetogramValidatedWire;
+    private boolean tetogramPrefixValid;
+    private String tetogramRenderedWire;
+    private boolean tetogramRenderedReply;
+    private MessageObject tetogramReplySource;
+    private int tetogramReplyBodyStart;
+    private String tetogramReplyHash;
+    private long tetogramReplyOwner;
+    public boolean hasTetogramLocalReply() {
+        return tetogramReplySource!=null && !translated && !summarized && !isEphemeral()
+            && tetogramReplyOwner==UserConfig.getInstance(currentAccount).getClientUserId()
+            && tetogramReplySource.getDialogId()==getDialogId()
+            && tetogramValidPrefix();
+    }
+    private boolean tetogramValidPrefix() {
+        if(!java.util.Objects.equals(tetogramValidatedWire,messageOwner.message)) {
+            tetogramValidatedWire=messageOwner.message;
+            tetogramPrefixValid=org.telegram.messenger.tetogram.LocalReplyPolicy.valid(messageOwner.message,tetogramReplyBodyStart,tetogramReplyHash);
+        }
+        return tetogramPrefixValid;
+    }
+    public void setTetogramLocalReply(MessageObject source,int start,String hash,long owner) {
+        if(start!=tetogramReplyBodyStart || !java.util.Objects.equals(hash,tetogramReplyHash))tetogramValidatedWire=null;
+        tetogramReplySource=source;tetogramReplyBodyStart=start;tetogramReplyHash=hash;tetogramReplyOwner=owner;
+        prepareTetogramDisplay();
+    }
+    public void prepareTetogramDisplay() {
+        boolean active=hasTetogramLocalReply();
+        if(tetogramRenderedReply!=active || active && !java.util.Objects.equals(tetogramRenderedWire,messageOwner.message)) {
+            tetogramRenderedReply=active;tetogramRenderedWire=messageOwner.message;
+            caption=null;if(!translated && !summarized)applyNewText(getDisplayText());generateCaption();forceUpdate=true;
+        }
+    }
+    public int displayToWireOffset(int offset) { return hasTetogramLocalReply()?offset+tetogramReplyBodyStart:offset; }
+    /** Fresh canonical view for editing/forwarding; never shares a UI source snapshot. */
+    public MessageObject tetogramWireView() {
+        if(!hasTetogramLocalReply())return this;
+        MessageObject copy=new MessageObject(currentAccount,org.telegram.tgnet.TLObject.deepCopy(messageOwner,TLRPC.Message::TLdeserialize),true,false);
+        copy.copyStableParams(this);copy.scheduled=scheduled;return copy;
+    }
+    public String getDisplayText() { return hasTetogramLocalReply()?messageOwner.message.substring(tetogramReplyBodyStart):messageOwner.message; }
+    public ArrayList<TLRPC.MessageEntity> getDisplayEntities() {
+        if(!hasTetogramLocalReply())return getEntities();
+        ArrayList<TLRPC.MessageEntity> out=new ArrayList<>();
+        if(messageOwner.entities!=null)for(TLRPC.MessageEntity e:messageOwner.entities) {
+            if(e.offset>=tetogramReplyBodyStart && e.length>=0 && (long)e.offset+e.length<=messageOwner.message.length()) {
+                TLRPC.MessageEntity copy=org.telegram.tgnet.TLObject.deepCopy(e,TLRPC.MessageEntity::TLdeserialize);
+                copy.offset-=tetogramReplyBodyStart;out.add(copy);
+            }
+        }
+        return out;
+    }
+    public MessageObject getDisplayReplyMessageObject() { return hasTetogramLocalReply()?tetogramReplySource:replyMessageObject; }
+    public boolean hasDisplayReplyMessageObject() { return hasTetogramLocalReply() || hasValidReplyMessageObject(); }
+    public boolean isDisplayReply() { return hasTetogramLocalReply() || isReply(); }
+    public int getDisplayReplyMsgId() { return hasTetogramLocalReply()?tetogramReplySource.getId():getReplyMsgId(); }
+    public TLRPC.MessageReplyHeader getDisplayReplyHeader() {
+        if(!hasTetogramLocalReply())return messageOwner.reply_to;
+        TLRPC.TL_messageReplyHeader header=new TLRPC.TL_messageReplyHeader();
+        header.reply_to_msg_id=tetogramReplySource.getId();return header;
+    }
+
     public void applyNewText() {
         translated = false;
         summarized = false;
-        applyNewText(messageOwner.message);
+        applyNewText(getDisplayText());
     }
 
     public void applyNewText(CharSequence text) {
@@ -3960,7 +4022,7 @@ public class MessageObject {
             fromUser = MessagesController.getInstance(currentAccount).getUser(messageOwner.from_id.user_id);
         }
         messageText = text;
-        final ArrayList<TLRPC.MessageEntity> entities = getEntities();
+        final ArrayList<TLRPC.MessageEntity> entities = getDisplayEntities();
         final TextPaint paint;
         if (getMedia(messageOwner) instanceof TLRPC.TL_messageMediaGame) {
             paint = Theme.chat_msgGameTextPaint;
@@ -7864,8 +7926,8 @@ public class MessageObject {
             return;
         }
         captionLinksHidden = hideLinks;
-        String text = messageOwner.message;
-        ArrayList<TLRPC.MessageEntity> entities = messageOwner.entities;
+        String text = getDisplayText();
+        ArrayList<TLRPC.MessageEntity> entities = getDisplayEntities();
         boolean forceManualEntities = false;
         if (type == TYPE_STORY) {
             if (messageOwner.media != null && messageOwner.media.storyItem != null) {
@@ -8195,7 +8257,7 @@ public class MessageObject {
             entities.add(entityItalic);
             return addEntitiesToText(text, entities, isOutOwner(), true, photoViewer, useManualParse);
         } else {
-            return addEntitiesToText(text, getEntities(), isOutOwner(), true, photoViewer, useManualParse);
+            return addEntitiesToText(text, getDisplayEntities(), isOutOwner(), true, photoViewer, useManualParse);
         }
     }
 
@@ -8251,7 +8313,7 @@ public class MessageObject {
     }
 
     public Spannable replaceAnimatedEmoji(CharSequence text, Paint.FontMetricsInt fontMetricsInt) {
-        return replaceAnimatedEmoji(text, getEntities(), fontMetricsInt, false);
+        return replaceAnimatedEmoji(text, getDisplayEntities(), fontMetricsInt, false);
     }
 
     public static Spannable replaceAnimatedEmoji(CharSequence text, ArrayList<TLRPC.MessageEntity> entities, Paint.FontMetricsInt fontMetricsInt) {
@@ -8844,7 +8906,7 @@ public class MessageObject {
         if (messageOwner.send_state != MESSAGE_SEND_STATE_SENT) {
             hasEntities = false;
         } else {
-            hasEntities = !getEntities().isEmpty();
+            hasEntities = !getDisplayEntities().isEmpty();
         }
 
         boolean useManualParse = !hasEntities && (

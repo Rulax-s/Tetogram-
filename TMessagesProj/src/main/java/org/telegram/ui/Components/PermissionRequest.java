@@ -159,7 +159,7 @@ public class PermissionRequest {
 
     public static void requestPermission(String permission, Utilities.Callback<Boolean> whenDone) {
         requestPermissions(new String[] { permission }, whenDone != null ? res -> {
-            whenDone.run(res.length >= 1 && res[0] == PackageManager.PERMISSION_GRANTED);
+            whenDone.run(hasPermission(permission));
         } : null);
     }
 
@@ -170,6 +170,13 @@ public class PermissionRequest {
         final Activity activity = _activity;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int[] existing = new int[permissions.length];
+            boolean allGranted = true;
+            for (int i=0;i<permissions.length;i++) {
+                existing[i]=activity.checkSelfPermission(permissions[i]);
+                if(existing[i]!=PackageManager.PERMISSION_GRANTED)allGranted=false;
+            }
+            if(allGranted) { if(whenDone!=null)whenDone.run(existing); return; }
             final int code = lastId++;
             NotificationCenter.NotificationCenterDelegate[] observer = new NotificationCenter.NotificationCenterDelegate[1];
             observer[0] = new NotificationCenter.NotificationCenterDelegate() {

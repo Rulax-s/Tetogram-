@@ -930,7 +930,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
                 } else if (noGalleryPermissions) {
                     if (Build.VERSION.SDK_INT >= 33) {
                         try {
-                            fragment.getParentActivity().requestPermissions(new String[]{Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_IMAGES}, BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE);
+                            org.telegram.messenger.tetogram.AndroidPermissions.requestGallery(fragment.getParentActivity(),BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE,false);
                         } catch (Exception ignore) {}
                     } else {
                         try {
@@ -1516,7 +1516,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
     private void requestGalleryPermission() {
         try {
             if (Build.VERSION.SDK_INT >= 33) {
-                parentAlert.baseFragment.getParentActivity().requestPermissions(new String[]{Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_IMAGES}, BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE);
+                org.telegram.messenger.tetogram.AndroidPermissions.requestGallery(parentAlert.baseFragment.getParentActivity(),BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE,true);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 parentAlert.baseFragment.getParentActivity().requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE);
             }
@@ -3219,22 +3219,15 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
         if (activity == null) {
             activity = parentAlert.baseFragment.getParentActivity();
         }
-        return Build.VERSION.SDK_INT >= 23 && (
-            activity == null ||
-                Build.VERSION.SDK_INT >= 33 && (
-                    activity.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED ||
-                        activity.checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED
-                ) ||
-                Build.VERSION.SDK_INT < 33 && activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-        );
+        return !org.telegram.messenger.tetogram.AndroidPermissions.gallery(activity);
     }
 
     public void checkStorage() {
-        if (noGalleryPermissions && Build.VERSION.SDK_INT >= 23) {
-            noGalleryPermissions = isNoGalleryPermissions();
-            if (!noGalleryPermissions) {
-                loadGalleryPhotos();
-            }
+        boolean denied=isNoGalleryPermissions();
+        boolean changed=noGalleryPermissions!=denied;
+        noGalleryPermissions=denied;
+        if(!denied)loadGalleryPhotos(); // MediaStore applies the user's selected-photo scope.
+        if(changed || !denied) {
             adapter.notifyDataSetChanged();
             cameraAttachAdapter.notifyDataSetChanged();
         }
@@ -3663,6 +3656,7 @@ public class ChatAttachAlertPhotoLayout extends ChatAttachAlert.AttachAlertLayou
     @Override
     public void onResume() {
         if (parentAlert.isShowing() && !parentAlert.isDismissed() && !PhotoViewer.getInstance().isVisible()) {
+            checkStorage();
             checkCamera(false);
         }
     }

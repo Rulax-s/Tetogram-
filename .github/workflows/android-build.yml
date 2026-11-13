@@ -108,6 +108,7 @@ jobs:
         run: |
           set -o pipefail
           python3 scripts/test-history-storage.py 2>&1 | tee build-logs/history-storage-tests.log
+          python3 scripts/test-local-replies.py 2>&1 | tee build-logs/local-reply-storage-tests.log
           ./gradlew --no-daemon --no-build-cache --console=plain \
             '-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g' --max-workers=2 \
             :TMessagesProj:testDebugUnitTest --stacktrace 2>&1 | tee build-logs/history-policy-tests.log

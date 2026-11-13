@@ -7208,6 +7208,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
     @Override
     protected void onResume() {
+        org.telegram.messenger.tetogram.AndroidPermissions.diagnose(this);
         super.onResume();
         WidgetMedia.onAppPaused(false);
         isResumed = true;

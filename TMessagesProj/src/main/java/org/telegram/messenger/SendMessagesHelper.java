@@ -2333,7 +2333,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
             final boolean toMyself = peer == myId;
             long lastGroupedId;
             for (int a = 0; a < messages.size(); a++) {
-                MessageObject msgObj = messages.get(a);
+                MessageObject msgObj = messages.get(a).tetogramWireView();
                 if (msgObj.getId() <= 0 || msgObj.needDrawBluredPreview()) {
                     if (msgObj.type == MessageObject.TYPE_TEXT && !TextUtils.isEmpty(msgObj.messageText)) {
                         TLRPC.WebPage webPage = msgObj.messageOwner.media != null ? msgObj.messageOwner.media.webpage : null;
@@ -2687,6 +2687,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
 
                 MessageObject newMsgObj = new MessageObject(currentAccount, newMsg, true, true);
                 newMsgObj.scheduled = scheduleDate != 0;
+            if(tetogramLocalReplySource!=null) org.telegram.messenger.tetogram.LocalReplies.remember(newMsgObj,tetogramLocalReplySource,tetogramLocalReplyStart);
                 newMsgObj.messageOwner.send_state = MessageObject.MESSAGE_SEND_STATE_SENDING;
                 newMsgObj.wasJustSent = true;
                 objArr.add(newMsgObj);
@@ -2989,7 +2990,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
             }
 
             for (int a = 0; a < messages.size(); a++) {
-                MessageObject msgObj = messages.get(a);
+                MessageObject msgObj = messages.get(a).tetogramWireView();
                 if (!canSendVoiceMessages && MessageObject.isVoiceMessage(msgObj.messageOwner)) {
                     if (sendResult == 0) {
                         sendResult = 7;
@@ -4590,6 +4591,8 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
         }
 
         int tetogramReplyTopic = 0;
+        MessageObject tetogramLocalReplySource = null;
+        int tetogramLocalReplyStart = 0;
         if (replyToMsg != null && org.telegram.messenger.tetogram.DeletedReplyPolicy.shouldConvert(replyToMsg.tetogramLocalDeleted, retryMessageObject != null)) {
             if (!org.telegram.messenger.tetogram.DeletedReplyPolicy.sameOwner(replyToMsg.tetogramHistoryOwner, getUserConfig().getClientUserId())
                     || !org.telegram.messenger.tetogram.DeletedReplyPolicy.sameContext(currentAccount, peer,
@@ -4618,6 +4621,8 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
             org.telegram.messenger.tetogram.DeletedReplyPolicy.Result quoted = org.telegram.messenger.tetogram.DeletedReplyPolicy.prepare(
                     name, source, textReply ? message : caption);
             if (textReply) message = quoted.text; else caption = quoted.text;
+            tetogramLocalReplySource = replyToMsg;
+            tetogramLocalReplyStart = quoted.entityShift;
             TLRPC.Peer originalSender = replyToMsg.getFromPeer();
             long senderUserId = originalSender == null ? 0 : originalSender.user_id;
             TLRPC.User mentionAuthor = author instanceof TLRPC.User ? (TLRPC.User)author : null;

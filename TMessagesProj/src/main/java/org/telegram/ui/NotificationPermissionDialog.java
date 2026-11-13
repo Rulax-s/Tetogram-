@@ -297,7 +297,7 @@ public class NotificationPermissionDialog extends BottomSheet implements Notific
     }
 
     public static boolean shouldAsk(Activity activity) {
-        if (activity == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.M || activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+        if (!org.telegram.messenger.tetogram.AndroidPermissions.shouldRequestNotifications(activity)) {
             return false;
         }
         long askAfter = MessagesController.getGlobalMainSettings().getLong("askNotificationsAfter", -1);

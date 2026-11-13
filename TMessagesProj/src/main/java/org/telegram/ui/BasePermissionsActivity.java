@@ -56,6 +56,11 @@ public class BasePermissionsActivity extends FragmentActivity {
                 showPermissionErrorAlert(R.raw.permission_request_camera, LocaleController.getString(R.string.VoipNeedCameraPermission));
             }
         } else if (requestCode == REQUEST_CODE_EXTERNAL_STORAGE || requestCode == REQUEST_CODE_EXTERNAL_STORAGE_FOR_AVATAR) {
+            for(String permission:permissions) {
+                if(Manifest.permission.READ_MEDIA_IMAGES.equals(permission) || Manifest.permission.READ_MEDIA_VIDEO.equals(permission) || Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED.equals(permission) || Manifest.permission.READ_EXTERNAL_STORAGE.equals(permission)) {
+                    granted=org.telegram.messenger.tetogram.AndroidPermissions.gallery(this);break;
+                }
+            }
             if (!granted) {
                 showPermissionErrorAlert(R.raw.permission_request_folder, requestCode == REQUEST_CODE_EXTERNAL_STORAGE_FOR_AVATAR ? LocaleController.getString(R.string.PermissionNoStorageAvatar) :
                         LocaleController.getString(R.string.PermissionStorageWithHint));

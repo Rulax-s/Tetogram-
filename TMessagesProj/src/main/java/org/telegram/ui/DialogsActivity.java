@@ -6991,9 +6991,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                         askingForPermissions = true;
                         if (hasNotNotificationsPermission && NotificationPermissionDialog.shouldAsk(activity)) {
                             PermissionRequest.requestPermission(Manifest.permission.POST_NOTIFICATIONS, granted -> {
-                                if (!granted) {
+                                if (!granted && NotificationPermissionDialog.shouldAsk(activity)) {
                                     showDialog(new NotificationPermissionDialog(activity, !PermissionRequest.canAskPermission(Manifest.permission.POST_NOTIFICATIONS), granted2 -> {
-                                        if (!granted2) return;
+                                        if (!granted2 || !org.telegram.messenger.tetogram.AndroidPermissions.shouldRequestNotifications(activity)) return;
                                         if (!PermissionRequest.canAskPermission(Manifest.permission.POST_NOTIFICATIONS)) {
                                             PermissionRequest.showPermissionSettings(Manifest.permission.POST_NOTIFICATIONS);
                                         } else {
@@ -10284,7 +10284,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         if (folderId == 0 && communityId == 0 && Build.VERSION.SDK_INT >= 33 && NotificationPermissionDialog.shouldAsk(activity)) {
             if (alert) {
                 showDialog(new NotificationPermissionDialog(activity, !PermissionRequest.canAskPermission(Manifest.permission.POST_NOTIFICATIONS), granted2 -> {
-                    if (!granted2) return;
+                    if (!granted2 || !org.telegram.messenger.tetogram.AndroidPermissions.shouldRequestNotifications(activity)) return;
                     if (!PermissionRequest.canAskPermission(Manifest.permission.POST_NOTIFICATIONS)) {
                         PermissionRequest.showPermissionSettings(Manifest.permission.POST_NOTIFICATIONS);
                     } else {

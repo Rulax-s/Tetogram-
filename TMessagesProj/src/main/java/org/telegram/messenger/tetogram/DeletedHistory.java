@@ -47,7 +47,7 @@ public final class DeletedHistory {
         return DeletedRowPolicy.replace(original, payload, ROW, allocate);
     }
     private static long uid(int a) { return UserConfig.getInstance(a).getClientUserId(); }
-    private static SQLiteDatabase db(int a) throws Exception {
+    static SQLiteDatabase db(int a) throws Exception {
         SQLiteDatabase db = MessagesStorage.getInstance(a).getDatabase();
         if (db == null) throw new IllegalStateException("Account database not opened");
         db.executeFast(SCHEMA).stepThis().dispose();
@@ -108,7 +108,7 @@ public final class DeletedHistory {
             } finally { db.executeFast("RELEASE SAVEPOINT tetogram_capture_v1").stepThis().dispose(); }
         } catch (Exception e) { FileLog.e("Tetogram history capture failed", e); }
     }
-    private static MessageObject read(int a, SQLiteCursor c) throws Exception {
+    static MessageObject read(int a, SQLiteCursor c) throws Exception {
         NativeByteBuffer data = c.byteBufferValue(0);
         if (data == null) return null;
         try {
@@ -161,7 +161,7 @@ public final class DeletedHistory {
         Page(ArrayList<MessageObject> source) { super(source); serverSize=source.size(); }
     }
     public static void deliver(int a, long did, ArrayList<MessageObject> source, int count, int anchor, int loadType, boolean cache, boolean end, int mode, long thread, Callback<ArrayList<MessageObject>> callback) {
-        if (!LabsSettings.visible(a) || LabsSettings.excluded(a,did) || DialogObject.isEncryptedDialog(did) || mode != 0) { callback.run(source); return; }
+        if (!LabsSettings.visible(a) || LabsSettings.excluded(a,did) || DialogObject.isEncryptedDialog(did) || mode != 0) { LocalReplies.hydrate(a,source,()->callback.run(source)); return; }
         long owner=uid(a);
         MessagesStorage.getInstance(a).getStorageQueue().postRunnable(() -> {
             Page page=new Page(source);
@@ -191,7 +191,7 @@ public final class DeletedHistory {
                 })) { page.hasMore=true; page.serverSize=count; }
 
             } catch(Exception e) { FileLog.e("Tetogram history page failed",e); }
-            AndroidUtilities.runOnUIThread(()->callback.run(owner==uid(a) && LabsSettings.visible(a) && !LabsSettings.excluded(a,did) ? page : source));
+            AndroidUtilities.runOnUIThread(()-> { ArrayList<MessageObject> result=owner==uid(a) && LabsSettings.visible(a) && !LabsSettings.excluded(a,did) ? page : source; LocalReplies.hydrate(a,result,()->callback.run(result)); });
         });
     }
     /** Resolve native draft/selected reply IDs after restart or deletion while composing. */
