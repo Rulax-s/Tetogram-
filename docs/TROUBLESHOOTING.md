@@ -47,3 +47,7 @@ Google Services plugin применяется к APK-модулю: он гене
 Run: https://github.com/Rulax-s/Tetogram-/actions/runs/43408428079 . GitHub не запустил даже source-checks; build помечен skipped. Отсутствие логов (`log not found`) здесь объясняется отсутствием runner. Это не ошибка Gradle и не повод отключать компоненты или менять API-данные. Владелец должен устранить указанную GitHub проблему в https://github.com/settings/billing . После этого повторить workflow; дальнейшие ошибки исследовать уже по реальным логам шагов.
 
 Проверка GitHub-подключения дала 403 на создание blob несмотря на права аккаунта в repo metadata. Действующая CLI-авторизация нашлась в конфигурации Termux; её использование через GH_CONFIG_DIR позволило выполнить обычный Git push без копирования токена и без изменения глобальных Git credentials.
+
+## Проверка authorities после компиляции
+
+В run 43412734080 Gradle собрал APK, но первоначальная проверка providers по строкам `aapt2 dump xmltree` завершилась `Provider authority conflict` без диагностических значений. Проверка переведена на структурированный XML непосредственно из APK (`apkanalyzer manifest print`), с выводом только имён providers и authorities. Требование уникальности сохранено: все authorities и собственные permissions должны начинаться с org.tetogram.messenger. Полный manifest и metadata не выводятся, чтобы не раскрывать настроенные ключи сервисов.

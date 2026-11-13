@@ -18,13 +18,13 @@
 | Flavor / build type | afat / debug |
 | Целевая ABI | arm64-v8a |
 
-Имя `:TMessagesProj_App:assembleAfatDebug` выведено из фактических productFlavors/buildTypes и variantFilter. **Локально список задач Gradle ещё не получен:** на телефоне нет JDK/SDK. CI сначала вызывает `:TMessagesProj_App:tasks --all`, сохраняет результат и проверяет наличие `assembleAfatDebug`. Это отдельно от успешной компиляции.
+Задача `:TMessagesProj_App:assembleAfatDebug` подтверждена фактическим выводом Gradle в CI run 43412734080: шаг `:TMessagesProj_App:tasks --all` и проверка имени завершились успешно. Локально на телефоне JDK/SDK не устанавливались. Наличие задачи отдельно от успешной компиляции APK.
 
 `TMessagesProj` теперь библиотека, а APK выпускает `TMessagesProj_App`. Также существуют AppHuawei, AppHockeyApp, AppStandalone, AppTests, jlatexmath и Media3. Первая поддерживаемая конфигурация Tetogram — только `TMessagesProj_App`/afatDebug; остальные модули сохранены, их выпуск требует отдельной настройки сервисов и подписи.
 
 ## Действия владельца
 
-В Rulax-s/Tetogram- репозиторий и три обязательных Secret names уже настроены. Текущий блокер — GitHub account billing lock, см. VALIDATION.md; повторно получать API-данные для устранения этой ошибки не требуется.
+В Rulax-s/Tetogram- репозиторий и три обязательных Secret names уже настроены. Прежняя billing-блокировка снята владельцем: runner нового запуска 43412734080 стартовал, а проверка owner configuration прошла успешно. Повторно получать API-данные для этой ошибки не требуется.
 
 1. На https://my.telegram.org откройте **API development tools**, создайте своё приложение и получите `api_id`/`api_hash`. Не используйте значения официального клиента.
 2. В https://console.firebase.google.com создайте собственный проект, зарегистрируйте Android-приложение **org.tetogram.messenger**, настройте Cloud Messaging и скачайте `google-services.json`. Не переименовывайте package_name внутри чужого JSON: это не создаёт Firebase-приложение.
