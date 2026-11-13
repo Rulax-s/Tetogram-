@@ -94,3 +94,5 @@ Splash Android 12+ использует собственный анимиров�
 - Исправлены требования обоих media grants, обработка selected-only callback, gates MediaStore и повторная проверка notification grant. Добавлены Android 14 partial-access manifest/request и Photo Picker внешнего выбора.
 - versionCode 7; applicationId и постоянная подпись без изменений. Добавлены JVM/SQLite регрессии и безопасная диагностика; подробности/ручной checklist в LOCAL_REPLY_AND_PERMISSIONS.md.
 - Реальная причина возможного отзыва полного grant при обновлении на устройстве не подтверждена; ADB-сравнение подготовлено. Новые UI-сценарии не объявляются проверенными на Android.
+
+- При cloud-проверке исправлена ошибочная точка вызова сохранения связи: вызов находится в подготовке SendMessageParams после создания отправляемого MessageObject, а не в ветке пересылки.

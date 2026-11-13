@@ -2687,7 +2687,6 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
 
                 MessageObject newMsgObj = new MessageObject(currentAccount, newMsg, true, true);
                 newMsgObj.scheduled = scheduleDate != 0;
-            if(tetogramLocalReplySource!=null) org.telegram.messenger.tetogram.LocalReplies.remember(newMsgObj,tetogramLocalReplySource,tetogramLocalReplyStart);
                 newMsgObj.messageOwner.send_state = MessageObject.MESSAGE_SEND_STATE_SENDING;
                 newMsgObj.wasJustSent = true;
                 objArr.add(newMsgObj);
@@ -5435,6 +5434,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
             newMsgObj.wasJustSent = true;
             newMsgObj.sentHighQuality = sendMessageParams.sendingHighQuality;
             newMsgObj.scheduled = scheduleDate != 0;
+            if(tetogramLocalReplySource!=null) org.telegram.messenger.tetogram.LocalReplies.remember(newMsgObj,tetogramLocalReplySource,tetogramLocalReplyStart);
             if (!newMsgObj.isForwarded() && (newMsgObj.type == MessageObject.TYPE_VIDEO || videoEditedInfo != null || newMsgObj.type == MessageObject.TYPE_VOICE) && !TextUtils.isEmpty(newMsg.attachPath)) {
                 newMsgObj.attachPathExists = true;
             }
