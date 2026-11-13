@@ -522,6 +522,16 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private HintView2 storyPremiumHint;
     private boolean canShowStoryHint;
     private boolean storyHintShown;
+    private final Runnable tetogramRulesChanged=new Runnable(){@Override public void run(){
+        if(!isTetogramSectionList() || isPaused || viewPages==null || tetogramSections==null || !tetogramSections.configured)return;
+        if(tabsAnimationInProgress || startedTracking || dialogsListFrozen){AndroidUtilities.runOnUIThread(this,250);return;}
+        for(ViewPage page:viewPages)if(page!=null && page.dialogsType==0 && page.dialogsAdapter!=null) {
+            SectionConfig.Scope scope=tetogramSections.scope(tetogramSectionId,tetogramTabKey(page.selectedType));
+            if(scope!=null && scope.flags!=0)page.dialogsAdapter.updateList(null);
+        }
+        if(filterTabsView!=null)filterTabsView.checkTabsCounter();
+    }};
+    private void tetogramRefreshRules(){if(isTetogramSectionList()){AndroidUtilities.cancelRunOnUIThread(tetogramRulesChanged);AndroidUtilities.runOnUIThread(tetogramRulesChanged,100);}}
     private SectionConfig tetogramSections;
     private String tetogramSectionId;
     private long tetogramSectionsOwner;
@@ -569,7 +579,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         SectionConfig.Section section=tetogramSections.section(tetogramSectionId);if(section==null)return new ArrayList<>();
         String key=tetogramTabKey(index);MessagesController.DialogFilter server=SectionDialogs.server(currentAccount,key);
         if(server!=null && server.locked)return new ArrayList<>();
-        SectionConfig.Scope scope=tetogramSections.folders.containsKey(key)?tetogramSections.folders.get(key):section;
+        SectionConfig.Scope scope=tetogramSections.scope(tetogramSectionId,key);
         return SectionDialogs.project(currentAccount,scope);
     }
     public ArrayList<TLRPC.Dialog> getDialogsArrayForAdapter(DialogsAdapter adapter,int account,int type,int fid,boolean frozen) {
@@ -3087,6 +3097,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     @Override
     public void onFragmentDestroy() {
+        AndroidUtilities.cancelRunOnUIThread(tetogramRulesChanged);
         super.onFragmentDestroy();
         if (observersGroup != null) {
             observersGroup.removeAllObservers();
@@ -3695,7 +3706,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 public int getTabCounter(int tabId) {
                     if(isTetogramSectionList()) {
                         if(tetogramSections==null)return 0;String key=tetogramTabKey(tabId);MessagesController.DialogFilter server=SectionDialogs.server(currentAccount,key);if(server!=null)return server.unreadCount;
-                        SectionConfig.Section section=tetogramSections.section(tetogramSectionId);SectionConfig.Scope scope=tetogramSections.folders.containsKey(key)?tetogramSections.folders.get(key):section;
+                        SectionConfig.Section section=tetogramSections.section(tetogramSectionId);SectionConfig.Scope scope=tetogramSections.scope(tetogramSectionId,key);
                         int count=0;if(scope!=null)for(TLRPC.Dialog d:getMessagesController().getAllDialogs())if(!(d instanceof TLRPC.TL_dialogFolder) && SectionDialogs.includes(currentAccount,scope,d) && (getMessagesController().getDialogUnreadCount(d)>0 || d.unread_mark))count++;return count;
                     }
                     if (initialDialogsType == DIALOGS_TYPE_FORWARD) {
@@ -7285,6 +7296,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     @Override
     public void onPause() {
+        AndroidUtilities.cancelRunOnUIThread(tetogramRulesChanged);
         if(tetogramSectionMenu!=null)tetogramSectionMenu.collapse();
         super.onPause();
         if (storiesBulletin != null) {
@@ -7870,6 +7882,10 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         } else {
             floatingForceVisible = false;
         }
+        if(isTetogramSectionList() && viewPage.dialogsType==0 && tetogramSections!=null && tetogramSections.configured) {
+            SectionConfig.Scope scope=tetogramSections.scope(tetogramSectionId,tetogramTabKey(viewPage.selectedType));
+            if(scope==null || scope.chats.isEmpty() && (scope.flags&31)==0)return;
+        }
         boolean loadArchived = false;
         boolean loadArchivedFromCache = false;
         boolean load = false;
@@ -7891,7 +7907,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
         if(isTetogramSectionList() && viewPage.dialogsType==0 && tetogramSections!=null && tetogramSections.configured) {
             SectionConfig.Section section=tetogramSections.section(tetogramSectionId);
-            String key=tetogramTabKey(viewPage.selectedType);SectionConfig.Scope scope=tetogramSections.folders.containsKey(key)?tetogramSections.folders.get(key):section;
+            String key=tetogramTabKey(viewPage.selectedType);SectionConfig.Scope scope=tetogramSections.scope(tetogramSectionId,key);
             if(scope!=null && (!scope.chats.isEmpty() || scope.flags!=0 && (scope.flags&128)==0)) {
                 loadArchivedFromCache=!getMessagesController().isDialogsEndReached(1);
                 loadArchived=loadArchivedFromCache || !getMessagesController().isServerDialogsEndReached(1);
@@ -10672,6 +10688,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         } else if (id == NotificationCenter.updateInterfaces) {
             Integer mask = (Integer) args[0];
             updateVisibleRows(mask);
+            if((mask&MessagesController.UPDATE_MASK_READ_DIALOG_MESSAGE)!=0)tetogramRefreshRules();
             if (filterTabsView != null && filterTabsView.getVisibility() == View.VISIBLE && (mask & MessagesController.UPDATE_MASK_READ_DIALOG_MESSAGE) != 0) {
                 filterTabsView.checkTabsCounter();
             }
@@ -10695,6 +10712,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         } else if (id == NotificationCenter.encryptedChatUpdated) {
             updateVisibleRows(0);
         } else if (id == NotificationCenter.contactsDidLoad) {
+            tetogramRefreshRules();
             if (viewPages == null || dialogsListFrozen) {
                 return;
             }
@@ -10745,7 +10763,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
             updateVisibleRows(MessagesController.UPDATE_MASK_SELECT_DIALOG);
         } else if (id == NotificationCenter.notificationsSettingsUpdated) {
-            updateVisibleRows(0);
+            updateVisibleRows(0);tetogramRefreshRules();
         } else if (id == NotificationCenter.messageReceivedByAck || id == NotificationCenter.messageReceivedByServer || id == NotificationCenter.messageSendError) {
             updateVisibleRows(MessagesController.UPDATE_MASK_SEND_STATE);
         } else if (id == NotificationCenter.didSetPasscode) {

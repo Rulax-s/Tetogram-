@@ -24,6 +24,7 @@ public final class SectionConfig {
  }
  public static final class Folder extends Scope {public String id,name;public int token;}
  public Section section(String id){for(Section s:sections)if(s.id.equals(id))return s;return null;}
+ public Scope scope(String sectionId,String tabKey){return OWN.equals(tabKey)?section(sectionId):folders.get(tabKey);}
  public Section add(String name){Section s=new Section();s.id=UUID.randomUUID().toString();s.name=title(name);sections.add(s);configured=true;selectedId=s.id;return s;}
  public Folder addFolder(String name){if(nextToken==Integer.MAX_VALUE)throw new IllegalStateException("UI token space exhausted");Folder f=new Folder();f.id="local:"+UUID.randomUUID();f.name=title(name);f.token=nextToken++;folders.put(f.id,f);return f;}
  public static String title(String value){if(value==null || value.trim().isEmpty())throw new IllegalArgumentException("Empty name");return value.trim().replace('\n',' ').replace('\r',' ');}
