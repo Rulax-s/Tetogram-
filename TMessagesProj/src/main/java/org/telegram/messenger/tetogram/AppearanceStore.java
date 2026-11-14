@@ -37,20 +37,22 @@ public final class AppearanceStore {
             AndroidUtilities.runOnUIThread(()->{if(uid!=owner(account))return;if(success){AppearanceRuntime.activate(account);AppearanceRuntime.prepareBaseColors();}if(callback!=null)callback.done(success,result);});
         });
     }
-    public static void save(int account,long uid,AppearanceConfig draft,long expectedRevision,Result callback) {
+    public static void save(int account,long uid,AppearanceConfig draft,long expectedRevision,Result callback) {save(account,uid,draft,expectedRevision,false,callback);}
+    public static void save(int account,long uid,AppearanceConfig draft,long expectedRevision,boolean applyGlobalMode,Result callback) {
         final AppearanceConfig copy=draft.copy();
         IO.postRunnable(()->{
-            boolean ok=false;
+            boolean ok=false,appearanceChanged=false,modeChanged=false;
             if(uid>0 && uid==owner(account) && !INVALID.contains(uid)){
                 AppearanceConfig old=CACHE.get(uid);
                 if(old!=null && old.revision==expectedRevision){
+                    appearanceChanged=!old.sameScopes(copy);AppearanceConfig.Style before=old.scopes.get(AppearanceConfig.GLOBAL),after=copy.scopes.get(AppearanceConfig.GLOBAL);modeChanged=!java.util.Objects.equals(before==null?null:before.values.get("mode"),after==null?null:after.values.get("mode"));
                     AtomicFile file=new AtomicFile(new File(directory(uid),"appearance.properties"));FileOutputStream out=null;
                     try{if(!directory(uid).isDirectory() && !directory(uid).mkdirs())throw new IOException("Appearance storage unavailable");copy.revision=old.revision+1;byte[] data=copy.encode().getBytes(StandardCharsets.UTF_8);out=file.startWrite();out.write(data);if(uid!=owner(account))throw new IOException("Account changed");file.finishWrite(out);out=null;CACHE.put(uid,copy);AppearanceMedia.cleanup(uid,copy);ok=true;}
                     catch(Exception e){if(out!=null)file.failWrite(out);FileLog.e("Tetogram appearance save failed");}
                 }
             }
-            final boolean success=ok;final AppearanceConfig result=snapshot(account);
-            AndroidUtilities.runOnUIThread(()->{if(uid!=owner(account))return;if(success)AppearanceRuntime.changed(account);if(callback!=null)callback.done(success,result);});
+            final boolean success=ok,notifyAppearance=appearanceChanged||applyGlobalMode,forceMode=modeChanged||applyGlobalMode;final AppearanceConfig result=snapshot(account);
+            AndroidUtilities.runOnUIThread(()->{if(uid!=owner(account))return;if(success&&notifyAppearance)AppearanceRuntime.changed(account,forceMode);if(callback!=null)callback.done(success,result);});
         });
     }
 }

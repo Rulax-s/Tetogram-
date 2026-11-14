@@ -67,6 +67,7 @@ public final class AppearanceConfig {
     public static boolean isSurfaceWallpaperKey(String key,String domain){if("wallpaper".equals(domain))return isWallpaperKey(key);String prefix=domain.substring(0,domain.length()-"wallpaper".length());return key.startsWith(domain+".")||key.startsWith("light."+prefix+"chat_wallpaper")||key.startsWith("dark."+prefix+"chat_wallpaper");}
     public void apply(String scope, Preset preset) { scopes.put(scope, preset.style.copy()); revision++; }
     public void reset(String scope) { scopes.remove(scope); revision++; }
+    public boolean sameScopes(AppearanceConfig other){if(other==null)return false;Set<String> keys=new HashSet<>(scopes.keySet());keys.addAll(other.scopes.keySet());for(String key:keys){Style a=scopes.get(key),b=other.scopes.get(key);Map<String,String> av=a==null?Collections.emptyMap():a.values,bv=b==null?Collections.emptyMap():b.values;if(!av.equals(bv))return false;}return true;}
     public AppearanceConfig copy() { return decode(encode()); }
     public static String accountDirectory(long uid) { if (uid <= 0) throw new IllegalArgumentException("Account unavailable"); return "u" + uid; }
     public static void validateScope(String s) {
