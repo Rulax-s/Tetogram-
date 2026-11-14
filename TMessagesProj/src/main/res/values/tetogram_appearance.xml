@@ -98,4 +98,12 @@
     <string name="TetogramAppearanceRestoreContrast">Restore readable text colors</string>
     <string name="TetogramAppearanceProfile">Profile appearance (local banner)</string>
     <string name="TetogramAppearanceBannerHeight">Banner height</string>
+    <string name="TetogramAppearanceImport">Import appearance preset</string>
+    <string name="TetogramAppearanceExport">Export appearance preset</string>
+    <string name="TetogramAppearanceArchiveError">Could not read or write the preset. Check its format, file access and free space. An incomplete export file may need to be removed.</string>
+    <string name="TetogramAppearanceExported">Preset exported.</string>
+    <string name="TetogramAppearanceExportPrivacy">Only appearance is exported. Images and prepared videos are included only with your selection below. Telegram sessions, chats and account identifiers are excluded. Limits: 256 MB per asset, 512 MB in total.</string>
+    <string name="TetogramAppearanceExportColors">Settings only (no media)</string>
+    <string name="TetogramAppearanceExportImages">Settings and images</string>
+    <string name="TetogramAppearanceExportVideos">Settings, images and videos</string>
 </resources>

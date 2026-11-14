@@ -98,4 +98,12 @@
     <string name="TetogramAppearanceRestoreContrast">Восстановить контрастность текста</string>
     <string name="TetogramAppearanceProfile">Оформление профиля (локальный баннер)</string>
     <string name="TetogramAppearanceBannerHeight">Высота баннера</string>
+    <string name="TetogramAppearanceImport">Импортировать оформление</string>
+    <string name="TetogramAppearanceExport">Экспортировать оформление</string>
+    <string name="TetogramAppearanceArchiveError">Не удалось прочитать или записать пресет. Проверьте формат, доступ к файлу и свободное место. Незавершённый файл экспорта может потребоваться удалить.</string>
+    <string name="TetogramAppearanceExported">Пресет экспортирован.</string>
+    <string name="TetogramAppearanceExportPrivacy">Экспортируется только оформление. Изображения и подготовленные видео включаются только при выборе ниже. Сессии, чаты и идентификаторы аккаунта исключены. Ограничения: 256 МБ на файл, 512 МБ суммарно.</string>
+    <string name="TetogramAppearanceExportColors">Только настройки (без медиа)</string>
+    <string name="TetogramAppearanceExportImages">Настройки и изображения</string>
+    <string name="TetogramAppearanceExportVideos">Настройки, изображения и видео</string>
 </resources>
