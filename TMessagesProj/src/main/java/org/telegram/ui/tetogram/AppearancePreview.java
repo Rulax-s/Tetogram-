@@ -13,8 +13,10 @@ import org.telegram.ui.Components.LayoutHelper;
 
 public final class AppearancePreview extends FrameLayout {
     private final AppearanceMediaView media;
+    private boolean resumed;
+    @Override public boolean onInterceptTouchEvent(android.view.MotionEvent event){return true;}
     public long positionMs(){return media==null?0:media.positionMs();}
-    public void setResumed(boolean value){if(media!=null)media.setResumed(value);}
+    public void setResumed(boolean value){if(resumed==value)return;resumed=value;if(media!=null)media.setResumed(value);}
     public AppearancePreview(Context context,int account,AppearanceConfig.Resolved style,boolean dark,boolean dialogs){
         this(context,account,style,dark,dialogs?1:0);
     }

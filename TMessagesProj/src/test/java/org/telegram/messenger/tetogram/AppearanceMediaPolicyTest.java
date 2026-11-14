@@ -11,4 +11,5 @@ public class AppearanceMediaPolicyTest {
     @Test(expected=IllegalArgumentException.class)public void rejectsEmptyRange(){AppearanceMediaPolicy.endUs(900,300,1000);}
     @Test public void cleanupProtectsSharedPresetReferencesAndPendingDrafts(){String f=UUID.randomUUID()+".mp4";assertFalse(AppearanceMediaPolicy.discard(f,Collections.singleton(f),false));assertFalse(AppearanceMediaPolicy.discard(f,Collections.emptySet(),true));assertTrue(AppearanceMediaPolicy.discard(f,Collections.emptySet(),false));}
     @Test public void cleanupDoesNotTouchForeignFiles(){assertFalse(AppearanceMediaPolicy.discard("session.dat",Collections.emptySet(),false));assertFalse(AppearanceMediaPolicy.discard("../private.jpg",Collections.emptySet(),false));}
+ @org.junit.Test public void firstFrameRequiresMetadataAndLaidOutSurface(){org.junit.Assert.assertFalse(AppearanceMediaPolicy.showFrame(false,1920,1080,400,800));org.junit.Assert.assertFalse(AppearanceMediaPolicy.showFrame(true,0,0,400,800));org.junit.Assert.assertFalse(AppearanceMediaPolicy.showFrame(true,1920,1080,0,0));org.junit.Assert.assertTrue(AppearanceMediaPolicy.showFrame(true,1920,1080,400,800));}
 }

@@ -2187,6 +2187,8 @@ public class Theme {
             return SharedConfig.compactMode;
         }
 
+        default String getAppearanceValue(String key) {return org.telegram.messenger.tetogram.AppearanceRuntime.globalValue(key);}
+        default long getAppearanceRevision(){return org.telegram.messenger.tetogram.AppearanceRuntime.generation();}
         default Integer getAppearanceColor(String key) { return org.telegram.messenger.tetogram.AppearanceRuntime.globalNamedColor(key); }
 
         default float getBubbleRadius(boolean outgoing) {

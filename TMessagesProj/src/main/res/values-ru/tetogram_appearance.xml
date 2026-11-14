@@ -121,4 +121,10 @@
     <string name="TetogramAppearanceReduceOnBattery">Уменьшать эффекты при энергосбережении</string>
     <string name="TetogramAppearanceNativeEffects">Lite Mode и штатные эффекты Telegram</string>
     <string name="TetogramAppearanceSenderNames">Цвет имён отправителей в группах</string>
+    <string name="TetogramAppearanceBubbleTail">Штатный хвостик сообщения</string>
+    <string name="TetogramAppearanceBubbleShadow">Штатная тень сообщения</string>
+    <string name="TetogramAppearanceTopLeft">Радиус левого верхнего угла</string>
+    <string name="TetogramAppearanceTopRight">Радиус правого верхнего угла</string>
+    <string name="TetogramAppearanceBottomLeft">Радиус левого нижнего угла</string>
+    <string name="TetogramAppearanceBottomRight">Радиус правого нижнего угла</string>
 </resources>

@@ -121,4 +121,10 @@
     <string name="TetogramAppearanceReduceOnBattery">Reduce effects in power saving mode</string>
     <string name="TetogramAppearanceNativeEffects">Telegram Lite Mode and native effects</string>
     <string name="TetogramAppearanceSenderNames">Sender name color in groups</string>
+    <string name="TetogramAppearanceBubbleTail">Native bubble tail</string>
+    <string name="TetogramAppearanceBubbleShadow">Native bubble shadow</string>
+    <string name="TetogramAppearanceTopLeft">Top left corner radius</string>
+    <string name="TetogramAppearanceTopRight">Top right corner radius</string>
+    <string name="TetogramAppearanceBottomLeft">Bottom left corner radius</string>
+    <string name="TetogramAppearanceBottomRight">Bottom right corner radius</string>
 </resources>

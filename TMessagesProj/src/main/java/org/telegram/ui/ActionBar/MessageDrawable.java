@@ -67,6 +67,11 @@ public class MessageDrawable extends Drawable {
     public Integer overrideColor = null;
     public boolean shadow = true;
     private int[] currentShadowDrawableRadius = new int[]{-1, -1, -1, -1};
+    private final long[] shadowStyleRevision=new long[4];
+    private final long[][] backgroundStyleRevision=new long[4][4];
+    private static final String[] APPEARANCE_CORNERS={"TopLeft","TopRight","BottomLeft","BottomRight"};
+    private final Paint appearanceStroke=new Paint(Paint.ANTI_ALIAS_FLAG);
+    private long transitionStyleRevision;
     private Bitmap[] shadowDrawableBitmap = new Bitmap[4];
     private Drawable[] shadowDrawable = new Drawable[4];
     private int[] shadowDrawableColor = new int[]{0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff};
@@ -388,9 +393,10 @@ public class MessageDrawable extends Drawable {
             color = getColor(isOut ? Theme.key_chat_outBubble : Theme.key_chat_inBubble);
         }
 
-        boolean drawWithShadow = shadow && gradientShader == null && !isSelected && !isCrossfadeBackground && !isCompact();
+        boolean drawWithShadow = shadow && !"false".equals(appearanceValue("shadow")) && gradientShader == null && !isSelected && !isCrossfadeBackground && !isCompact();
         int shadowColor = getColor(isOut ? Theme.key_chat_outBubbleShadow : Theme.key_chat_inBubbleShadow);
-        if (lastDrawWithShadow != drawWithShadow || currentBackgroundDrawableRadius[idx2][idx] != newRad || (drawWithShadow && shadowDrawableColor[idx] != shadowColor) || backgroundDrawableColor[idx2][idx] != color) {
+        if (backgroundStyleRevision[idx2][idx] != appearanceRevision() || lastDrawWithShadow != drawWithShadow || currentBackgroundDrawableRadius[idx2][idx] != newRad || (drawWithShadow && shadowDrawableColor[idx] != shadowColor) || backgroundDrawableColor[idx2][idx] != color) {
+            backgroundStyleRevision[idx2][idx] = appearanceRevision();
             currentBackgroundDrawableRadius[idx2][idx] = newRad;
             renderingBackgroundCache = true;
             try {
@@ -444,7 +450,8 @@ public class MessageDrawable extends Drawable {
 
     public Drawable getTransitionDrawable(int color) {
         int radiusSignature=dp(bubbleRadius());
-        if (transitionDrawable == null || transitionCacheRadius != radiusSignature) {
+        if (transitionDrawable == null || transitionCacheRadius != radiusSignature || transitionStyleRevision != appearanceRevision()) {
+            transitionStyleRevision=appearanceRevision();
             transitionCacheRadius=radiusSignature;
             Bitmap bitmap = Bitmap.createBitmap(cacheWidth(), cacheHeight(), Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
@@ -475,7 +482,7 @@ public class MessageDrawable extends Drawable {
     }
 
     public Drawable getShadowDrawable() {
-        if (isCrossfadeBackground || isCompact()) {
+        if (isCrossfadeBackground || isCompact() || "false".equals(appearanceValue("shadow"))) {
             return null;
         }
         if (gradientShader == null && !isSelected && crossfadeFromDrawable == null) {
@@ -493,7 +500,8 @@ public class MessageDrawable extends Drawable {
             idx = 0;
         }
         boolean forceSetColor = false;
-        if (currentShadowDrawableRadius[idx] != newRad) {
+        if (currentShadowDrawableRadius[idx] != newRad || shadowStyleRevision[idx] != appearanceRevision()) {
+            shadowStyleRevision[idx]=appearanceRevision();
             currentShadowDrawableRadius[idx] = newRad;
             if (shadowDrawableBitmap[idx] != null) {
                 shadowDrawableBitmap[idx].recycle();
@@ -596,6 +604,7 @@ public class MessageDrawable extends Drawable {
             if (background != null) {
                 background.setBounds(bounds);
                 background.draw(canvas);
+                drawAppearanceOutline(canvas,makePath());
                 return;
             }
         }
@@ -640,7 +649,8 @@ public class MessageDrawable extends Drawable {
         boolean invalidatePath;
         if (pathDrawCacheParams != null) {
             path = pathDrawCacheParams.path;
-            invalidatePath = pathDrawCacheParams.invalidatePath(bounds, drawFullBottom, drawFullTop);
+            invalidatePath = pathDrawCacheParams.invalidatePath(bounds, drawFullBottom, drawFullTop) || pathDrawCacheParams.appearanceOwner != this || pathDrawCacheParams.appearanceRevision != appearanceRevision();
+            pathDrawCacheParams.appearanceOwner=this;pathDrawCacheParams.appearanceRevision=appearanceRevision();
         } else {
             path = this.path;
             invalidatePath = true;
@@ -655,6 +665,7 @@ public class MessageDrawable extends Drawable {
             selectedPaint.setColor(ColorUtils.setAlphaComponent(color, (int) (Color.alpha(color) * alpha / 255f)));
             canvas.drawPath(path, selectedPaint);
         }
+        if(paintToUse==null)drawAppearanceOutline(canvas,path);
     }
 
     public Path makePath() {
@@ -693,7 +704,8 @@ public class MessageDrawable extends Drawable {
         boolean invalidatePath;
         if (pathDrawCacheParams != null) {
             path = pathDrawCacheParams.path;
-            invalidatePath = pathDrawCacheParams.invalidatePath(bounds, drawFullBottom, drawFullTop);
+            invalidatePath = pathDrawCacheParams.invalidatePath(bounds, drawFullBottom, drawFullTop) || pathDrawCacheParams.appearanceOwner != this || pathDrawCacheParams.appearanceRevision != appearanceRevision();
+            pathDrawCacheParams.appearanceOwner=this;pathDrawCacheParams.appearanceRevision=appearanceRevision();
         } else {
             path = this.path;
             invalidatePath = true;
@@ -710,11 +722,14 @@ public class MessageDrawable extends Drawable {
         if (rad > heightHalf) {
             rad = heightHalf;
         }
+        int drawType=currentType;
+        if("false".equals(appearanceValue("tail"))&&drawType==TYPE_TEXT)drawType=TYPE_MEDIA;
+        int topLeft=appearanceRadius("TopLeft",rad,bounds),topRight=appearanceRadius("TopRight",rad,bounds);
         if (isOut) {
             // LEFT-BOTTOM <- RIGHT-BOTTOM
             if (drawFullBubble || currentType == TYPE_PREVIEW || customPaint || drawFullBottom) {
-                int radToUse = botButtonsBottom ? nearRad : rad;
-                if (currentType == TYPE_MEDIA) {
+                int radToUse = appearanceRadius("BottomLeft",botButtonsBottom ? nearRad : rad,bounds);
+                if (drawType == TYPE_MEDIA) {
                     path.moveTo(bounds.right - dp(8) - radToUse, bounds.bottom - padding);
                 } else {
                     path.moveTo(bounds.right - dp(2.6f), bounds.bottom - padding);
@@ -728,13 +743,13 @@ public class MessageDrawable extends Drawable {
             }
             if (drawFullBubble || currentType == TYPE_PREVIEW || customPaint || drawFullTop) {
                 // LEFT-BOTTOM -> LEFT-TOP
-                path.lineTo(bounds.left + padding, bounds.top + padding + rad);
-                rect.set(bounds.left + padding, bounds.top + padding, bounds.left + padding + rad * 2, bounds.top + padding + rad * 2);
+                path.lineTo(bounds.left + padding, bounds.top + padding + topLeft);
+                rect.set(bounds.left + padding, bounds.top + padding, bounds.left + padding + topLeft * 2, bounds.top + padding + topLeft * 2);
                 path.arcTo(rect, 180, 90, false);
 
                 // LEFT-TOP -> RIGHT-TOP
-                int radToUse = isTopNear ? nearRad : rad;
-                if (currentType == TYPE_MEDIA) {
+                int radToUse = appearanceRadius("TopRight",isTopNear ? nearRad : rad,bounds);
+                if (drawType == TYPE_MEDIA) {
                     path.lineTo(bounds.right - padding - radToUse, bounds.top + padding);
                     rect.set(bounds.right - padding - radToUse * 2, bounds.top + padding, bounds.right - padding, bounds.top + padding + radToUse * 2);
                 } else {
@@ -747,16 +762,16 @@ public class MessageDrawable extends Drawable {
                 path.lineTo(bounds.left + padding, top - topY - dp(2));
 
                 // LEFT-TOP -> RIGHT-TOP
-                if (currentType == TYPE_MEDIA) {
+                if (drawType == TYPE_MEDIA) {
                     path.lineTo(bounds.right - padding, top - topY - dp(2));
                 } else {
                     path.lineTo(bounds.right - dp(8), top - topY - dp(2));
                 }
             }
             // RIGHT-TOP -> RIGHT-BOTTOM
-            if (currentType == TYPE_MEDIA) {
+            if (drawType == TYPE_MEDIA) {
                 if (customPaint || drawFullBottom) {
-                    int radToUse = isBottomNear ? nearRad : rad;
+                    int radToUse = appearanceRadius("BottomRight",isBottomNear ? nearRad : rad,bounds);
 
                     path.lineTo(bounds.right - padding, bounds.bottom - padding - radToUse);
                     rect.set(bounds.right - padding - radToUse * 2, bounds.bottom - padding - radToUse * 2, bounds.right - padding, bounds.bottom - padding);
@@ -775,9 +790,9 @@ public class MessageDrawable extends Drawable {
             }
         } else {
             if (drawFullBubble || currentType == TYPE_PREVIEW || customPaint || drawFullBottom) {
-                int radToUse = botButtonsBottom ? nearRad : rad;
+                int radToUse = appearanceRadius("BottomRight",botButtonsBottom ? nearRad : rad,bounds);
 
-                if (currentType == TYPE_MEDIA) {
+                if (drawType == TYPE_MEDIA) {
                     path.moveTo(bounds.left + dp(8) + radToUse, bounds.bottom - padding);
                 } else {
                     path.moveTo(bounds.left + dp(2.6f), bounds.bottom - padding);
@@ -790,12 +805,12 @@ public class MessageDrawable extends Drawable {
                 path.lineTo(bounds.right - padding, top - topY + currentBackgroundHeight);
             }
             if (drawFullBubble || currentType == TYPE_PREVIEW || customPaint || drawFullTop) {
-                path.lineTo(bounds.right - padding, bounds.top + padding + rad);
-                rect.set(bounds.right - padding - rad * 2, bounds.top + padding, bounds.right - padding, bounds.top + padding + rad * 2);
+                path.lineTo(bounds.right - padding, bounds.top + padding + topRight);
+                rect.set(bounds.right - padding - topRight * 2, bounds.top + padding, bounds.right - padding, bounds.top + padding + topRight * 2);
                 path.arcTo(rect, 0, -90, false);
 
-                int radToUse = isTopNear ? nearRad : rad;
-                if (currentType == TYPE_MEDIA) {
+                int radToUse = appearanceRadius("TopLeft",isTopNear ? nearRad : rad,bounds);
+                if (drawType == TYPE_MEDIA) {
                     path.lineTo(bounds.left + padding + radToUse, bounds.top + padding);
                     rect.set(bounds.left + padding, bounds.top + padding, bounds.left + padding + radToUse * 2, bounds.top + padding + radToUse * 2);
                 } else {
@@ -805,15 +820,15 @@ public class MessageDrawable extends Drawable {
                 path.arcTo(rect, 270, -90, false);
             } else {
                 path.lineTo(bounds.right - padding, top - topY - dp(2));
-                if (currentType == TYPE_MEDIA) {
+                if (drawType == TYPE_MEDIA) {
                     path.lineTo(bounds.left + padding, top - topY - dp(2));
                 } else {
                     path.lineTo(bounds.left + dp(8), top - topY - dp(2));
                 }
             }
-            if (currentType == TYPE_MEDIA) {
+            if (drawType == TYPE_MEDIA) {
                 if (customPaint || drawFullBottom) {
-                    int radToUse = isBottomNear || botButtonsBottom ? nearRad : rad;
+                    int radToUse = appearanceRadius("BottomLeft",isBottomNear || botButtonsBottom ? nearRad : rad,bounds);
 
                     path.lineTo(bounds.left + padding, bounds.bottom - padding - radToUse);
                     rect.set(bounds.left + padding, bounds.bottom - padding - radToUse * 2, bounds.left + padding + radToUse * 2, bounds.bottom - padding);
@@ -878,9 +893,15 @@ public class MessageDrawable extends Drawable {
         }
     }
 
+    private String appearanceValue(String suffix){String key=(isOut?"bubble.out":"bubble.in")+Character.toUpperCase(suffix.charAt(0))+suffix.substring(1);return resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalValue(key):resourcesProvider.getAppearanceValue(key);}
+    private long appearanceRevision(){return resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.generation():resourcesProvider.getAppearanceRevision();}
+    private float appearanceNumber(String suffix,float fallback){String value=appearanceValue(suffix);if(value==null)return fallback;try{float n=Float.parseFloat(value);return Float.isNaN(n)||Float.isInfinite(n)?fallback:n;}catch(Exception e){return fallback;}}
+    private int appearanceRadius(String suffix,int fallback,Rect bounds){if(overrideRoundRadius!=0||overrideRounding>0)return fallback;float n=appearanceNumber(suffix,-1);return n<0?fallback:Math.min(Math.max(0,(Math.min(bounds.width(),bounds.height())-dp(4))/2),dp(Math.min(32,n)));}
+    private float cacheRadius(){float n=bubbleRadius();for(String corner:APPEARANCE_CORNERS)n=Math.max(n,Math.max(0,Math.min(32,appearanceNumber(corner,0))));return n;}
+    private void drawAppearanceOutline(Canvas canvas,Path path){float width=Math.max(0,Math.min(4,appearanceNumber("OutlineWidth",0)));if(width<=0)return;Integer color=resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalNamedColor((isOut?"bubble.out":"bubble.in")+"Outline"):resourcesProvider.getAppearanceColor((isOut?"bubble.out":"bubble.in")+"Outline");appearanceStroke.setStyle(Paint.Style.STROKE);appearanceStroke.setStrokeWidth(AndroidUtilities.dpf2(width));appearanceStroke.setColor(color==null?getColor(isOut?Theme.key_chat_outBubbleShadow:Theme.key_chat_inBubbleShadow):color);appearanceStroke.setAlpha(Math.round(Color.alpha(appearanceStroke.getColor())*(alpha/255f)));canvas.drawPath(path,appearanceStroke);}
     private int appearanceColor(String key) {Integer value=resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalNamedColor(key):resourcesProvider.getAppearanceColor(key);return value==null?0:value;}
-    private int cacheWidth(){return dp(org.telegram.messenger.tetogram.AppearanceGeometry.cacheWidth(bubbleRadius()));}
-    private int cacheHeight(){return dp(org.telegram.messenger.tetogram.AppearanceGeometry.cacheHeight(bubbleRadius()));}
+    private int cacheWidth(){return dp(org.telegram.messenger.tetogram.AppearanceGeometry.cacheWidth(cacheRadius()));}
+    private int cacheHeight(){return dp(org.telegram.messenger.tetogram.AppearanceGeometry.cacheHeight(cacheRadius()));}
     private float bubbleRadius() {
         return resourcesProvider != null ? resourcesProvider.getBubbleRadius(isOut) : Math.max(0, Math.min(32, org.telegram.messenger.tetogram.AppearanceRuntime.globalNumber(isOut ? "bubble.outRadius" : "bubble.inRadius", SharedConfig.bubbleRadius)));
     }
@@ -899,6 +920,8 @@ public class MessageDrawable extends Drawable {
 
     public static class PathDrawParams {
         Path path = new Path();
+        private MessageDrawable appearanceOwner;
+        private long appearanceRevision;
         Rect lastRect = new Rect();
         boolean lastDrawFullTop;
         boolean lastDrawFullBottom;

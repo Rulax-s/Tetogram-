@@ -26,7 +26,7 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     private AppearanceConfig.Resolved style=new AppearanceConfig.Resolved();
     private File media;
     private long owner;
-    private boolean attached,resumed,failed,video;
+    private boolean attached,resumed,failed,video,firstFrame;
     private int stableWidth,stableHeight,videoWidth,videoHeight;
     private String identity="";
     private final Runnable tick=new Runnable(){public void run(){reconcile();if(attached&&resumed)AndroidUtilities.runOnUIThread(this,1000);}};
@@ -34,11 +34,11 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     public AppearanceMediaView(Context context){
         super(context);setClipChildren(true);setClickable(false);setFocusable(false);power=(PowerManager)context.getSystemService(Context.POWER_SERVICE);
         cover=new BackupImageView(context);addView(cover,LayoutHelper.createFrame(-1,-1));
-        texture=new TextureView(context);texture.setOpaque(false);texture.setAlpha(0);addView(texture,LayoutHelper.createFrame(-1,-1));
+        texture=new TextureView(context);texture.setOpaque(false);texture.setAlpha(0);texture.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{updateTransform();showFrame();});addView(texture,LayoutHelper.createFrame(-1,-1));
         dim=new View(context);addView(dim,LayoutHelper.createFrame(-1,-1));
     }
     public void configure(long owner,AppearanceConfig.Resolved value){
-        this.owner=owner;String id=owner+":"+value.values.toString();if(identity.equals(id))return;identity=id;stop();failed=false;style=value;media=AppearanceMedia.file(owner,value.get("wallpaper.file"));video="video".equals(value.get("wallpaper.type"));
+        this.owner=owner;String id=owner+":"+value.values.toString();if(identity.equals(id))return;identity=id;stop();videoWidth=videoHeight=0;failed=false;style=value;media=AppearanceMedia.file(owner,value.get("wallpaper.file"));video="video".equals(value.get("wallpaper.type"));
         File thumb=video?AppearanceMedia.file(owner,value.get("wallpaper.cover.file")):media;
         ColorDrawable fallback=new ColorDrawable(0x00000000);String filter="1080_1920";
         if(Build.VERSION.SDK_INT<31 && style.number("wallpaper.blur",0)>0)filter="640_640_b";
@@ -55,13 +55,14 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
             instance.setDelegate(new VideoPlayer.VideoPlayerDelegate(){
                 public void onStateChanged(boolean ready,int state){}
                 public void onError(VideoPlayer p,Exception e){if(player==instance){failed=true;stop();FileLog.e("Tetogram local video background unavailable");}}
-                public void onVideoSizeChanged(int w,int h,int rotation,float ratio){if(player!=instance)return;videoWidth=(rotation==90||rotation==270)?h:w;videoHeight=(rotation==90||rotation==270)?w:h;updateTransform();}
-                public void onRenderedFirstFrame(){if(player==instance)texture.setAlpha(1);}
+                public void onVideoSizeChanged(int w,int h,int rotation,float ratio){if(player!=instance)return;videoWidth=(rotation==90||rotation==270)?h:w;videoHeight=(rotation==90||rotation==270)?w:h;updateTransform();showFrame();}
+                public void onRenderedFirstFrame(){if(player==instance){firstFrame=true;showFrame();}}
             });
             instance.setTextureView(texture);instance.setMute(true);instance.setLooping(!"false".equals(style.get("wallpaper.loop")));instance.preparePlayer(android.net.Uri.fromFile(media),"other");instance.setPlaybackSpeed(Math.max(.25f,Math.min(2,style.number("wallpaper.speed",1))));instance.play();
         }catch(Exception e){failed=true;stop();FileLog.e("Tetogram video background initialization failed");}
     }
-    private void stop(){texture.setAlpha(0);if(player!=null){VideoPlayer previous=player;player=null;try{previous.pause();previous.releasePlayer(false);}catch(Exception ignored){}}}
+    private void showFrame(){if(!AppearanceMediaPolicy.showFrame(firstFrame,videoWidth,videoHeight,texture.getWidth(),texture.getHeight())||texture.getAlpha()!=0)return;if(SectionMenu.animations(getContext()))texture.animate().alpha(1).setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(150)).start();else texture.setAlpha(1);}
+    private void stop(){firstFrame=false;texture.animate().cancel();texture.setAlpha(0);if(player!=null){VideoPlayer previous=player;player=null;try{previous.pause();previous.releasePlayer(false);}catch(Exception ignored){}}}
     public void retry(){failed=false;reconcile();}
     public long positionMs(){return player==null?0:Math.max(0,player.getCurrentPosition());}
     @Override protected void onAttachedToWindow(){super.onAttachedToWindow();attached=true;NotificationCenter.getGlobalInstance().addObserver(this,NotificationCenter.screenStateChanged);ContextCompat.registerReceiver(getContext().getApplicationContext(),powerReceiver,new IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED),ContextCompat.RECEIVER_NOT_EXPORTED);if(resumed)AndroidUtilities.runOnUIThread(tick);}

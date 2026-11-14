@@ -93,3 +93,11 @@ AppearanceLauncherActivity использует native AppIconsSelectorCell с �
 ### Контексты предпросмотра
 
 Глобальный редактор переключает chat/group/list/section/folder/profile previews. Используются native ChatMessageCell (customName/customAvatarDrawable с фиктивными данными), DialogCell.CustomDialog, SectionCircle, ScrollSlidingTextTabStrip и ProfileActivity2.AvatarImage. Просмотр не создаёт настоящие папки/разделы/чаты и не отправляет сообщения. Scoped editor предлагает только применимые контексты, чтобы не сохранять profile-параметры в chat scope. Поля group.senderName меняют только Paint имён групповых сообщений, не sender ID/содержимое/серверные PeerColors. UI checks NOT RUN.
+
+### Форма сообщений
+
+Native MessageDrawable расширен отдельными in/out corner overrides, отключением tail через существующий media path, native shadow toggle и outline. Формат сообщений, padding/layout текста и grouping metadata не меняются. Tail-adjacent нижний угол доступен после скрытия хвостика; остальные углы задаются отдельно. Forced native rounding/transitions имеют приоритет над corner overrides. Cache extents учитывают самый большой угол; NinePatch/shadow/transition/PathDrawParams учитывают provider revision и владельца Drawable. Stroke не запекается в tinted fill cache. Scoped providers возвращают собственную revision; global generation не меняется при простом повторном чтении той же конфигурации. Отсутствующие числовые значения обрабатываются без Exception в draw loop. Android geometry/media clipping/crossfade UI NOT RUN.
+
+### Предпросмотр при поиске и выборе цвета
+
+Поиск фильтрует подписи/значения параметров, включая русские названия цветов, числовые параметры и действия медиа. Неизменившийся scene переиспользуется: ввод поискового текста не пересоздаёт video player. Пересоздание fragment View сбрасывает scene ownership; preview перехватывает touches, поэтому синтетические tabs/avatars не открывают реальные экраны. Native color picker содержит обновляемый с ограничением частоты native-cell preview; видео в модальном sample заменяется cover (второй декодер не создаётся), основной player приостановлен до закрытия диалога. Цвет не записывается в draft до OK, Cancel сохраняет исходное значение. Android UI/rotation/scroll/gesture checks NOT RUN.

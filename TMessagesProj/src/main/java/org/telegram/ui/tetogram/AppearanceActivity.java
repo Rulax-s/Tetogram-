@@ -33,6 +33,8 @@ public final class AppearanceActivity extends LabsPage {
     private final ArrayDeque<AppearanceConfig.Style> undo=new ArrayDeque<>();
     private EditTextBoldCursor searchInput;
     private AppearancePreview preview;
+    private AppearanceConfig.Resolved previewResolved;
+    private int lastPreviewKind;private boolean lastPreviewDark,filterParameters;
     private boolean foreground,mediaBusy,previewDialogs,effectsPage;
     private int previewKind;
     private static final int PICK_APPEARANCE_MEDIA=61041,IMPORT_PRESET=61042,EXPORT_PRESET=61043;
@@ -46,6 +48,7 @@ public final class AppearanceActivity extends LabsPage {
     @Override protected CharSequence title(){return getString(R.string.TetogramAppearance);}
     private boolean valid(){return !destroyed && owner>0 && owner==getUserConfig().getClientUserId();}
     @Override public View createView(Context context){
+        if(preview!=null)preview.setResumed(false);preview=null;previewResolved=null;
         if("edit".equals(page)){
             searchInput=new EditTextBoldCursor(context);searchInput.setSingleLine(true);searchInput.setTextSize(16);searchInput.setHint(getString(R.string.Search));searchInput.setPadding(AndroidUtilities.dp(16),0,AndroidUtilities.dp(16),0);ThemeBind.textColor(searchInput,Theme.key_windowBackgroundWhiteBlackText);ThemeBind.hintTextColor(searchInput,Theme.key_windowBackgroundWhiteHintText);
             searchInput.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int c,int a){}public void afterTextChanged(Editable e){}public void onTextChanged(CharSequence s,int st,int before,int count){search=s.toString();refresh();}});
@@ -56,13 +59,13 @@ public final class AppearanceActivity extends LabsPage {
     @Override public void onPause(){foreground=false;if(preview!=null)preview.setResumed(false);super.onPause();}
     @Override public void onFragmentDestroy(){destroyed=true;if(mediaJob!=null)mediaJob.cancel();if(preview!=null)preview.setResumed(false);for(File f:pendingMedia)AppearanceMedia.discard(f);pendingMedia.clear();super.onFragmentDestroy();}
     private void refresh(){if(list!=null)list.adapter.update(false);}
-    private void button(ArrayList<UItem> items,CharSequence title,CharSequence value,Runnable action){actions.add(action);items.add(UItem.asButton(actions.size(),title,value).setEnabled(!saving&&!mediaBusy));}
+    private void button(ArrayList<UItem> items,CharSequence title,CharSequence value,Runnable action){if(filterParameters&&!search.isEmpty()){String query=search.toLowerCase(java.util.Locale.ROOT);if(!title.toString().toLowerCase(java.util.Locale.ROOT).contains(query)&&(value==null||!value.toString().toLowerCase(java.util.Locale.ROOT).contains(query)))return;}actions.add(action);items.add(UItem.asButton(actions.size(),title,value).setEnabled(!saving&&!mediaBusy));}
     private void button(ArrayList<UItem> items,CharSequence title,Runnable action){button(items,title,null,action);}
     private void checkpoint(){undo.push(draft.copy());}
     private AppearanceConfig.Resolved resolved(){AppearanceConfig.Style old=config.scopes.put(scope,draft);try{return scope.startsWith("profile:")?config.resolveProfile(Long.parseLong(scope.substring(8))):config.resolve(new AppearanceConfig.Context(section,folder,dialog,topic));}finally{if(old==null)config.scopes.remove(scope);else config.scopes.put(scope,old);}}
     private void editScope(String key,String section,String folder,long did,long tid){presentFragment(new AppearanceActivity(currentAccount,key,section,folder,did,tid));}
     @Override protected void fill(ArrayList<UItem> items,UniversalAdapter adapter){
-        actions.clear();if(!valid())return;
+        actions.clear();filterParameters=false;if(!valid())return;
         if(failed){items.add(UItem.asShadow(getString(R.string.TetogramAppearanceStorageError)));return;}
         if(config==null){items.add(UItem.asShadow(getString(R.string.Loading)));return;}
         if("home".equals(page)){
@@ -103,18 +106,18 @@ public final class AppearanceActivity extends LabsPage {
         button(items,getString(R.string.TetogramAppearanceMode),previewDark?getString(R.string.TetogramAppearanceDark):getString(R.string.TetogramAppearanceLight),()->{previewDark=!previewDark;refresh();});
         button(items,getString(R.string.TetogramAppearanceAdvanced),advanced?getString(R.string.TetogramAppearanceAdvanced):getString(R.string.TetogramAppearanceSimple),()->{advanced=!advanced;refresh();});
         button(items,getString(R.string.TetogramAppearancePreviewSurface),getString(surfaceLabel(previewKind)),this::choosePreview);
-        preview=new AppearancePreview(getContext(),currentAccount,previewStyle(),previewDark,previewKind);preview.setResumed(foreground&&!mediaBusy);items.add(UItem.asCustom(preview,240));
+        AppearanceConfig.Resolved previewValue=previewStyle();if(preview==null||lastPreviewKind!=previewKind||lastPreviewDark!=previewDark||!previewResolved.values.equals(previewValue.values)||!previewResolved.origins.equals(previewValue.origins)){if(preview!=null)preview.setResumed(false);preview=new AppearancePreview(getContext(),currentAccount,previewValue,previewDark,previewKind);previewResolved=previewValue;lastPreviewKind=previewKind;lastPreviewDark=previewDark;}preview.setResumed(foreground&&!mediaBusy);items.add(UItem.asCustom(preview,240));
         if(mediaBusy)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePreparingMedia)));
+        if(searchInput!=null)items.add(UItem.asCustom(searchInput,48));filterParameters=true;
         if(effectsPage){items.add(UItem.asHeader(getString(R.string.TetogramAppearanceEffects)));toggle(items,"effects.enabled",getString(R.string.TetogramAppearanceAnimationsEnabled),true);number(items,"effects.durationScale",getString(R.string.TetogramAppearanceTransitionDuration),.25f,2);toggle(items,"effects.reduceOnBattery",getString(R.string.TetogramAppearanceReduceOnBattery),true);button(items,getString(R.string.TetogramAppearanceNativeEffects),()->presentFragment(new LiteModeSettingsActivity()));button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();for(String key:new ArrayList<>(draft.values.keySet()))if(key.startsWith("effects."))draft.values.remove(key);refresh();});return;}
         mediaControls(items);
         if(previewKind==2){number(items,"banner.height",getString(R.string.TetogramAppearanceBannerHeight),120,480);number(items,"banner.radius",getString(R.string.TetogramAppearanceRowRadius),0,40);button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=new AppearanceConfig.Style();refresh();});return;}
-        if(searchInput!=null)items.add(UItem.asCustom(searchInput,48));
         String[] simple=previewDialogs?new String[]{"list.chat_wallpaper","windowBackgroundWhite","chats_name","chats_message","chats_date","chats_unreadCounter","chats_unreadCounterText","actionBarDefault"}:new String[]{"chat_wallpaper","chat_inBubble","chat_outBubble","chat_messageTextIn","chat_messageTextOut","actionBarDefault","chats_name","chats_unreadCounter"};
         ArrayList<String> keys=new ArrayList<>();
         if(advanced){for(int key=0;key<Theme.colorsCount;key++){String name=ThemeColors.getStringName(key);if(name!=null && !name.equals("wallpaperFileOffset") && !name.contains("rotation") && !name.toLowerCase(java.util.Locale.ROOT).contains("animated"))keys.add(name);}Collections.sort(keys);}else Collections.addAll(keys,simple);
         if(previewDialogs&&!keys.contains("list.chat_wallpaper"))keys.add("list.chat_wallpaper");
         String prefix=previewDark?"dark.":"light.";AppearanceConfig.Resolved r=resolved();
-        for(String name:keys){if(!search.isEmpty() && !name.toLowerCase(java.util.Locale.ROOT).contains(search.toLowerCase(java.util.Locale.ROOT)))continue;
+        for(String name:keys){if(!search.isEmpty() && !name.toLowerCase(java.util.Locale.ROOT).contains(search.toLowerCase(java.util.Locale.ROOT))&&!colorLabel(name).toString().toLowerCase(java.util.Locale.ROOT).contains(search.toLowerCase(java.util.Locale.ROOT)))continue;
             String key=prefix+name;int nativeKey=ThemeColors.stringKeyToInt(name.startsWith("list.")?name.substring(5):name);Integer custom=r.color(previewDark,name);int color=custom==null?Theme.getColor(nativeKey):custom;
             String origin=draft.values.containsKey(key)?getString(R.string.TetogramAppearanceExplicit):getString(R.string.TetogramAppearanceInherited)+" · "+r.origins.getOrDefault(key,"Telegram");
             button(items,colorLabel(name),String.format(java.util.Locale.ROOT,"#%08X",color)+" · "+origin,()->colorDialog(name,color));
@@ -150,6 +153,17 @@ public final class AppearanceActivity extends LabsPage {
         }
         number(items,"bubble.inRadius",getString(R.string.TetogramAppearanceInRadius),0,32);
         number(items,"bubble.outRadius",getString(R.string.TetogramAppearanceOutRadius),0,32);
+        for(boolean out:new boolean[]{false,true}){
+            items.add(UItem.asHeader(getString(out?R.string.TetogramAppearanceOutgoing:R.string.TetogramAppearanceIncoming)));
+            String base=out?"bubble.out":"bubble.in";
+            toggle(items,base+"Tail",getString(R.string.TetogramAppearanceBubbleTail),true);
+            toggle(items,base+"Shadow",getString(R.string.TetogramAppearanceBubbleShadow),true);
+            String[] corners={"TopLeft","TopRight","BottomLeft","BottomRight"};int[] labels={R.string.TetogramAppearanceTopLeft,R.string.TetogramAppearanceTopRight,R.string.TetogramAppearanceBottomLeft,R.string.TetogramAppearanceBottomRight};
+            for(int corner=0;corner<corners.length;corner++)if(!"true".equals(r.get(base+"Tail"))&&r.get(base+"Tail")!=null||corner!=(out?3:2))number(items,base+corners[corner],getString(labels[corner]),0,32);
+            number(items,base+"OutlineWidth",getString(R.string.TetogramAppearanceOutlineWidth),0,4);
+            String outlineKey=base+"Outline";Integer outline=r.color(previewDark,outlineKey);button(items,getString(R.string.TetogramAppearanceOutlineColor),()->colorDialog(outlineKey,outline==null?Theme.getColor(Theme.key_chats_unreadCounter):outline));
+        }
+
         button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=new AppearanceConfig.Style();refresh();});
     }
     private CharSequence colorLabel(String name){switch(name){case "chat_wallpaper":return getString(R.string.TetogramAppearanceBackground);case "chat_inBubble":return getString(R.string.TetogramAppearanceIncoming);case "chat_outBubble":return getString(R.string.TetogramAppearanceOutgoing);case "chat_messageTextIn":return getString(R.string.TetogramAppearanceIncomingText);case "chat_messageTextOut":return getString(R.string.TetogramAppearanceOutgoingText);default:return name;}}
@@ -160,7 +174,7 @@ public final class AppearanceActivity extends LabsPage {
     private String mediaKey(String part){return mediaPrefix()+"."+part;}
     private String wallpaperColorName(String tail){return (previewKind==2?"banner.":previewDialogs?"list.":"")+"chat_wallpaper"+tail;}
     private AppearanceConfig.Resolved previewStyle(){AppearanceConfig.Resolved r=resolved();return previewKind==2?AppearanceSurfaces.banner(r):previewDialogs?AppearanceSurfaces.list(r):r;}
-    private float defaultNumber(String key){if(key.equals("effects.durationScale"))return 1;if(key.startsWith("bubble."))return SharedConfig.bubbleRadius;if(key.equals(mediaKey("fps")))return 30;if(key.equals(mediaKey("quality")))return 1280;if(key.equals("list.rowOpacity"))return 1;if(key.equals("list.avatarSize"))return SharedConfig.useThreeLinesLayout?56:52;if(key.endsWith("angle"))return 45;if(key.endsWith("opacity")||key.endsWith("speed")||key.endsWith("zoom"))return 1;return 0;}
+    private float defaultNumber(String key){if(key.equals("effects.durationScale"))return 1;if(key.endsWith("OutlineWidth"))return 0;if(key.startsWith("bubble."))return resolved().number(key.startsWith("bubble.out")?"bubble.outRadius":"bubble.inRadius",SharedConfig.bubbleRadius);if(key.equals(mediaKey("fps")))return 30;if(key.equals(mediaKey("quality")))return 1280;if(key.equals("list.rowOpacity"))return 1;if(key.equals("list.avatarSize"))return SharedConfig.useThreeLinesLayout?56:52;if(key.endsWith("angle"))return 45;if(key.endsWith("opacity")||key.endsWith("speed")||key.endsWith("zoom"))return 1;return 0;}
     private void number(ArrayList<UItem> items,String key,CharSequence label,float min,float max){String value=Float.toString(resolved().number(key,defaultNumber(key)));button(items,label,value+(draft.values.containsKey(key)?"":" · "+getString(R.string.TetogramAppearanceInherited)),()->showDialog(new AlertDialog.Builder(getContext()).setTitle(label).setItems(new CharSequence[]{getString(R.string.Edit),getString(R.string.TetogramAppearanceInherit)},(d,n)->{if(n==1){checkpoint();draft.values.remove(key);refresh();return;}input(label,value,text->{try{float parsed=Float.parseFloat(text);if(Float.isNaN(parsed)||Float.isInfinite(parsed)||parsed<min||parsed>max)throw new IllegalArgumentException();checkpoint();draft.set(key,Float.toString(parsed));refresh();}catch(Exception e){error(getString(R.string.TetogramAppearanceInvalidValue));}});}).create()));}
 
     private void colorDialog(String name,int color){
@@ -183,8 +197,14 @@ public final class AppearanceActivity extends LabsPage {
     }
     private void restoreContrast(){checkpoint();AppearanceConfig.Resolved r=resolved();String[][] pairs={{"chat_inBubble","chat_messageTextIn"},{"chat_outBubble","chat_messageTextOut"},{"windowBackgroundWhite","windowBackgroundWhiteBlackText"},{"actionBarDefault","actionBarDefaultTitle"},{"actionBarDefault","actionBarDefaultIcon"},{"chats_unreadCounter","chats_unreadCounterText"},{"section.badge","section.badgeText"},{"section.background","section.text"}};for(String[] pair:pairs){Integer bg=r.color(previewDark,pair[0]);if(bg==null){int nativeKey=ThemeColors.stringKeyToInt(pair[0]);if(nativeKey<0)continue;bg=AppearanceRuntime.baseColor(previewDark,nativeKey);}draft.color(previewDark,pair[1],AppearancePresets.contrast(AppearanceColors.composite(bg,previewDark?0xff000000:0xffffffff)));}refresh();}
     private void pickerDialog(String name,int color){
-        final int[] value={color};ColorPicker picker=new ColorPicker(getContext(),false,(c,n,apply)->value[0]=c);picker.setResourcesProvider(getResourceProvider());picker.setType(0,true,1,1,false,0,false);picker.setColor(color,0);
-        showDialog(new AlertDialog.Builder(getContext()).setTitle(colorLabel(name)).setView(picker, AndroidUtilities.dp(320)).setPositiveButton(getString(R.string.OK),(d,n)->{acceptColor(name,value[0]);}).setNeutralButton(getString(R.string.TetogramAppearanceInherit),(d,n)->{checkpoint();draft.values.remove((previewDark?"dark.":"light.")+name);refresh();}).setNegativeButton(getString(R.string.Cancel),null).create());
+        final int[] value={color};
+        LinearLayout body=new LinearLayout(getContext());body.setOrientation(LinearLayout.VERTICAL);
+        android.widget.FrameLayout sample=new android.widget.FrameLayout(getContext());body.addView(sample,new LinearLayout.LayoutParams(-1,AndroidUtilities.dp(200)));
+        Runnable redraw=()->{if(!valid())return;AppearanceConfig.Style old=draft;AppearanceConfig.Resolved candidate;try{draft=draft.copy();draft.color(previewDark,name,value[0]);candidate=previewStyle();}finally{draft=old;}if("video".equals(candidate.get("wallpaper.type"))){String cover=candidate.get("wallpaper.cover.file");if(AppearanceConfig.isMediaName(cover))candidate.values.put("wallpaper.file",cover);else candidate.values.remove("wallpaper.file");candidate.values.put("wallpaper.type","image");}sample.removeAllViews();AppearancePreview scene=new AppearancePreview(getContext(),currentAccount,candidate,previewDark,previewKind);sample.addView(scene,new android.widget.FrameLayout.LayoutParams(-1,-1));};
+        ColorPicker picker=new ColorPicker(getContext(),false,(c,n,apply)->{value[0]=c;AndroidUtilities.cancelRunOnUIThread(redraw);AndroidUtilities.runOnUIThread(redraw,80);});picker.setResourcesProvider(getResourceProvider());picker.setType(0,true,1,1,false,0,false);picker.setColor(color,0);body.addView(picker,new LinearLayout.LayoutParams(-1,AndroidUtilities.dp(320)));redraw.run();
+        android.widget.ScrollView scroll=new android.widget.ScrollView(getContext());scroll.setFillViewport(false);scroll.addView(body);if(preview!=null)preview.setResumed(false);
+        AlertDialog dialog=new AlertDialog.Builder(getContext()).setTitle(colorLabel(name)).setView(scroll,AndroidUtilities.dp(480)).setPositiveButton(getString(R.string.OK),(d,n)->acceptColor(name,value[0])).setNeutralButton(getString(R.string.TetogramAppearanceInherit),(d,n)->{checkpoint();draft.values.remove((previewDark?"dark.":"light.")+name);refresh();}).setNegativeButton(getString(R.string.Cancel),null).create();
+        showDialog(dialog,d->{AndroidUtilities.cancelRunOnUIThread(redraw);sample.removeAllViews();if(preview!=null)preview.setResumed(foreground&&!mediaBusy);});
     }
     private void presetActions(AppearanceConfig.Preset p,boolean builtin){ArrayList<CharSequence> names=new ArrayList<>();ArrayList<Runnable> runs=new ArrayList<>();names.add(getString(R.string.TetogramAppearanceApply));runs.add(()->{AppearanceActivity editor=new AppearanceActivity(currentAccount,"edit",AppearanceConfig.GLOBAL,null,null,0,0);editor.config=config.copy();editor.expectedRevision=expectedRevision;editor.draft=p.style.copy();editor.previewDark="dark".equals(p.style.values.get("mode"));presentFragment(editor);});names.add(getString(R.string.TetogramAppearanceDuplicate));runs.add(()->input(getString(R.string.TetogramAppearancePresetName),p.name,name->{AppearanceConfig.Preset duplicate=p.duplicate(name);config.presets.put(duplicate.id,duplicate);saveConfig(()->{});}));names.add(getString(R.string.TetogramAppearanceExport));runs.add(()->exportPreset(p));if(!builtin){names.add(getString(R.string.EditName));runs.add(()->input(getString(R.string.TetogramAppearancePresetName),p.name,name->{p.name=name;saveConfig(()->{});}));names.add(getString(R.string.Delete));runs.add(()->showDialog(new AlertDialog.Builder(getContext()).setMessage(getString(R.string.TetogramAppearanceDeletePreset)).setPositiveButton(getString(R.string.Delete),(d,n)->{config.presets.remove(p.id);saveConfig(()->{});}).setNegativeButton(getString(R.string.Cancel),null).create()));}showDialog(new AlertDialog.Builder(getContext()).setTitle(p.name).setItems(names.toArray(new CharSequence[0]),(d,n)->runs.get(n).run()).create());}
     private void confirmReset(){showDialog(new AlertDialog.Builder(getContext()).setMessage(getString(R.string.TetogramAppearanceResetConfirm)).setPositiveButton(getString(R.string.OK),(d,n)->{config.scopes.clear();saveConfig(()->{});}).setNegativeButton(getString(R.string.Cancel),null).create());}

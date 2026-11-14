@@ -11,6 +11,9 @@ public final class AppearanceRuntime {
     private static volatile AppearanceConfig.Resolved global=new AppearanceConfig.Resolved();
     private static volatile SparseIntArray nativeLight,nativeDark;
     private static boolean preparingBase;
+    private static long generation,activeOwner;
+    public static long generation(){return generation;}
+    public static String globalValue(String key){return global.get(key);}
     private AppearanceRuntime(){}
     public static int baseColor(boolean dark,int key){
         if(Theme.isCurrentThemeDark()==dark)return Theme.getNativeColor(key);
@@ -30,7 +33,7 @@ public final class AppearanceRuntime {
     public static int effectDuration(int base){return AppearanceEffects.duration(base,global.number("effects.durationScale",1),effectsAllowed());}
     public static Integer globalNamedColor(String key){return global.color(Theme.isCurrentThemeDark(),key);}
     public static float globalNumber(String key,float fallback){return global.number(key,fallback);}
-    public static void activate(int account){if(account!=UserConfig.selectedAccount)return;global=AppearanceStore.resolve(account,AppearanceConfig.Context.direct(0,0));light=colors(global,false);dark=colors(global,true);}
+    public static void activate(int account){if(account!=UserConfig.selectedAccount)return;AppearanceConfig.Resolved next=AppearanceStore.resolve(account,AppearanceConfig.Context.direct(0,0));long uid=AppearanceStore.owner(account);if(activeOwner!=uid||!global.values.equals(next.values))generation++;activeOwner=uid;global=next;light=colors(global,false);dark=colors(global,true);}
     public static void changed(int account){activate(account);if(account==UserConfig.selectedAccount && Theme.getActiveTheme()!=null){String mode=global.get("mode");if(("dark".equals(mode)||"light".equals(mode)) && Theme.selectedAutoNightType != Theme.AUTO_NIGHT_TYPE_NONE){Theme.selectedAutoNightType=Theme.AUTO_NIGHT_TYPE_NONE;Theme.saveAutoNightThemeConfig();}if(("dark".equals(mode)||"light".equals(mode)) && Theme.isCurrentThemeDark()!= "dark".equals(mode)){Theme.ThemeInfo base=Theme.getTheme("dark".equals(mode)?"Dark Blue":"Day");if(base!=null)Theme.applyTheme(base);}Theme.refreshThemeColors(false,true);}NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.tetogramAppearanceChanged,account);}
     public static void switchAccount(int account){global=new AppearanceConfig.Resolved();light=new SparseIntArray();dark=new SparseIntArray();AppearanceStore.load(account,(ok,c)->{if(ok)changed(account);});}
 }

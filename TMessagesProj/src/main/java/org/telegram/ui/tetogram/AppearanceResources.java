@@ -14,13 +14,16 @@ public final class AppearanceResources implements Theme.ResourcesProvider {
     private AppearanceConfig.Resolved style;
     private final Theme.ResourcesProvider base;
     private boolean dark;
+    private long revision;
     private SparseIntArray colors;
     private final HashMap<String,Drawable> drawables=new HashMap<>();
     private final HashMap<String,Paint> paints=new HashMap<>();
     public AppearanceResources(AppearanceConfig.Resolved style,boolean dark,Theme.ResourcesProvider base){this.base=base;update(style,dark);}
-    public void update(AppearanceConfig.Resolved style,boolean dark){this.style=style;this.dark=dark;colors=AppearanceRuntime.colors(style,dark);drawables.clear();paints.clear();}
+    public void update(AppearanceConfig.Resolved style,boolean dark){revision++;this.style=style;this.dark=dark;colors=AppearanceRuntime.colors(style,dark);drawables.clear();paints.clear();}
     @Override public boolean isDark(){return dark;}
     @Override public int getColor(int key){int i=colors.indexOfKey(key);return i<0?(base==null?AppearanceRuntime.baseColor(dark,key):base.getColor(key)):colors.valueAt(i);}
+    @Override public String getAppearanceValue(String key){return style.get(key);}
+    @Override public long getAppearanceRevision(){return revision;}
     @Override public Integer getAppearanceColor(String key){return style.color(dark,key);}
     @Override public float getBubbleRadius(boolean outgoing){return Math.max(0,Math.min(32,style.number(outgoing?"bubble.outRadius":"bubble.inRadius",SharedConfig.bubbleRadius)));}
     @Override public Paint getPaint(String key){

@@ -44202,6 +44202,7 @@ public class ChatActivity extends BaseFragment implements
         private org.telegram.messenger.tetogram.AppearanceConfig.Resolved tetogramStyle = new org.telegram.messenger.tetogram.AppearanceConfig.Resolved();
         private SparseIntArray tetogramColors = new SparseIntArray();
         private Drawable tetogramWallpaper;
+        private long tetogramStyleRevision;
 
         private org.telegram.messenger.tetogram.AppearanceConfig.Context tetogramContext() {
             return new org.telegram.messenger.tetogram.AppearanceConfig.Context(arguments == null ? null : arguments.getString("tetogram_appearance_section"), arguments == null ? null : arguments.getString("tetogram_appearance_folder"), dialog_id, getTopicId());
@@ -44210,6 +44211,7 @@ public class ChatActivity extends BaseFragment implements
         public void reloadTetogramAppearance() {
             if (parentThemeDelegate != null) return;
             boolean had = !tetogramStyle.values.isEmpty();
+            tetogramStyleRevision++;
             tetogramStyle = org.telegram.messenger.tetogram.AppearanceStore.resolve(currentAccount, tetogramContext());
             tetogramColors = org.telegram.messenger.tetogram.AppearanceRuntime.colors(tetogramStyle, isDark());
             tetogramWallpaper = org.telegram.ui.tetogram.AppearanceBackgrounds.colors(tetogramStyle, isDark());
@@ -44227,7 +44229,9 @@ public class ChatActivity extends BaseFragment implements
             }
         }
 
-        @Override public Integer getAppearanceColor(String key) { return tetogramStyle.color(isDark(),key); }
+        @Override public String getAppearanceValue(String key){return parentThemeDelegate!=null?parentThemeDelegate.getAppearanceValue(key):tetogramStyle.get(key);}
+        @Override public long getAppearanceRevision(){return parentThemeDelegate!=null?parentThemeDelegate.getAppearanceRevision():tetogramStyleRevision;}
+        @Override public Integer getAppearanceColor(String key) { return parentThemeDelegate!=null?parentThemeDelegate.getAppearanceColor(key):tetogramStyle.color(isDark(),key); }
         @Override public float getBubbleRadius(boolean outgoing) {
             return Math.max(0, Math.min(32, tetogramStyle.number(outgoing ? "bubble.outRadius" : "bubble.inRadius", SharedConfig.bubbleRadius)));
         }
