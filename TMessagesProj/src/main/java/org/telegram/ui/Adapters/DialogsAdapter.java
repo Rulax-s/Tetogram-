@@ -1073,7 +1073,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
                 DialogsEmptyCell cell = (DialogsEmptyCell) holder.itemView;
                 int fromDialogsEmptyType = lastDialogsEmptyType;
                 cell.setType(lastDialogsEmptyType = dialogsEmptyType(), isOnlySelect);
-                if(parentFragment.isTetogramSectionList()){cell.setSectionEmpty(parentFragment::openTetogramSections);parentFragment.setScrollDisabled(false);break;}
+                if(parentFragment.isTetogramSectionList()){if(parentFragment.isTetogramUnreadSection())cell.setSystemUnreadEmpty(parentFragment::leaveTetogramUnreadSection);else cell.setSectionEmpty(parentFragment::openTetogramSections);parentFragment.setScrollDisabled(false);break;}
                 if (dialogsType != 7 && dialogsType != 8) {
                     cell.setOnUtyanAnimationEndListener(() -> parentFragment.setScrollDisabled(false));
                     cell.setOnUtyanAnimationUpdateListener(progress -> parentFragment.setContactsAlpha(progress));

@@ -35,3 +35,55 @@
 9. Отправка/получение, Local Reply, удалённые и эфемерные сообщения, Premium, Mini Apps.
 
 Редактирование сообщений/база истории не меняются. История редактирования, ранее явно недоступная в Labs, не объявляется реализованной этим заданием. Реальное устройство/ADB и учётные записи не использовались.
+
+# Доработка 0.3.1
+
+## Локализация
+
+Причина `LOC_ERR:null`: `TelegramBuildAppPlugin` передавал в генератор binary language packs только `strings.xml`; строки отдельных `tetogram*.xml` попадали в Android resources/R, но отсутствовали в `localization_en.bin`/`localization_ru.bin`. Входы двух сборочных плагинов расширены только файлами Tetogram. `LocaleController` и приоритет внешних пакетов не меняются. RU получает русский, EN — английский, остальные локали наследуют EN для отсутствующих Tetogram-ключей. `scripts/check-localization.py` проверяет XML/используемые ключи до сборки и реальные EN/RU assets + `string_resource_ids.bin` внутри APK после неё.
+
+## Меню
+
+Новые `SectionMenuState`/`SectionMenu`: открытие снизу вверх с alpha/scale .8→1/translation, обратное закрытие; 210 мс движения + до 80 мс stagger. Стрелка поворачивается одновременно. GONE устанавливается после завершения AnimatorSet. Системный duration scale учитывается самими Android-аниматорами; отключённые анимации применяются мгновенно. Токены завершения отбрасывают устаревшие callbacks при повторных нажатиях, смене аккаунта/уходе с экрана. Во время появления/исчезновения кружки не принимают нажатия. Порог ручной прокрутки — 24 dp, направление меняет накопление; возврат основной кнопки не раскрывает меню.
+
+Долгое нажатие использует haptic feedback и открывает существующий `SectionsActivity` по UUID после закрытия меню. Проверяется реальный owner Telegram UID; индексы кружочков не используются. Для системного раздела открываются его настройки в общем экране разделов.
+
+## Оформление и локальные файлы
+
+Блок «Оформление раздела»: название, тот же `SectionCircle`, что в меню, предпросмотр, любое Unicode/ZWJ-эмодзи, встроенные theme-colored иконки, выбор фото, сброс, явные сохранить/отменить. Это draft: отмена не изменяет сохранённую иконку.
+
+Фото: системный Photo Picker (Android 13+) или SAF для одного `image/*`, без запроса полного доступа. URI копируется в приватный временный файл на фоновой очереди. Далее используется настоящий `ImageUpdater.openPhotoForEdit` → `PhotoViewer.SELECT_TYPE_AVATAR` (та же круглая маска, pinch/drag, EXIF orientation, затемнение, Done/Cancel). Добавлен account-aware overload ImageUpdater; прежний конструктор сохраняет поведение остальных экранов. `setUploadAfterSelect(false)` запрещает upload. После Done результат оптимизируется до JPEG 512×512 с bounded decode, затем показывается круглый draft; применение только по «Сохранить оформление».
+
+Файлы: private `files/tetogram_section_icons/u<Telegram UID>/<section UUID>/<image UUID>.jpg`, временный ввод `.input`. В preferences — тип, emoji/имя стандартной иконки, имя файла, revision; Base64 нет. Preferences записываются с проверкой commit до удаления старого файла. Неактуальные parent snapshots сохраняют более новую icon revision. Неиспользуемые собственные файлы очищаются после успешной записи; pending editor защищён от cleanup, отмена удаляет его candidate. Пропавшее/повреждённое изображение имеет стандартный placeholder. Исходники галереи не изменяются.
+
+Миграция Properties schema 1 (0.3.0) → 2 additive: UUID, порядок, direct/excluded chats, rules, folders, default и last folder сохраняются; старый `icon` становится emoji. Файл preferences с UID не переименовывается. Повреждённая/будущая схема не перезаписывается.
+
+## Счётчики и временные «Непрочитанные»
+
+`SectionUnread` читает только штатные cached Dialogs, `MessagesController.getDialogUnreadCount` и `isDialogMuted`. Категории и локальные правила вычисляются по snapshot; членство каждой привязанной папки вычисляется один раз, не на каждом кадре. Для серверных папок используется native `DialogFilter.includesDialog`, Premium-lock не обходится.
+
+Счётчик обычного раздела — сумма unread messages в объединении прямых чатов/правил/локальных и Telegram-папок, с дедупликацией по полному dialog ID. Явное исключение раздела имеет приоритет над членством в папках. Финальная проверка mute обязательна, включая временный, групповой, канальный и global/category mute: даже mention в muted-чате не добавляет его в обычный badge. Один чат может считаться в разных разделах независимо.
+
+Бейдж — native `CounterView` поверх верхнего правого края `SectionCircle`, картинка не сдвигается; цвета темы, zero скрыт, compact 99+ включён по умолчанию. В настройках есть show counters, compact, отключённый checked-пункт исключения muted. Настройки account-local и сохраняются.
+
+Системный `system:unread` — только UI/derived state, не элемент `SectionConfig.sections`. По умолчанию enabled, mute excluded; отдельная настройка разрешает учитывать muted только здесь. Иконка 📩 стоит над пользовательскими кружками. Показывается при наличии eligible unread chats; если активен, сохраняется при опустевшем списке с native empty state «Все сообщения прочитаны». После явного выхода (другой раздел/Back) пустой кружок скрывается. Back также позволяет вернуться в обычный список, когда пользовательских разделов ещё нет. Никаких папок или фиксированных пользовательских разделов функция не создаёт.
+
+Обновление: native reload/read/mute/contacts/folder events, короткий batch, onResume и foreground timer 15 секунд для истечения native mute. Timer не выполняет Telegram API requests и останавливается при pause/destroy. Порядок/объекты Dialog не копируются в отдельную message history. Незагруженные неизвестные данные не придумываются; используются текущие штатные cached данные. Ручной unread_mark с нулевым реальным count оставляет чат в списке, но не создаёт фиктивное сообщение для badge.
+
+## Проверки 0.3.1
+
+Новые JVM policies: animation generations/cancel/reversal, threshold/jitter, stable long-press owner/UUID guard, Unicode clusters, decode sample bounds/unsafe paths, edit cancellation tokens, schema-1 migration, image refs/settings/revision restart, stale-parent protection, unread union/dedupe/exclusions/mute/read/account snapshots, system appearance/disappearance/active-empty/disable. Это не Android UI-тесты.
+
+Нужно выполнить на Android (агентом NOT RUN):
+
+1. Labs/разделы RU, EN, сторонняя локаль/внешний language pack: ни одного LOC_ERR.
+2. Открыть/закрыть меню, быстро нажимать стрелку, отменить Back, disable animations в Android, небольшой scroll jitter, hide/show по направлению, маленький экран/много разделов.
+3. Long press каждого кружка: haptic, закрытие, правильный editor UUID/account.
+4. Любое сложное emoji, native иконки, круглый live-preview; save/reset/cancel/restart.
+5. Photo Picker/SAF без full gallery grant; JPEG/PNG/WebP/HEIF по поддержке устройства, EXIF rotated portrait/landscape, крупное фото; native circular crop drag/pinch/Done/Cancel. Preview после Done и отдельный Save; оригинал сохраняется при отмене.
+6. Повреждённый/пропавший local file, замена/удаление раздела, отмена во время фонового чтения, смена аккаунта в callback, рестарт с данными 0.3.0.
+7. Счётчик 12 + muted 5 + 3 = 15; permanent/temporary/category/channel/group mute, overlap нескольких папок, read/mark read, expiry ≤ следующего 15s tick, show/compact настройки, два аккаунта.
+8. Временные «Непрочитанные»: появление/новые чаты, mute toggle, отсутствие дублей, исчезновение inactive, active-empty без автоматического переключения, Back/другой раздел, restart/default user section, отсутствие обычного persisted system section.
+9. Базовые типы разделов 0.3.0, native folders/archive/search/contacts/bottom navigation, Local Reply/deleted history/ephemeral/Premium/Mini Apps и уведомления.
+
+Нативные сообщения, MTProto, реклама, история и signing/Secrets этой доработкой не заменяются.

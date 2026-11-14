@@ -1,0 +1,12 @@
+package org.telegram.messenger.tetogram;
+import org.junit.Test;
+import static org.junit.Assert.*;
+public class SectionMenuStateTest {
+ @Test public void openingAndClosingOnlyFinishCurrentGeneration(){SectionMenuState s=new SectionMenuState();assertEquals(SectionMenuState.Phase.CLOSED,s.phase);long a=s.request(true);assertTrue(s.targetOpen());assertTrue(s.finish(a));assertEquals(SectionMenuState.Phase.OPEN,s.phase);long b=s.request(false);assertFalse(s.targetOpen());assertFalse(s.finish(a));assertTrue(s.finish(b));assertEquals(SectionMenuState.Phase.CLOSED,s.phase);}
+ @Test public void rapidReversalCannotFinishOldClose(){SectionMenuState s=new SectionMenuState();long a=s.request(true),b=s.request(false),c=s.request(true);assertFalse(s.finish(a));assertFalse(s.finish(b));assertTrue(s.finish(c));assertEquals(SectionMenuState.Phase.OPEN,s.phase);}
+ @Test public void detachCancelFencesAllOldCallbacks(){SectionMenuState s=new SectionMenuState();long a=s.request(true);s.cancel();assertFalse(s.current(a));assertFalse(s.finish(a));assertEquals(SectionMenuState.Phase.CLOSED,s.phase);}
+ @Test public void delaysStayWithinAnimationBudgetOnSmallAndLargeMenus(){for(int n:new int[]{1,3,7,50,150}){long previous=-1;for(int i=0;i<n;i++){long d=SectionMenuState.delay(i,n);assertTrue(d>=previous);assertTrue(d>=0 && d<=80);previous=d;}}}
+ @Test public void smallScrollJitterDoesNotToggleVisibility(){SectionMenuState.ScrollGate s=new SectionMenuState.ScrollGate();for(int i=0;i<20;i++){assertNull(s.scroll(1,24));assertNull(s.scroll(-1,24));}assertNull(s.scroll(8,24));assertNull(s.scroll(8,24));assertEquals(Boolean.TRUE,s.scroll(8,24));assertNull(s.scroll(-12,24));assertEquals(Boolean.FALSE,s.scroll(-12,24));}
+ @Test public void editingUsesStableSectionIdAndOwnerAfterReorder(){SectionConfig c=new SectionConfig();SectionConfig.Section a=c.add("A"),b=c.add("B");SectionConfig.move(c.sections,a,1);assertTrue(SectionMenuState.canEdit(100,100,c,a.id));assertFalse(SectionMenuState.canEdit(100,101,c,a.id));assertFalse(SectionMenuState.canEdit(100,100,c,"0"));c.remove(a.id);assertFalse(SectionMenuState.canEdit(100,100,c,a.id));assertNotNull(c.section(b.id));}
+ @Test public void systemEditorUsesOnlySameAccountAndEnabledSetting(){SectionConfig c=new SectionConfig();assertTrue(SectionMenuState.canEdit(100,100,c,SectionUnreadPolicy.SYSTEM_ID));c.unreadEnabled=false;assertFalse(SectionMenuState.canEdit(100,100,c,SectionUnreadPolicy.SYSTEM_ID));}
+}

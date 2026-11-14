@@ -1,0 +1,28 @@
+<resources>
+    <string name="TetogramSectionAppearance">Section appearance</string>
+    <string name="TetogramChangeIcon">Change icon</string>
+    <string name="TetogramChooseEmoji">Any emoji</string>
+    <string name="TetogramChooseImage">Image from gallery</string>
+    <string name="TetogramStandardIcons">Built-in icons</string>
+    <string name="TetogramResetIcon">Reset icon</string>
+    <string name="TetogramSaveIcon">Save appearance</string>
+    <string name="TetogramIconError">Unable to load or save this image. The current icon was kept.</string>
+    <string name="TetogramIconCropHint">Move and zoom in the Telegram avatar editor, tap Done, then save the circular preview here. Nothing is uploaded.</string>
+    <string name="TetogramShowBadges">Show unread counters</string>
+    <string name="TetogramCompactBadges">Compact large counters (99+)</string>
+    <string name="TetogramMutedBadgesFixed">Section counters always exclude muted chats. The temporary Unread section has its own optional mute setting.</string>
+    <string name="TetogramTemporaryUnread">Enable temporary Unread section</string>
+    <string name="TetogramUnreadIncludeMuted">Unread section: include muted chats</string>
+    <string name="TetogramSystemUnread">Unread</string>
+    <string name="TetogramAllRead">All messages are read</string>
+    <string name="TetogramAllReadInfo">New unread chats will appear here automatically. You can switch sections or go back.</string>
+    <string name="TetogramIconPending">Preview — save to apply</string>
+    <string name="TetogramIconPhotoFormats">One image, no permanent gallery access. Cancel keeps your previous icon.</string>
+    <string name="TetogramHideMutedBadges">Hide counters for muted chats</string>
+    <string name="TetogramIconFolder">Folder</string>
+    <string name="TetogramIconStar">Star</string>
+    <string name="TetogramIconWork">Work</string>
+    <string name="TetogramIconGroup">Group</string>
+    <string name="TetogramIconChat">Chat</string>
+    <string name="TetogramIconArchive">Archive</string>
+</resources>

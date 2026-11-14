@@ -108,3 +108,12 @@ Splash Android 12+ использует собственный анимиров�
 - Добавлены 19 JVM-регрессий конфигурации и документация SECTIONS.md. versionCode input 8; постоянная подпись и applicationId сохранены. Android UI пока требует ручной проверки.
 
 - Убраны предложения добавить/скрыть вкладку звонков в CallLogActivity: они несовместимы с согласованными тремя нижними пунктами; остальные функции журнала не меняются.
+
+## 0.3.1 — локализация, оформление, анимации и unread
+
+- Исправлен источник LOC_ERR:null: отдельные Tetogram XML включены в native binary localization generation; CI проверяет все Tetogram-ключи и реальные APK assets/bindings, RU/EN fallback и внешние language packs сохраняются.
+- Плавное stagger open/reverse close меню, вращение стрелки, cancellation tokens, системный duration scale, scroll threshold; long press открывает editor по owner/UUID с haptic.
+- Круглый общий preview/menu component, любые Unicode emoji, theme icons, permissionless single photo picker, штатный avatar crop PhotoViewer без upload, локальный JPEG512 и checked-save/cancel/cleanup; безопасная миграция schema 1→2.
+- Native unread/mute union badges без дубликатов, mandatory muted exclusion для пользовательских разделов, show/compact prefs и refresh по native событиям/expiry.
+- Добавлен opt-out системный временный 📩 «Непрочитанные», не сохраняемый как обычный раздел: no folders, optional muted, active-empty retention и явный Back/выход.
+- versionCode input 9, version 0.3.1. applicationId и постоянная подпись сохранены. Новые JVM/CI проверки добавлены; реальные Android gestures/crop/animations остаются NOT RUN агентом. Подробности — SECTIONS.md.

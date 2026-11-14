@@ -238,7 +238,12 @@ public class ImageUpdater implements NotificationCenter.NotificationCenterDelega
     }
 
     public ImageUpdater(boolean allowVideo, int setForType, boolean supportEmojiMarkup) {
+        this(UserConfig.selectedAccount,allowVideo,setForType,supportEmojiMarkup);
+    }
+    public ImageUpdater(int account, boolean allowVideo, int setForType, boolean supportEmojiMarkup) {
+        currentAccount=account;
         imageReceiver = new ImageReceiver(null);
+        imageReceiver.setCurrentAccount(account);
         canSelectVideo = allowVideo;
         this.supportEmojiMarkup = supportEmojiMarkup;
         this.setForType = setForType;

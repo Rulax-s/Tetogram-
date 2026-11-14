@@ -1,0 +1,17 @@
+package org.telegram.messenger.tetogram;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.util.*;
+import java.io.*;
+public class SectionMigrationTest {
+ @Test public void realV1PropertiesMigrateWithoutLosingIdsChatsFoldersOrOrder()throws Exception{
+  String a="b8348b88-aac9-4f3c-85f7-bb44b7e2b967",b="b8348b88-aac9-4f3c-85f7-bb44b7e2b968",f="local:"+b;
+  Properties p=new Properties();p.setProperty("schema","1");p.setProperty("configured","true");p.setProperty("sections",b+","+a);p.setProperty("folders",f);p.setProperty("default",a);p.setProperty("selected",b);p.setProperty("token","1000001");
+  for(String id:new String[]{a,b}){String k="s."+id+".";p.setProperty(k+"name","Друзья 😀 "+id);p.setProperty(k+"icon","🎮");p.setProperty(k+"flags","69");p.setProperty(k+"chats","12,-345");p.setProperty(k+"excluded","777");p.setProperty(k+"general","true");p.setProperty(k+"tabs","tg:17,"+f);p.setProperty(k+"last",f);}
+  p.setProperty("f."+f+".name","Local");p.setProperty("f."+f+".token","1000000");p.setProperty("f."+f+".chats","-789");StringWriter out=new StringWriter();p.store(out,"");
+  SectionConfig c=SectionConfig.decode(out.toString()),d=SectionConfig.decode(c.encode());assertEquals(Arrays.asList(b,a),Arrays.asList(d.sections.get(0).id,d.sections.get(1).id));assertEquals(a,d.defaultId);assertEquals(b,d.selectedId);assertEquals("emoji",d.section(a).iconType);assertEquals("🎮",d.section(a).icon);assertEquals("",d.section(a).iconImage);assertEquals(0,d.section(a).iconRevision);assertEquals(c.section(a).chats,d.section(a).chats);assertEquals(c.section(a).excluded,d.section(a).excluded);assertEquals(c.section(a).tabs,d.section(a).tabs);assertEquals(f,d.section(a).lastFolder);assertEquals(69,d.section(a).flags);assertEquals(c.folders.get(f).chats,d.folders.get(f).chats);assertTrue(d.showBadges);assertTrue(d.compactBadges);assertTrue(d.unreadEnabled);assertFalse(d.unreadIncludeMuted);
+ }
+ @Test public void imageAndCounterSettingsSurviveRestart(){SectionConfig c=new SectionConfig();SectionConfig.Section s=c.add("Photo");s.iconType="image";s.icon="folder";s.iconImage="b8348b88-aac9-4f3c-85f7-bb44b7e2b967.jpg";s.iconRevision=9;c.compactBadges=false;c.showBadges=false;c.unreadIncludeMuted=true;SectionConfig d=SectionConfig.decode(c.encode());assertEquals(s.id,d.sections.get(0).id);assertEquals(s.iconImage,d.section(s.id).iconImage);assertEquals("image",d.section(s.id).iconType);assertEquals(9,d.section(s.id).iconRevision);assertFalse(d.compactBadges);assertFalse(d.showBadges);assertTrue(d.unreadIncludeMuted);}
+ @Test public void staleParentCannotResurrectReplacedImage(){SectionConfig current=new SectionConfig();SectionConfig.Section s=current.add("S");SectionConfig stale=SectionConfig.decode(current.encode());s.iconType="image";s.iconImage="b8348b88-aac9-4f3c-85f7-bb44b7e2b967.jpg";s.iconRevision=3;stale.section(s.id).include(42);stale.preserveNewerIcons(current);assertEquals(s.iconImage,stale.section(s.id).iconImage);assertEquals(3,stale.section(s.id).iconRevision);assertTrue(stale.section(s.id).chats.contains(42L));}
+ @Test public void systemSectionIsNotSerializedAsUserSection(){SectionConfig c=new SectionConfig();c.add("User");c.unreadEnabled=true;SectionConfig d=SectionConfig.decode(c.encode());assertNull(d.section(SectionUnreadPolicy.SYSTEM_ID));assertEquals(1,d.sections.size());assertFalse(d.encode().contains(SectionUnreadPolicy.SYSTEM_ID));}
+}

@@ -187,6 +187,11 @@ public class DialogsEmptyCell extends LinearLayout {
         subtitleView.setText(help, false);
     }
 
+    public void setSystemUnreadEmpty(Runnable back) {
+        titleView.setText(LocaleController.getString(R.string.TetogramAllRead));subtitleView.setText(LocaleController.getString(R.string.TetogramAllReadInfo),false);
+        titleView.setOnClickListener(v->back.run());subtitleView.setOnClickListener(v->back.run());
+    }
+
     public void setSectionEmpty(Runnable action) {
         titleView.setText(LocaleController.getString(R.string.NoChats));
         subtitleView.setText(LocaleController.getString(R.string.TetogramSectionEmpty),false);

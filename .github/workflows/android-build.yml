@@ -41,7 +41,9 @@ jobs:
         with:
           persist-credentials: false
       - name: Check Tetogram source invariants
-        run: python3 scripts/check-project.py
+        run: |
+          python3 scripts/check-project.py
+          python3 scripts/check-localization.py
 
   build:
     needs: source-checks
@@ -123,6 +125,8 @@ jobs:
           set -o pipefail
           python3 scripts/verify-apk.py TMessagesProj_App/build/outputs/apk/afat/debug/Tetogram-debug.apk \
             2>&1 | tee build-logs/apk-verification.log
+          python3 scripts/check-localization.py TMessagesProj_App/build/outputs/apk/afat/debug/Tetogram-debug.apk \
+            2>&1 | tee build-logs/localization-verification.log
           mkdir -p artifacts
           cp TMessagesProj_App/build/outputs/apk/afat/debug/Tetogram-debug.apk artifacts/Tetogram-debug.apk
           sha256sum artifacts/Tetogram-debug.apk > artifacts/Tetogram-debug.apk.sha256

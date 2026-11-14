@@ -1,0 +1,28 @@
+<resources>
+    <string name="TetogramSectionAppearance">Оформление раздела</string>
+    <string name="TetogramChangeIcon">Изменить иконку</string>
+    <string name="TetogramChooseEmoji">Любое эмодзи</string>
+    <string name="TetogramChooseImage">Изображение из галереи</string>
+    <string name="TetogramStandardIcons">Стандартные иконки</string>
+    <string name="TetogramResetIcon">Сбросить иконку</string>
+    <string name="TetogramSaveIcon">Сохранить оформление</string>
+    <string name="TetogramIconError">Не удалось загрузить или сохранить изображение. Текущая иконка сохранена.</string>
+    <string name="TetogramIconCropHint">Переместите и увеличьте фото в редакторе аватарки Telegram, нажмите «Готово», затем сохраните круглый предпросмотр здесь. Ничего не отправляется на сервер.</string>
+    <string name="TetogramShowBadges">Показывать счётчики непрочитанных</string>
+    <string name="TetogramCompactBadges">Компактные большие счётчики (99+)</string>
+    <string name="TetogramMutedBadgesFixed">Счётчики пользовательских разделов всегда исключают заглушённые чаты. Для временного раздела «Непрочитанные» есть отдельная настройка.</string>
+    <string name="TetogramTemporaryUnread">Включить временный раздел «Непрочитанные»</string>
+    <string name="TetogramUnreadIncludeMuted">Непрочитанные: учитывать заглушённые чаты</string>
+    <string name="TetogramSystemUnread">Непрочитанные</string>
+    <string name="TetogramAllRead">Все сообщения прочитаны</string>
+    <string name="TetogramAllReadInfo">Новые непрочитанные чаты появятся здесь автоматически. Можно переключить раздел или вернуться назад.</string>
+    <string name="TetogramIconPending">Предпросмотр — сохраните для применения</string>
+    <string name="TetogramIconPhotoFormats">Одно изображение без постоянного доступа к галерее. Отмена сохраняет прежнюю иконку.</string>
+    <string name="TetogramHideMutedBadges">Скрывать счётчики для заглушённых чатов</string>
+    <string name="TetogramIconFolder">Папка</string>
+    <string name="TetogramIconStar">Звезда</string>
+    <string name="TetogramIconWork">Работа</string>
+    <string name="TetogramIconGroup">Группа</string>
+    <string name="TetogramIconChat">Чат</string>
+    <string name="TetogramIconArchive">Архив</string>
+</resources>
