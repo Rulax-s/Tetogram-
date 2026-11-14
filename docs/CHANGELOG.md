@@ -19,7 +19,7 @@
 - Добавлены проверка контраста основных solid-поверхностей перед Apply, независимый active icon color, native boolean cells с per-field Inherit и имена источников оформления вместо UUID.
 - Добавлены native pipette из выбранного изображения, корректная передача scoped radius в media/text layout и остановка wallpaper под полноэкранными media/story viewers.
 - Этапы полного оформления списков/профилей/launcher и portable media пока в работе; это не выпуск готовой 0.4.0. Android UI NOT RUN.
-- APP_VERSION_NAME 0.4.0, APP_VERSION_CODE input 11 (afat 119). Подпись, applicationId, Secrets, реклама и локальная история не меняются.
+- APP_VERSION_NAME 0.4.0, APP_VERSION_CODE input 12 (afat 129). Подпись, applicationId, Secrets, реклама и локальная история не меняются.
 
 
 ## 0.3.1 — исправление системных отступов (versionCode 109)
@@ -152,3 +152,9 @@ Splash Android 12+ использует собственный анимиров�
 - По первому cloud-логу исправлена область видимости layout root при расчёте высоты меню. Для системного unread добавлен явный no-pagination guard, включая аккаунт без пользовательских разделов.
 
 - Итоговый source 95212e9e41a95ab6529a772e1b968a62dd4dea18 успешно собран в CI 43559802521: JVM/TL task (116 методов в исходниках, 27 новых), 19 SQLite tests, package/version/icon/authorities/ARM64/signature и 108 localization bindings в APK проверены. Фактический versionCode 99; постоянный сертификат совпадает с 0.2.5. APK скачана, checksum повторно проверена, копия помещена в Android Download. Метаданные — APK-0.3.1.json; Android UI/установка обновления агентом NOT RUN.
+
+### Дополнения к разрабатываемой 0.4.0
+
+- Исправлены переключение локальных палитр при native day/night, оформление фактического заголовка списка и Glass-навигации, приоритет штатных animated colors и duration нижних вкладок.
+- Изображения и видеобложки теперь получают тот же fill/fit/zoom/pan, что видео; добавлены независимые JVM geometry tests.
+- Добавлены цвета имени/статуса локального баннера с native collapsed fallback и предпросмотром на действующем AvatarImageView; изменение публичной аватарки не производится.

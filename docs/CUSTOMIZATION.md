@@ -23,3 +23,9 @@ Passkeys, Firebase PNV, покупки Google Play, собственные ка�
 Для Reply на локально удалённые сообщения сохраняйте штатный composer и преобразуйте только outgoing-подготовку в SendMessagesHelper. Не сдвигайте исходные entities на месте: DeletedReplyProtocol сохраняет типы/metadata, а DeletedReplyPolicy учитывает UTF-16 и разделители. Не используйте удалённый ID как server reply target; сохраняйте native forum root, account/dialog и Telegram user ID владельца. Текст архива не копируйте в собственные настройки или вторую DB. См. DELETED_REPLIES.md.
 
 С 0.2.4 formatEntities принимает исходный sender user ID и пригодный InputUser; outer blockquote содержит имя и snippet. Mention и bold полностью лежат в имени, body со своими entities начинается после одного переноса. Сохраняйте UTF-16 offsets и порядок quote → mention → bold. Без валидного user peer не создавайте @-заглушки, InputUserEmpty или ссылки на другого пользователя. Все проверки owner/account/dialog и native forum routing сохраняются.
+
+## Расширение оформления 0.4.0
+
+Новые визуальные параметры добавляйте в AppearanceConfig.Style как стабильные строковые ключи, без ordinal Theme IDs и без записи медиа в Preferences. Реализуйте применение и изолированный native preview до появления управления в UI. Значение без override должно наследоваться; Reset удаляет ключ. Файлы должны иметь UUID-имена в private UID directory, pending lease и проверку всех scope/preset references перед GC. Экспорт не должен включать account/dialog mapping, историю или исходные source.file. Для новой поверхности добавляйте отдельный домен вместо глобального изменения Paint.
+
+Числовые/цветовые/geometry/archive политики проверяются JVM; утверждения о gestures, decoding, video lifecycle и layout требуют отдельного Android запуска. Рабочие native сообщения и adapters нельзя заменять preview-данными вне AppearancePreview.
