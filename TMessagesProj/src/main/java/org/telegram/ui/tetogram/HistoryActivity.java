@@ -6,7 +6,6 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.FrameLayout;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.R;
@@ -16,7 +15,6 @@ import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.EditTextBoldCursor;
-import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.UItem;
 import org.telegram.ui.Components.UniversalAdapter;
 import java.text.DateFormat;
@@ -30,6 +28,7 @@ public final class HistoryActivity extends LabsPage implements org.telegram.mess
     private int generation;
     private boolean loading,more,loadError;
     private Runnable search;
+    private EditTextBoldCursor searchInput;
     public HistoryActivity(int account,long did) { super(account);dialogId=did; }
     @Override public boolean onFragmentCreate() {
         getNotificationCenter().addObserver(this,org.telegram.messenger.NotificationCenter.messagesDeleted);
@@ -38,14 +37,13 @@ public final class HistoryActivity extends LabsPage implements org.telegram.mess
     @Override public void didReceivedNotification(int id,int account,Object... args) { if(list!=null)load(true); }
     @Override protected CharSequence title() { return getString(R.string.TetogramDeletedMessages); }
     @Override public View createView(Context context) {
-        View view=super.createView(context);
         EditTextBoldCursor input=new EditTextBoldCursor(context);
+        searchInput=input;
         input.setSingleLine(true);input.setTextSize(16);input.setHint(getString(R.string.Search));
         org.telegram.ui.ActionBar.ThemeBind.textColor(input,Theme.key_windowBackgroundWhiteBlackText);
         org.telegram.ui.ActionBar.ThemeBind.hintTextColor(input,Theme.key_windowBackgroundWhiteHintText);
         input.setPadding(AndroidUtilities.dp(16),0,AndroidUtilities.dp(16),0);
-        ((FrameLayout)fragmentView).addView(input,LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT,48));
-        list.setPadding(0,AndroidUtilities.dp(48),0,0);
+        input.setText(query);
         input.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s,int st,int c,int after) {}
             @Override public void onTextChanged(CharSequence s,int st,int before,int count) {
@@ -55,7 +53,7 @@ public final class HistoryActivity extends LabsPage implements org.telegram.mess
             }
             @Override public void afterTextChanged(Editable text) {}
         });
-        return view;
+        return super.createView(context);
     }
     @Override public void onResume() { super.onResume();load(true); }
     @Override public void onFragmentDestroy() {getNotificationCenter().removeObserver(this,org.telegram.messenger.NotificationCenter.messagesDeleted);generation++;if(search!=null)AndroidUtilities.cancelRunOnUIThread(search);super.onFragmentDestroy();}
@@ -69,6 +67,9 @@ public final class HistoryActivity extends LabsPage implements org.telegram.mess
         });
     }
     @Override protected void fill(ArrayList<UItem> items,UniversalAdapter adapter) {
+        // A real list row participates in the same native insets/scrolling as
+        // the results; an absolute overlay would overlap the glass header.
+        if(searchInput!=null)items.add(UItem.asCustom(searchInput,48));
         items.add(UItem.asShadow(getString(R.string.TetogramLocalOnly)));
         for(int i=0;i<rows.size();i++) {
             MessageObject m=rows.get(i);

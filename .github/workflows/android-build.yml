@@ -44,6 +44,7 @@ jobs:
         run: |
           python3 scripts/check-project.py
           python3 scripts/check-localization.py
+          python3 scripts/check-settings-insets.py
 
   build:
     needs: source-checks

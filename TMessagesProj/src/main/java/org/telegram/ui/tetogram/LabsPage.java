@@ -9,6 +9,7 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeBind;
 import org.telegram.ui.Components.LayoutHelper;
+import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.UItem;
 import org.telegram.ui.Components.UniversalAdapter;
 import org.telegram.ui.Components.UniversalRecyclerView;
@@ -23,6 +24,10 @@ public abstract class LabsPage extends BaseFragment {
     protected abstract void click(UItem item, View view, int position, float x, float y);
     protected LabsPage(int account) { setCurrentAccount(account); }
     @Override protected boolean useSimpleActionBar() { return true; }
+    @Override public boolean isSupportEdgeToEdge() { return true; }
+    // BaseFragment queries this after createView, then owns header placement and
+    // reapplies native top/bottom list insets on subsequent WindowInsets updates.
+    @Override protected RecyclerListView getListViewForSimpleGlass() { return list; }
     @Override public View createView(Context context) {
         setHasOwnBackground(true);
         simpleActionBar.setTitle(title());
