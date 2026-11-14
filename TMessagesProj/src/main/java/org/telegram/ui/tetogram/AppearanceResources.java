@@ -21,7 +21,7 @@ public final class AppearanceResources implements Theme.ResourcesProvider {
     public AppearanceResources(AppearanceConfig.Resolved style,boolean dark,Theme.ResourcesProvider base){this.base=base;update(style,dark);}
     public void update(AppearanceConfig.Resolved style,boolean dark){revision++;this.style=style;this.dark=dark;colors=AppearanceRuntime.colors(style,dark);drawables.clear();paints.clear();}
     @Override public boolean isDark(){return dark;}
-    @Override public int getColor(int key){int i=colors.indexOfKey(key);return i<0?(base==null?AppearanceRuntime.baseColor(dark,key):base.getColor(key)):colors.valueAt(i);}
+    @Override public int getColor(int key){int i=colors.indexOfKey(key);return i<0?(base==null||base.isDark()!=dark?AppearanceRuntime.baseColor(dark,key):base.getColor(key)):colors.valueAt(i);}
     @Override public String getAppearanceValue(String key){return style.get(key);}
     @Override public long getAppearanceRevision(){return revision;}
     @Override public Integer getAppearanceColor(String key){return style.color(dark,key);}

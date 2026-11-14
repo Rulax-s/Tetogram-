@@ -125,6 +125,15 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
     private UpdateLayoutWrapper updateLayoutWrapper;
     private FrameLayout tabsViewWrapper;
+    private org.telegram.ui.tetogram.AppearanceResources tetogramNavGlobal,tetogramNavLocal;
+    private org.telegram.messenger.tetogram.AppearanceConfig.Resolved tetogramNavGlobalStyle,tetogramNavLocalStyle;
+    private final Theme.ResourcesProvider tetogramNavProvider=new Theme.ResourcesProvider(){
+        @Override public int getColor(int key){int global=tetogramNavGlobal==null?Theme.getColor(key,resourceProvider):tetogramNavGlobal.getColor(key);return tetogramNavLocal==null?global:ColorUtils.blendARGB(global,tetogramNavLocal.getColor(key),tetogramChatsVisibility());}
+        @Override public boolean isDark(){return tetogramNavLocal!=null&&tetogramChatsVisibility()>=.5f?tetogramNavLocal.isDark():tetogramNavGlobal==null?Theme.isCurrentThemeDark():tetogramNavGlobal.isDark();}
+    };
+    private float tetogramChatsVisibility(){return viewPager==null?1:Math.max(0,Math.min(1,viewPager.getPositionVisibility(POSITION_CHATS)));}
+    private void tetogramRefreshNavGlobal(){tetogramNavGlobalStyle=org.telegram.messenger.tetogram.AppearanceSurfaces.list(org.telegram.messenger.tetogram.AppearanceStore.resolve(currentAccount,org.telegram.messenger.tetogram.AppearanceConfig.Context.direct(0,0)));tetogramNavGlobal=new org.telegram.ui.tetogram.AppearanceResources(tetogramNavGlobalStyle,Theme.isCurrentThemeDark(),resourceProvider);}
+    private void tetogramNavOpacity(){if(tabsViewBackground==null)return;float global=Math.max(0,Math.min(1,tetogramNavGlobalStyle==null?1:tetogramNavGlobalStyle.number("list.navigationOpacity",1))),local=Math.max(0,Math.min(1,tetogramNavLocalStyle==null?global:tetogramNavLocalStyle.number("list.navigationOpacity",global)));tabsViewBackground.setAlpha(Math.round(255*Math.max(0,Math.min(1,global+(local-global)*tetogramChatsVisibility()))));}
     private MainTabsLayout tabsView;
     private BlurredBackgroundDrawable tabsViewBackground;
     private View fadeView;
@@ -325,17 +334,17 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         super.createView(context);
         tabletLayout = false;
 
-        tabsView = new MainTabsLayout(context, resourceProvider);
+        tabsView = new MainTabsLayout(context, tetogramNavProvider);
         tabsView.setClipChildren(false);
         tabsView.setPadding(dp(DialogsActivity.MAIN_TABS_MARGIN + 4), dp(DialogsActivity.MAIN_TABS_MARGIN + 4), dp(DialogsActivity.MAIN_TABS_MARGIN + 4), dp(DialogsActivity.MAIN_TABS_MARGIN + 4));
         tabsView.setMaxWidth(dp(328 + DialogsActivity.MAIN_TABS_MARGIN * 2));
 
         tabs = new GlassTabView[5];
-        tabs[INDEX_CHATS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CHATS, R.string.MainTabsChats);
-        tabs[INDEX_CONTACTS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CONTACTS, R.string.MainTabsContacts);
-        tabs[INDEX_SETTINGS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.SETTINGS, R.string.Settings);
-        tabs[INDEX_CALLS] = GlassTabView.createMainTab(context, resourceProvider, GlassTabView.TabAnimation.CALLS, R.string.MainTabsCalls);
-        tabs[INDEX_PROFILE] = GlassTabView.createAvatar(context, resourceProvider, currentAccount, R.string.MainTabsProfile);
+        tabs[INDEX_CHATS] = GlassTabView.createMainTab(context, tetogramNavProvider, GlassTabView.TabAnimation.CHATS, R.string.MainTabsChats);
+        tabs[INDEX_CONTACTS] = GlassTabView.createMainTab(context, tetogramNavProvider, GlassTabView.TabAnimation.CONTACTS, R.string.MainTabsContacts);
+        tabs[INDEX_SETTINGS] = GlassTabView.createMainTab(context, tetogramNavProvider, GlassTabView.TabAnimation.SETTINGS, R.string.Settings);
+        tabs[INDEX_CALLS] = GlassTabView.createMainTab(context, tetogramNavProvider, GlassTabView.TabAnimation.CALLS, R.string.MainTabsCalls);
+        tabs[INDEX_PROFILE] = GlassTabView.createAvatar(context, tetogramNavProvider, currentAccount, R.string.MainTabsProfile);
         tabs[INDEX_CHATS].setOnLongClickListener(this::openFoldersSelector);
         tabs[INDEX_CONTACTS].setOnLongClickListener(this::openContactsSelector);
         tabs[INDEX_CALLS].setOnLongClickListener(this::openCallsSelector);
@@ -386,7 +395,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         iBlur3FactoryGlass.setSourceRootView(viewPositionWatcher, contentView);
         iBlur3FactoryGlass.setLiquidGlassEffectAllowed(true);
 
-        tabsViewBackground = iBlur3FactoryGlass.create(tabsView, BlurredBackgroundProviderImpl.mainTabs(resourceProvider));
+        tabsViewBackground = iBlur3FactoryGlass.create(tabsView, BlurredBackgroundProviderImpl.mainTabs(tetogramNavProvider));
         tabsViewBackground.setRadius(dp(DialogsActivity.MAIN_TABS_HEIGHT / 2f));
         tabsViewBackground.setPadding(dp(DialogsActivity.MAIN_TABS_MARGIN - 0.334f));
         tabsView.setBackground(tabsViewBackground);
@@ -417,6 +426,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
         updateLayout();
         checkUnreadCount(false);
+        tetogramRefreshNavGlobal();tetogramNavOpacity();
         return contentView;
     }
 
@@ -1097,6 +1107,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         tabsView.setEnabled(factor > 1);
         tabsView.setAlpha(factor);
         tabsView.setVisibility(factor > 0 ? View.VISIBLE : View.GONE);
+        tetogramNavOpacity();
     }
 
     private void checkUi_callTabVisible(boolean callTabsVisible, boolean animated) {
@@ -1119,6 +1130,8 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     /* * */
 
     private class MainTabsActivityControllerImpl implements MainTabsActivityController {
+        @Override public void setAppearance(long owner,org.telegram.messenger.tetogram.AppearanceConfig.Resolved style,boolean dark){if(owner<=0||owner!=getUserConfig().getClientUserId())return;tetogramRefreshNavGlobal();tetogramNavLocalStyle=style;tetogramNavLocal=new org.telegram.ui.tetogram.AppearanceResources(style,dark,resourceProvider);tetogramNavOpacity();if(tabsViewBackground!=null)tabsViewBackground.updateColors();if(tabs!=null)for(GlassTabView tab:tabs)if(tab!=null)tab.updateColors();if(tabsView!=null)tabsView.invalidate();}
+
         @Override
         public void setTabsVisible(boolean visible) {
             animatorTabsVisible.setValue(visible, true);
@@ -1302,6 +1315,9 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     @Override
     public void onThemeColorsChanged() {
         try {
+            tetogramRefreshNavGlobal();
+            if(tetogramNavLocalStyle!=null){String mode=tetogramNavLocalStyle.get("mode");boolean dark=org.telegram.messenger.tetogram.AppearanceConfig.GLOBAL.equals(tetogramNavLocalStyle.origins.get("mode"))?Theme.isCurrentThemeDark():"dark".equals(mode)||!"light".equals(mode)&&Theme.isCurrentThemeDark();tetogramNavLocal=new org.telegram.ui.tetogram.AppearanceResources(tetogramNavLocalStyle,dark,resourceProvider);}
+            tetogramNavOpacity();
             super.onThemeColorsChanged();
             blur3_updateColors();
         } catch (Exception e) {

@@ -17101,6 +17101,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     public void onThemeColorsChanged() {
         try {
             super.onThemeColorsChanged();
+            tetogramUpdateBanner();
             actionBarBackgroundPaint.setColor(getThemedColor(Theme.key_listSelector));
             themeDelegateThemeColors();
             updateThemeColorsExtra();

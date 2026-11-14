@@ -662,9 +662,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     }
 
     private org.telegram.ui.tetogram.AppearanceResources tetogramListColors;
+    private org.telegram.messenger.tetogram.AppearanceConfig.Resolved tetogramListStyle;
+    private boolean tetogramListDark;
     private org.telegram.ui.tetogram.AppearanceMediaView tetogramListMedia;
     private final Theme.ResourcesProvider tetogramListProvider = new Theme.ResourcesProvider() {
-        @Override public int getColor(int key) { return tetogramListColors == null ? Theme.getColor(key, DialogsActivity.super.getResourceProvider()) : tetogramListColors.getColor(key); }
+        @Override public int getColor(int key) { if(key==Theme.key_telegram_color_dialogsLogo&&tetogramListStyle!=null&&tetogramListStyle.color(tetogramListDark,"telegram_color_dialogsLogo")==null&&tetogramListStyle.color(tetogramListDark,"actionBarDefaultTitle")!=null)return tetogramListColors.getColor(Theme.key_actionBarDefaultTitle);return tetogramListColors == null ? Theme.getColor(key, DialogsActivity.super.getResourceProvider()) : tetogramListColors.getColor(key); }
         @Override public boolean isDark() { return tetogramListColors == null ? Theme.isCurrentThemeDark() : tetogramListColors.isDark(); }
     };
     @Override public Theme.ResourcesProvider getResourceProvider() {
@@ -685,7 +687,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         org.telegram.messenger.tetogram.AppearanceConfig.Resolved raw = org.telegram.messenger.tetogram.AppearanceStore.resolve(currentAccount, tetogramAppearanceContext(null,0));
         org.telegram.messenger.tetogram.AppearanceConfig.Resolved style = org.telegram.messenger.tetogram.AppearanceSurfaces.list(raw);
         boolean dark = org.telegram.messenger.tetogram.AppearanceConfig.GLOBAL.equals(style.origins.get("mode")) ? Theme.isCurrentThemeDark() : "dark".equals(style.get("mode")) || !"light".equals(style.get("mode")) && Theme.isCurrentThemeDark();
+        tetogramListStyle=style;tetogramListDark=dark;
         tetogramListColors = new org.telegram.ui.tetogram.AppearanceResources(style, dark, super.getResourceProvider());
+        if(mainTabsActivityController!=null)mainTabsActivityController.setAppearance(getUserConfig().getClientUserId(),style,dark);
         ContentView root = (ContentView) fragmentView;
         Drawable background = org.telegram.ui.tetogram.AppearanceBackgrounds.colors(style,dark);
         root.setBackgroundImage(background,false);
@@ -694,9 +698,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             tetogramListMedia.configure(getUserConfig().getClientUserId(),style);tetogramListMedia.setResumed(!isPaused);
         } else if (tetogramListMedia != null) {tetogramListMedia.setResumed(false);root.removeView(tetogramListMedia);tetogramListMedia=null;}
         if (viewPages != null) for (ViewPage page : viewPages) if (page != null && page.dialogsAdapter != null) page.dialogsAdapter.notifyDataSetChanged();
-        root.invalidate();ThemeBind.updateAll();
+        root.invalidate();ThemeBind.updateAll();onThemeColorsChanged();
+        NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.needCheckSystemBarColors,true);
     }
 
+    private int tetogramHeaderColor(){return tetogramListStyle!=null&&tetogramListStyle.color(tetogramListDark,"actionBarDefault")!=null?getThemedColor(Theme.key_actionBarDefault):getThemedColor(Theme.key_windowBackgroundWhite);}
     private FragmentFloatingButton floatingButton3;
     private FragmentFloatingButton floatingButtonStories;
     private ButtonWithCounterView addChatsToCommunityButton;
@@ -3205,7 +3211,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     @Override
     public ActionBar createActionBar(Context context) {
-        ActionBar actionBar = new ActionBar(context, resourceProvider) {
+        ActionBar actionBar = new ActionBar(context, getResourceProvider()) {
 
             @Override
             public void setTranslationY(float translationY) {
@@ -5498,7 +5504,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             contentView.addView(blurredView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
         }
 
-        actionBarDefaultPaint.setColor(getThemedColor(Theme.key_windowBackgroundWhite));
+        actionBarDefaultPaint.setColor(tetogramHeaderColor());
         /*
         if (inPreviewMode) {
             final TLRPC.User currentUser = getUserConfig().getCurrentUser();
@@ -12640,7 +12646,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         if (!searching && rightSlidingDialogContainer != null && rightSlidingDialogContainer.getFragment() != null) {
             return rightSlidingDialogContainer.getFragment().isLightStatusBar();
         }
-        int color = getThemedColor(Theme.key_windowBackgroundWhite);
+        int color = tetogramHeaderColor();
         return ColorUtils.calculateLuminance(color) > 0.7f;
     }
 
@@ -14370,8 +14376,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onThemeColorsChanged() {
         try {
+            if (tetogramListStyle != null && isTetogramSectionList()) {
+                boolean dark = org.telegram.messenger.tetogram.AppearanceConfig.GLOBAL.equals(tetogramListStyle.origins.get("mode")) ? Theme.isCurrentThemeDark() : "dark".equals(tetogramListStyle.get("mode")) || !"light".equals(tetogramListStyle.get("mode")) && Theme.isCurrentThemeDark();
+                if (dark != tetogramListDark) { tetogramRefreshAppearance(); return; }
+            }
             super.onThemeColorsChanged();
-            actionBarDefaultPaint.setColor(getThemedColor(Theme.key_windowBackgroundWhite));
+            actionBarDefaultPaint.setColor(tetogramHeaderColor());
             cellDelegateThemeColors();
             updateExtraThemeColors();
         } catch (Exception e) {

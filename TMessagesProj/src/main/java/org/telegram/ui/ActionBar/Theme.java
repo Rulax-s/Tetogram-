@@ -9136,11 +9136,6 @@ public class Theme {
     }
 
     public static int getColor(int key, boolean[] isDefault, boolean ignoreAnimation) {
-        Integer localAppearance = org.telegram.messenger.tetogram.AppearanceRuntime.globalColor(key);
-        if (localAppearance != null) {
-            if (isDefault != null) isDefault[0] = false;
-            return localAppearance;
-        }
         if (SharedConfig.compactMode) {
             // compact mode swaps some message colors for its own keys, see getCompactColor
             final Integer compactColor = getCompactColor(key, null);
@@ -9153,6 +9148,11 @@ public class Theme {
             if (index >= 0) {
                 return animatingColors.valueAt(index);
             }
+        }
+        Integer localAppearance = org.telegram.messenger.tetogram.AppearanceRuntime.globalColor(key);
+        if (localAppearance != null) {
+            if (isDefault != null) isDefault[0] = false;
+            return localAppearance;
         }
         return getColorFromTable(currentColors, key, isDefault);
     }
