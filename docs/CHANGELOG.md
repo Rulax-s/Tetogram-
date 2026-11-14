@@ -119,3 +119,5 @@ Splash Android 12+ использует собственный анимиров�
 - versionCode input 9, version 0.3.1. applicationId и постоянная подпись сохранены. Новые JVM/CI проверки добавлены; реальные Android gestures/crop/animations остаются NOT RUN агентом. Подробности — SECTIONS.md.
 
 - По первому cloud-логу исправлена область видимости layout root при расчёте высоты меню. Для системного unread добавлен явный no-pagination guard, включая аккаунт без пользовательских разделов.
+
+- Итоговый source 95212e9e41a95ab6529a772e1b968a62dd4dea18 успешно собран в CI 43559802521: JVM/TL task (116 методов в исходниках, 27 новых), 19 SQLite tests, package/version/icon/authorities/ARM64/signature и 108 localization bindings в APK проверены. Фактический versionCode 99; постоянный сертификат совпадает с 0.2.5. APK скачана, checksum повторно проверена, копия помещена в Android Download. Метаданные — APK-0.3.1.json; Android UI/установка обновления агентом NOT RUN.

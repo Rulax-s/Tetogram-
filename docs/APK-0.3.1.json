@@ -1,0 +1,31 @@
+{
+  "file_name": "Tetogram-debug.apk",
+  "version": "0.3.1",
+  "version_code": 99,
+  "application_id": "org.tetogram.messenger",
+  "size_bytes": 70613706,
+  "sha256": "dd0a30e0c49416c344cf0fff48ad0dd35fa87d4e61b5042cd1c4888298c3eaa7",
+  "signature_certificate_sha256": "147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "partial_media_permission": true,
+  "update_compatible_with_verified_0_2_5": true,
+  "run_id": 43559802521,
+  "source_commit": "95212e9e41a95ab6529a772e1b968a62dd4dea18",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43559802521/artifacts/14100730311",
+  "artifact_expires_at": "2026-11-28T05:21:11Z",
+  "device_copy": "/sdcard/Download/Tetogram-0.3.1-debug.apk",
+  "runtime_tested": false,
+  "junit_task": ":TMessagesProj:testDebugUnitTest SUCCESS",
+  "junit_test_methods_in_sources": 116,
+  "new_0_3_1_junit_methods": 27,
+  "sqlite_tests": 19,
+  "localization_keys_verified_in_apk": 108,
+  "android_ui_gestures_crop_animations": "NOT_RUN",
+  "android_update_installation": "NOT_RUN",
+  "previous_0_3_0_owner_report": "Installed and tested on Android; localization/menu/icon shortcomings reported"
+}
