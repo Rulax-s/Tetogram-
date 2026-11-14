@@ -304,6 +304,7 @@ public class ForumUtilities {
         }
         args.putInt("unread_count", topic.unread_count);
         args.putBoolean("historyPreloaded", false);
+        org.telegram.messenger.tetogram.AppearanceNavigation.copySameDialog(baseFragment.getArguments(),args);
         ChatActivity chatActivity = new ChatActivity(args);
         TLRPC.Message message = topic.topicStartMessage;
         if (message == null) {

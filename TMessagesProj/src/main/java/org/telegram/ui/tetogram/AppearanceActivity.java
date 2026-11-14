@@ -70,6 +70,8 @@ public final class AppearanceActivity extends LabsPage {
             button(items,getString(R.string.TetogramAppearanceSimple),()->editScope(AppearanceConfig.GLOBAL,null,null,0,0));
             button(items,getString(R.string.TetogramAppearanceNativeThemes),()->presentFragment(new ThemeActivity(ThemeActivity.THEME_TYPE_BASIC)));
             button(items,getString(R.string.TetogramAppearanceChat),()->pickChat());
+            button(items,getString(R.string.TetogramAppearanceGroups),()->pickChat(true));
+            button(items,getString(R.string.TetogramAppearanceDialogList),()->{AppearanceActivity editor=new AppearanceActivity(currentAccount,AppearanceConfig.GLOBAL,null,null,0,0);editor.previewDialogs=true;presentFragment(editor);});
             button(items,getString(R.string.TetogramAppearanceSections),()->pickSection(false));
             button(items,getString(R.string.TetogramAppearanceFolders),()->pickSection(true));
             button(items,getString(R.string.TetogramAppearanceEffects),()->presentFragment(new LiteModeSettingsActivity()));
@@ -94,30 +96,46 @@ public final class AppearanceActivity extends LabsPage {
         button(items,getString(R.string.TetogramAppearanceMode),previewDark?getString(R.string.TetogramAppearanceDark):getString(R.string.TetogramAppearanceLight),()->{previewDark=!previewDark;refresh();});
         button(items,getString(R.string.TetogramAppearanceAdvanced),advanced?getString(R.string.TetogramAppearanceAdvanced):getString(R.string.TetogramAppearanceSimple),()->{advanced=!advanced;refresh();});
         button(items,getString(R.string.TetogramAppearancePreviewSurface),getString(previewDialogs?R.string.TetogramAppearanceDialogList:R.string.TetogramAppearanceChat),()->{previewDialogs=!previewDialogs;refresh();});
-        preview=new AppearancePreview(getContext(),currentAccount,resolved(),previewDark,previewDialogs);preview.setResumed(foreground&&!mediaBusy);items.add(UItem.asCustom(preview,240));
+        preview=new AppearancePreview(getContext(),currentAccount,previewStyle(),previewDark,previewDialogs);preview.setResumed(foreground&&!mediaBusy);items.add(UItem.asCustom(preview,240));
         if(mediaBusy)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePreparingMedia)));
         mediaControls(items);
         if(searchInput!=null)items.add(UItem.asCustom(searchInput,48));
-        String[] simple={"chat_wallpaper","chat_inBubble","chat_outBubble","chat_messageTextIn","chat_messageTextOut","actionBarDefault","chats_name","chats_unreadCounter"};
+        String[] simple=previewDialogs?new String[]{"list.chat_wallpaper","windowBackgroundWhite","chats_name","chats_message","chats_date","chats_unreadCounter","chats_unreadCounterText","actionBarDefault"}:new String[]{"chat_wallpaper","chat_inBubble","chat_outBubble","chat_messageTextIn","chat_messageTextOut","actionBarDefault","chats_name","chats_unreadCounter"};
         ArrayList<String> keys=new ArrayList<>();
         if(advanced){for(int key=0;key<Theme.colorsCount;key++){String name=ThemeColors.getStringName(key);if(name!=null && !name.equals("wallpaperFileOffset") && !name.contains("rotation") && !name.toLowerCase(java.util.Locale.ROOT).contains("animated"))keys.add(name);}Collections.sort(keys);}else Collections.addAll(keys,simple);
+        if(previewDialogs&&!keys.contains("list.chat_wallpaper"))keys.add("list.chat_wallpaper");
         String prefix=previewDark?"dark.":"light.";AppearanceConfig.Resolved r=resolved();
         for(String name:keys){if(!search.isEmpty() && !name.toLowerCase(java.util.Locale.ROOT).contains(search.toLowerCase(java.util.Locale.ROOT)))continue;
-            String key=prefix+name;int nativeKey=ThemeColors.stringKeyToInt(name);Integer custom=r.color(previewDark,name);int color=custom==null?Theme.getColor(nativeKey):custom;
+            String key=prefix+name;int nativeKey=ThemeColors.stringKeyToInt(name.startsWith("list.")?name.substring(5):name);Integer custom=r.color(previewDark,name);int color=custom==null?Theme.getColor(nativeKey):custom;
             String origin=draft.values.containsKey(key)?getString(R.string.TetogramAppearanceExplicit):getString(R.string.TetogramAppearanceInherited)+" · "+r.origins.getOrDefault(key,"Telegram");
             button(items,colorLabel(name),String.format(java.util.Locale.ROOT,"#%08X",color)+" · "+origin,()->colorDialog(name,color));
+        }
+        if(previewDialogs){
+            number(items,"list.rowOpacity",getString(R.string.TetogramAppearanceRowOpacity),0,1);
+            number(items,"list.radius",getString(R.string.TetogramAppearanceRowRadius),0,32);
+            number(items,"list.sideInset",getString(R.string.TetogramAppearanceSideInset),0,24);
+            number(items,"list.rowGap",getString(R.string.TetogramAppearanceRowGap),0,20);
+            number(items,"list.avatarSize",getString(R.string.TetogramAppearanceAvatarSize),24,SharedConfig.useThreeLinesLayout?56:52);
+            number(items,"list.outlineWidth",getString(R.string.TetogramAppearanceOutlineWidth),0,4);
+            toggle(items,"list.separators",getString(R.string.TetogramAppearanceSeparators),true);
+            Integer outline=resolved().color(previewDark,"list.outline");button(items,getString(R.string.TetogramAppearanceOutlineColor),()->colorDialog("list.outline",outline==null?Theme.getColor(Theme.key_chats_unreadCounter):outline));
         }
         number(items,"bubble.inRadius",getString(R.string.TetogramAppearanceInRadius),0,32);
         number(items,"bubble.outRadius",getString(R.string.TetogramAppearanceOutRadius),0,32);
         button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=new AppearanceConfig.Style();refresh();});
     }
     private CharSequence colorLabel(String name){switch(name){case "chat_wallpaper":return getString(R.string.TetogramAppearanceBackground);case "chat_inBubble":return getString(R.string.TetogramAppearanceIncoming);case "chat_outBubble":return getString(R.string.TetogramAppearanceOutgoing);case "chat_messageTextIn":return getString(R.string.TetogramAppearanceIncomingText);case "chat_messageTextOut":return getString(R.string.TetogramAppearanceOutgoingText);default:return name;}}
-    private float defaultNumber(String key){if(key.startsWith("bubble."))return SharedConfig.bubbleRadius;if(key.equals("wallpaper.fps"))return 30;if(key.equals("wallpaper.quality"))return 1280;if(key.endsWith("opacity")||key.endsWith("speed")||key.endsWith("zoom"))return 1;return 0;}
+    private boolean rowMedia(){return previewDialogs&&(scope.startsWith("chat:")||scope.startsWith("topic:"));}
+    private String mediaPrefix(){return previewDialogs?"list.wallpaper":"wallpaper";}
+    private String mediaKey(String part){return mediaPrefix()+"."+part;}
+    private String wallpaperColorName(String tail){return (previewDialogs?"list.":"")+"chat_wallpaper"+tail;}
+    private AppearanceConfig.Resolved previewStyle(){AppearanceConfig.Resolved r=resolved();return previewDialogs?AppearanceSurfaces.list(r):r;}
+    private float defaultNumber(String key){if(key.startsWith("bubble."))return SharedConfig.bubbleRadius;if(key.equals(mediaKey("fps")))return 30;if(key.equals(mediaKey("quality")))return 1280;if(key.equals("list.rowOpacity"))return 1;if(key.equals("list.avatarSize"))return SharedConfig.useThreeLinesLayout?56:52;if(key.endsWith("angle"))return 45;if(key.endsWith("opacity")||key.endsWith("speed")||key.endsWith("zoom"))return 1;return 0;}
     private void number(ArrayList<UItem> items,String key,CharSequence label,float min,float max){String value=Float.toString(resolved().number(key,defaultNumber(key)));button(items,label,value+(draft.values.containsKey(key)?"":" · "+getString(R.string.TetogramAppearanceInherited)),()->showDialog(new AlertDialog.Builder(getContext()).setTitle(label).setItems(new CharSequence[]{getString(R.string.Edit),getString(R.string.TetogramAppearanceInherit)},(d,n)->{if(n==1){checkpoint();draft.values.remove(key);refresh();return;}input(label,value,text->{try{float parsed=Float.parseFloat(text);if(Float.isNaN(parsed)||Float.isInfinite(parsed)||parsed<min||parsed>max)throw new IllegalArgumentException();checkpoint();draft.set(key,Float.toString(parsed));refresh();}catch(Exception e){error(getString(R.string.TetogramAppearanceInvalidValue));}});}).create()));}
 
     private void colorDialog(String name,int color){
         final int[] value={color};ColorPicker picker=new ColorPicker(getContext(),false,(c,n,apply)->value[0]=c);picker.setResourcesProvider(getResourceProvider());picker.setType(0,true,1,1,false,0,false);picker.setColor(color,0);
-        showDialog(new AlertDialog.Builder(getContext()).setTitle(colorLabel(name)).setView(picker, AndroidUtilities.dp(320)).setPositiveButton(getString(R.string.OK),(d,n)->{checkpoint();if(name.startsWith("chat_wallpaper")){draft.set("wallpaper.file","");draft.set("wallpaper.cover.file","");draft.set("wallpaper.type",name.contains("_gradient_")?"gradient":"solid");}draft.color(previewDark,name,value[0]);refresh();}).setNeutralButton(getString(R.string.TetogramAppearanceInherit),(d,n)->{checkpoint();draft.values.remove((previewDark?"dark.":"light.")+name);refresh();}).setNegativeButton(getString(R.string.Cancel),null).create());
+        showDialog(new AlertDialog.Builder(getContext()).setTitle(colorLabel(name)).setView(picker, AndroidUtilities.dp(320)).setPositiveButton(getString(R.string.OK),(d,n)->{checkpoint();if(name.contains("chat_wallpaper")){String domain=name.startsWith("list.")?"list.wallpaper":"wallpaper";draft.set(domain+".file","");draft.set(domain+".cover.file","");draft.set(domain+".type",name.contains("_gradient_")?"gradient":"solid");}draft.color(previewDark,name,value[0]);refresh();}).setNeutralButton(getString(R.string.TetogramAppearanceInherit),(d,n)->{checkpoint();draft.values.remove((previewDark?"dark.":"light.")+name);refresh();}).setNegativeButton(getString(R.string.Cancel),null).create());
     }
     private void presetActions(AppearanceConfig.Preset p,boolean builtin){ArrayList<CharSequence> names=new ArrayList<>();ArrayList<Runnable> runs=new ArrayList<>();names.add(getString(R.string.TetogramAppearanceApply));runs.add(()->{AppearanceActivity editor=new AppearanceActivity(currentAccount,"edit",AppearanceConfig.GLOBAL,null,null,0,0);editor.config=config.copy();editor.expectedRevision=expectedRevision;editor.draft=p.style.copy();editor.previewDark="dark".equals(p.style.values.get("mode"));presentFragment(editor);});names.add(getString(R.string.TetogramAppearanceDuplicate));runs.add(()->input(getString(R.string.TetogramAppearancePresetName),p.name,name->{AppearanceConfig.Preset duplicate=p.duplicate(name);config.presets.put(duplicate.id,duplicate);saveConfig(()->{});}));if(!builtin){names.add(getString(R.string.EditName));runs.add(()->input(getString(R.string.TetogramAppearancePresetName),p.name,name->{p.name=name;saveConfig(()->{});}));names.add(getString(R.string.Delete));runs.add(()->showDialog(new AlertDialog.Builder(getContext()).setMessage(getString(R.string.TetogramAppearanceDeletePreset)).setPositiveButton(getString(R.string.Delete),(d,n)->{config.presets.remove(p.id);saveConfig(()->{});}).setNegativeButton(getString(R.string.Cancel),null).create()));}showDialog(new AlertDialog.Builder(getContext()).setTitle(p.name).setItems(names.toArray(new CharSequence[0]),(d,n)->runs.get(n).run()).create());}
     private void confirmReset(){showDialog(new AlertDialog.Builder(getContext()).setMessage(getString(R.string.TetogramAppearanceResetConfirm)).setPositiveButton(getString(R.string.OK),(d,n)->{config.scopes.clear();saveConfig(()->{});}).setNegativeButton(getString(R.string.Cancel),null).create());}
@@ -127,31 +145,32 @@ public final class AppearanceActivity extends LabsPage {
     private void mediaControls(ArrayList<UItem> items){
         items.add(UItem.asHeader(getString(R.string.TetogramAppearanceWallpapers)));
         button(items,getString(R.string.TetogramAppearanceChooseImage),()->pickMedia(false));
-        button(items,getString(R.string.TetogramAppearanceChooseVideo),()->pickMedia(true));
+        if(!rowMedia())button(items,getString(R.string.TetogramAppearanceChooseVideo),()->pickMedia(true));
+        else items.add(UItem.asShadow(getString(R.string.TetogramAppearanceRowImageOnly)));
         AppearanceConfig.Resolved r=resolved();
-        if(AppearanceConfig.isMediaName(r.get("wallpaper.file")))button(items,getString(R.string.TetogramAppearanceEditMedia),()->{mediaBusy=true;if(preview!=null)preview.setResumed(false);refresh();mediaJob=AppearanceMedia.inspect(currentAccount,owner,r.get("wallpaper.file"),"video".equals(r.get("wallpaper.type")),this::editSelectedMedia);});
-        button(items,getString(R.string.TetogramAppearanceWallpaperBase),()->showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearanceWallpaperBase)).setItems(new CharSequence[]{getString(R.string.TetogramAppearanceInherit),getString(R.string.TetogramAppearanceGlobalWallpaper),getString(R.string.TetogramAppearanceTelegramWallpaper)},(d,n)->{checkpoint();for(String key:new ArrayList<>(draft.values.keySet()))if(AppearanceConfig.isWallpaperKey(key))draft.values.remove(key);if(n!=0)draft.set("wallpaper.base",n==1?"global":"telegram");refresh();}).create()));
-        button(items,getString(R.string.TetogramAppearanceSolidWallpaper),()->colorDialog("chat_wallpaper",Theme.getColor(Theme.key_chat_wallpaper)));
-        for(int stop=1;stop<=3;stop++){final String name="chat_wallpaper_gradient_to"+stop;Integer current=r.color(previewDark,name);button(items,getString(R.string.TetogramAppearanceGradientStop)+" "+(stop+1),()->colorDialog(name,current==null?Theme.getColor(Theme.key_chat_wallpaper):current));}
-        number(items,"wallpaper.angle",getString(R.string.TetogramAppearanceGradientAngle),0,360);
-        toggle(items,"wallpaper.gradientMotion",getString(R.string.TetogramAppearanceGradientMotion),false);
-        number(items,"wallpaper.opacity",getString(R.string.TetogramAppearanceOpacity),0,1);
-        number(items,"wallpaper.dim",getString(R.string.TetogramAppearanceDimming),0,1);
-        number(items,"wallpaper.blur",getString(Build.VERSION.SDK_INT>=31?R.string.TetogramAppearanceBlur:R.string.TetogramAppearanceStaticBlur),0,Build.VERSION.SDK_INT>=31?32:1);
-        if("video".equals(r.get("wallpaper.type"))){
-            number(items,"wallpaper.speed",getString(R.string.TetogramAppearancePlaybackSpeed),.25f,2);
-            number(items,"wallpaper.zoom",getString(R.string.TetogramAppearanceZoom),1,4);
-            number(items,"wallpaper.panX",getString(R.string.TetogramAppearancePanX),-1,1);
-            number(items,"wallpaper.panY",getString(R.string.TetogramAppearancePanY),-1,1);
-            toggle(items,"wallpaper.loop",getString(R.string.TetogramAppearanceLoop),true);
-            toggle(items,"wallpaper.animate",getString(R.string.TetogramAppearanceAnimateWallpaper),true);
-            button(items,getString(R.string.TetogramAppearanceFit),r.get("wallpaper.fit"),()->{checkpoint();draft.set("wallpaper.fit","fit".equals(r.get("wallpaper.fit"))?"fill":"fit");refresh();});
+        if(AppearanceConfig.isMediaName(r.get(mediaKey("file"))))button(items,getString(R.string.TetogramAppearanceEditMedia),()->{mediaBusy=true;if(preview!=null)preview.setResumed(false);refresh();mediaJob=AppearanceMedia.inspect(currentAccount,owner,r.get(mediaKey("file")),"video".equals(r.get(mediaKey("type"))),this::editSelectedMedia);});
+        button(items,getString(R.string.TetogramAppearanceWallpaperBase),()->showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearanceWallpaperBase)).setItems(new CharSequence[]{getString(R.string.TetogramAppearanceInherit),getString(R.string.TetogramAppearanceGlobalWallpaper),getString(R.string.TetogramAppearanceTelegramWallpaper)},(d,n)->{checkpoint();for(String key:new ArrayList<>(draft.values.keySet()))if(AppearanceConfig.isSurfaceWallpaperKey(key,mediaPrefix()))draft.values.remove(key);if(n!=0)draft.set(mediaKey("base"),n==1?"global":"telegram");refresh();}).create()));
+        button(items,getString(R.string.TetogramAppearanceSolidWallpaper),()->colorDialog(wallpaperColorName(""),Theme.getColor(Theme.key_chat_wallpaper)));
+        for(int stop=1;stop<=3;stop++){final String name=wallpaperColorName("_gradient_to"+stop);Integer current=r.color(previewDark,name);button(items,getString(R.string.TetogramAppearanceGradientStop)+" "+(stop+1),()->colorDialog(name,current==null?Theme.getColor(Theme.key_chat_wallpaper):current));}
+        number(items,mediaKey("angle"),getString(R.string.TetogramAppearanceGradientAngle),0,360);
+        toggle(items,mediaKey("gradientMotion"),getString(R.string.TetogramAppearanceGradientMotion),false);
+        number(items,mediaKey("opacity"),getString(R.string.TetogramAppearanceOpacity),0,1);
+        number(items,mediaKey("dim"),getString(R.string.TetogramAppearanceDimming),0,1);
+        number(items,mediaKey("blur"),getString(Build.VERSION.SDK_INT>=31&&!rowMedia()?R.string.TetogramAppearanceBlur:R.string.TetogramAppearanceStaticBlur),0,Build.VERSION.SDK_INT>=31&&!rowMedia()?32:1);
+        if(!rowMedia()&&"video".equals(r.get(mediaKey("type")))){
+            number(items,mediaKey("speed"),getString(R.string.TetogramAppearancePlaybackSpeed),.25f,2);
+            number(items,mediaKey("zoom"),getString(R.string.TetogramAppearanceZoom),1,4);
+            number(items,mediaKey("panX"),getString(R.string.TetogramAppearancePanX),-1,1);
+            number(items,mediaKey("panY"),getString(R.string.TetogramAppearancePanY),-1,1);
+            toggle(items,mediaKey("loop"),getString(R.string.TetogramAppearanceLoop),true);
+            toggle(items,mediaKey("animate"),getString(R.string.TetogramAppearanceAnimateWallpaper),true);
+            button(items,getString(R.string.TetogramAppearanceFit),r.get(mediaKey("fit")),()->{checkpoint();draft.set(mediaKey("fit"),"fit".equals(r.get(mediaKey("fit")))?"fill":"fit");refresh();});
             button(items,getString(R.string.TetogramAppearanceCoverFirst),()->setCover(0));
             button(items,getString(R.string.TetogramAppearanceCoverCurrent),()->setCover(preview==null?0:preview.positionMs()));
         }
-        items.add(UItem.asShadow(getString(R.string.TetogramAppearanceVideoPreparation)));
-        number(items,"wallpaper.fps",getString(R.string.TetogramAppearanceFps),12,60);
-        number(items,"wallpaper.quality",getString(R.string.TetogramAppearanceQuality),360,1920);
+        if(!rowMedia()){items.add(UItem.asShadow(getString(R.string.TetogramAppearanceVideoPreparation)));
+        number(items,mediaKey("fps"),getString(R.string.TetogramAppearanceFps),12,60);
+        number(items,mediaKey("quality"),getString(R.string.TetogramAppearanceQuality),360,1920);}
     }
     private void toggle(ArrayList<UItem> items,String key,CharSequence label,boolean fallback){String value=resolved().get(key);if(value==null)value=Boolean.toString(fallback);final String selected=value;button(items,label,value+(draft.values.containsKey(key)?"":" · "+getString(R.string.TetogramAppearanceInherited)),()->{checkpoint();draft.set(key,Boolean.toString(!Boolean.parseBoolean(selected)));refresh();});}
     private void pickMedia(boolean video){
@@ -173,14 +192,15 @@ public final class AppearanceActivity extends LabsPage {
             @Override public boolean allowSendingSubmenu(){return false;}
             @Override public boolean canSendAsFile(){return false;}
             @Override public boolean forceMuteVideo(){return true;}
-            @Override public void sendButtonPressed(int index,VideoEditedInfo info,boolean notify,int schedule,int repeat,boolean forceDocument){if(!valid()||applied[0])return;applied[0]=true;mediaBusy=true;refresh();AppearanceConfig.Resolved current=resolved();mediaJob=AppearanceMedia.prepare(currentAccount,owner,source,entry.imagePath,info,Math.round(current.number("wallpaper.fps",30)),Math.round(current.number("wallpaper.quality",1280)),entry.coverPath,asset->{mediaBusy=false;if(!valid()){if(asset!=null){AppearanceMedia.discard(asset.file);AppearanceMedia.discard(asset.cover);}return;}if(asset==null){error(getString(R.string.TetogramAppearanceMediaError));refresh();return;}checkpoint();pendingMedia.add(asset.file);if(asset.cover!=null)pendingMedia.add(asset.cover);draft.set("wallpaper.file",asset.file.getName());draft.set("wallpaper.type",asset.video?"video":"image");draft.set("wallpaper.source.file",source.file.getName());if(asset.cover!=null)draft.set("wallpaper.cover.file",asset.cover.getName());else draft.set("wallpaper.cover.file","");refresh();});}
+            @Override public void sendButtonPressed(int index,VideoEditedInfo info,boolean notify,int schedule,int repeat,boolean forceDocument){if(!valid()||applied[0])return;applied[0]=true;mediaBusy=true;refresh();AppearanceConfig.Resolved current=resolved();mediaJob=AppearanceMedia.prepare(currentAccount,owner,source,entry.imagePath,info,Math.round(current.number(mediaKey("fps"),30)),Math.round(current.number(mediaKey("quality"),1280)),entry.coverPath,asset->{mediaBusy=false;if(!valid()){if(asset!=null){AppearanceMedia.discard(asset.file);AppearanceMedia.discard(asset.cover);}return;}if(asset==null){error(getString(R.string.TetogramAppearanceMediaError));refresh();return;}checkpoint();pendingMedia.add(asset.file);if(asset.cover!=null)pendingMedia.add(asset.cover);draft.set(mediaKey("file"),asset.file.getName());draft.set(mediaKey("type"),asset.video?"video":"image");if(previewDialogs&&!draft.values.containsKey("list.rowOpacity"))draft.set("list.rowOpacity","0.85");draft.set(mediaKey("source.file"),source.file.getName());if(asset.cover!=null)draft.set(mediaKey("cover.file"),asset.cover.getName());else draft.set(mediaKey("cover.file"),"");refresh();});}
             @Override public void onClose(){if(!applied[0]){pendingMedia.remove(source.file);AppearanceMedia.discard(source.file);}if(preview!=null)preview.setResumed(foreground&&!mediaBusy);}
         },null);
         if(opened)viewer.setTitle(getString(R.string.TetogramAppearanceWallpapers));
         if(!opened){pendingMedia.remove(source.file);AppearanceMedia.discard(source.file);if(preview!=null)preview.setResumed(foreground);error(getString(R.string.TetogramAppearanceMediaError));}
     }
-    private void setCover(long time){AppearanceConfig.Resolved r=resolved();mediaBusy=true;if(preview!=null)preview.setResumed(false);refresh();mediaJob=AppearanceMedia.coverAt(currentAccount,owner,r.get("wallpaper.file"),time,asset->{mediaBusy=false;if(!valid()){if(asset!=null)AppearanceMedia.discard(asset.file);return;}if(asset==null)error(getString(R.string.TetogramAppearanceMediaError));else{checkpoint();pendingMedia.add(asset.file);draft.set("wallpaper.cover.file",asset.file.getName());}refresh();});}
-    private void pickChat(){Bundle args=new Bundle();args.putBoolean("onlySelect",true);args.putInt("dialogsType",0);DialogsActivity picker=new DialogsActivity(args);picker.setCurrentAccount(currentAccount);picker.setDelegate((f,dids,m,p,n,s,r,t)->{if(dids.isEmpty())return false;long did=dids.get(0).dialogId;f.finishFragment();editScope("chat:"+did,null,null,did,0);return true;});presentFragment(picker);}
+    private void setCover(long time){AppearanceConfig.Resolved r=resolved();mediaBusy=true;if(preview!=null)preview.setResumed(false);refresh();mediaJob=AppearanceMedia.coverAt(currentAccount,owner,r.get(mediaKey("file")),time,asset->{mediaBusy=false;if(!valid()){if(asset!=null)AppearanceMedia.discard(asset.file);return;}if(asset==null)error(getString(R.string.TetogramAppearanceMediaError));else{checkpoint();pendingMedia.add(asset.file);draft.set(mediaKey("cover.file"),asset.file.getName());}refresh();});}
+    private void pickChat(){pickChat(false);}
+    private void pickChat(boolean groups){Bundle args=new Bundle();if(groups){args.putBoolean("allowUsers",false);args.putBoolean("allowBots",false);}args.putBoolean("onlySelect",true);args.putInt("dialogsType",0);DialogsActivity picker=new DialogsActivity(args);picker.setCurrentAccount(currentAccount);picker.setDelegate((f,dids,m,p,n,s,r,t)->{if(dids.isEmpty())return false;long did=dids.get(0).dialogId;f.finishFragment();editScope("chat:"+did,null,null,did,0);return true;});presentFragment(picker);}
     private void pickSection(boolean folders){try{SectionConfig c=SectionsStore.load(currentAccount);ArrayList<CharSequence> names=new ArrayList<>();ArrayList<String> ids=new ArrayList<>();if(folders){for(SectionConfig.Folder f:c.folders.values()){names.add(f.name);ids.add(f.id);}for(org.telegram.messenger.MessagesController.DialogFilter f:getMessagesController().getDialogFilters())if(f.id!=0){names.add(f.name);ids.add("tg:"+f.id);}}else for(SectionConfig.Section s:c.sections){names.add(s.name);ids.add(s.id);}if(ids.isEmpty()){presentFragment(new SectionsActivity(currentAccount));return;}showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(folders?R.string.TetogramAppearanceFolders:R.string.TetogramAppearanceSections)).setItems(names.toArray(new CharSequence[0]),(d,n)->{String id=ids.get(n);editScope((folders?"folder:":"section:")+id,folders?null:id,folders?id:null,0,0);}).create());}catch(Exception e){error(getString(R.string.TetogramStorageError));}}
     @Override protected void click(UItem item,View v,int p,float x,float y){if(item.id>0 && item.id<=actions.size() && valid()&&!saving)actions.get(item.id-1).run();}
 }

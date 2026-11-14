@@ -9118,6 +9118,11 @@ public class Theme {
         return currentColors.get(key);
     }
 
+    /** Native table without local overrides, for isolated draft previews and inheritance reset. */
+    public static int getNativeColor(int key) {
+        return getColorFromTable(currentColors, key, null);
+    }
+
     public static int getColor(int key) {
         return getColor(key, null, false);
     }

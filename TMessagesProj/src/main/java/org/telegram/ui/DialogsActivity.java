@@ -590,6 +590,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         SectionConfig.Section section=tetogramSections.section(tetogramSectionId);if(section==null)return;
         String key=tetogramTabKey(viewPages[0].selectedType);
         if(!section.lastFolder.equals(key)){section.lastFolder=key;tetogramPersistSections();}
+        tetogramRefreshAppearance();
     }
     private void tetogramChooseSection(String id) {
         tetogramReadSections();if(tetogramSections==null)return;
@@ -657,6 +658,43 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             tetogramSwitchPage(false);updateFilterTabsVisibility(animated);
             if(tetogramSectionMenu!=null)tetogramSectionMenu.collapse();
         } finally {tetogramRebuilding=false;}
+        tetogramRefreshAppearance();
+    }
+
+    private org.telegram.ui.tetogram.AppearanceResources tetogramListColors;
+    private org.telegram.ui.tetogram.AppearanceMediaView tetogramListMedia;
+    private final Theme.ResourcesProvider tetogramListProvider = new Theme.ResourcesProvider() {
+        @Override public int getColor(int key) { return tetogramListColors == null ? Theme.getColor(key, DialogsActivity.super.getResourceProvider()) : tetogramListColors.getColor(key); }
+        @Override public boolean isDark() { return tetogramListColors == null ? Theme.isCurrentThemeDark() : tetogramListColors.isDark(); }
+    };
+    @Override public Theme.ResourcesProvider getResourceProvider() {
+        return isTetogramSectionList() && tetogramListProvider != null ? tetogramListProvider : super.getResourceProvider();
+    }
+    public org.telegram.messenger.tetogram.AppearanceConfig.Context tetogramAppearanceContext(DialogsAdapter adapter,long dialog) {
+        String section = null, folder = null;
+        if (isTetogramSectionList() && viewPages != null && tetogramSections != null) for (ViewPage page : viewPages) if (page != null && (adapter == null ? page == viewPages[0] : page.dialogsAdapter == adapter)) {
+            if (tetogramSections.section(tetogramSectionId) != null) section = tetogramSectionId;
+            String key = tetogramTabKey(page.selectedType);
+            if (key.startsWith("local:") || key.startsWith("tg:")) folder = key;
+            break;
+        }
+        return new org.telegram.messenger.tetogram.AppearanceConfig.Context(section, folder, dialog, 0);
+    }
+    private void tetogramRefreshAppearance() {
+        if (!isTetogramSectionList() || !(fragmentView instanceof ContentView)) return;
+        org.telegram.messenger.tetogram.AppearanceConfig.Resolved raw = org.telegram.messenger.tetogram.AppearanceStore.resolve(currentAccount, tetogramAppearanceContext(null,0));
+        org.telegram.messenger.tetogram.AppearanceConfig.Resolved style = org.telegram.messenger.tetogram.AppearanceSurfaces.list(raw);
+        boolean dark = org.telegram.messenger.tetogram.AppearanceConfig.GLOBAL.equals(style.origins.get("mode")) ? Theme.isCurrentThemeDark() : "dark".equals(style.get("mode")) || !"light".equals(style.get("mode")) && Theme.isCurrentThemeDark();
+        tetogramListColors = new org.telegram.ui.tetogram.AppearanceResources(style, dark, super.getResourceProvider());
+        ContentView root = (ContentView) fragmentView;
+        Drawable background = org.telegram.ui.tetogram.AppearanceBackgrounds.colors(style,dark);
+        root.setBackgroundImage(background,false);
+        if (org.telegram.messenger.tetogram.AppearanceConfig.isMediaName(style.get("wallpaper.file"))) {
+            if (tetogramListMedia == null) {tetogramListMedia = new org.telegram.ui.tetogram.AppearanceMediaView(root.getContext());root.addView(tetogramListMedia,root.backgroundView == null ? 0 : root.indexOfChild(root.backgroundView) + 1,LayoutHelper.createFrame(-1,-1));}
+            tetogramListMedia.configure(getUserConfig().getClientUserId(),style);tetogramListMedia.setResumed(!isPaused);
+        } else if (tetogramListMedia != null) {tetogramListMedia.setResumed(false);root.removeView(tetogramListMedia);tetogramListMedia=null;}
+        if (viewPages != null) for (ViewPage page : viewPages) if (page != null && page.dialogsAdapter != null) page.dialogsAdapter.notifyDataSetChanged();
+        root.invalidate();ThemeBind.updateAll();
     }
 
     private FragmentFloatingButton floatingButton3;
@@ -2951,6 +2989,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
 
         observersGroup = getNotificationCenter().createObserversGroup(this);
+        observersGroup.addGlobal(NotificationCenter.tetogramAppearanceChanged);
 
         if (searchString == null) {
             currentConnectionState = getConnectionsManager().getConnectionState();
@@ -3133,6 +3172,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     @Override
     public void onFragmentDestroy() {
+        if(tetogramListMedia!=null)tetogramListMedia.setResumed(false);
         AndroidUtilities.cancelRunOnUIThread(tetogramRulesChanged);tetogramRulesScheduled=false;AndroidUtilities.cancelRunOnUIThread(tetogramBadgeTick);
         super.onFragmentDestroy();
         if (observersGroup != null) {
@@ -3615,7 +3655,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             (initialDialogsType == DIALOGS_TYPE_DEFAULT && !onlySelect || initialDialogsType == DIALOGS_TYPE_FORWARD) &&
             folderId == 0 && communityId == 0 && TextUtils.isEmpty(searchString)
         ) {
-            filterTabsView = new FilterTabsView(context, resourceProvider) {
+            filterTabsView = new FilterTabsView(context, getResourceProvider()) {
                 @Override
                 public boolean onInterceptTouchEvent(MotionEvent ev) {
                     getParent().requestDisallowInterceptTouchEvent(true);
@@ -4098,6 +4138,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
         final PointF tmpPoint = new PointF();
         iBlur3Capture = (canvas, position) -> {
+            if (tetogramListMedia != null) Blur3Utils.captureRelativeParent(tetogramListMedia, canvas, position, tetogramListMedia, contentView);
             final int searchViewAlpha = searchViewPager != null ? (int) (searchViewPager.getAlpha() * 255) : 0;
 
             for (ViewPage viewPage : viewPages) {
@@ -4812,7 +4853,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         contentView.addView(floatingButton3, FragmentFloatingButton.createDefaultLayoutParams());
         if(isTetogramSectionList()) {
             FrameLayout.LayoutParams buttonParams=(FrameLayout.LayoutParams)floatingButton3.getLayoutParams();buttonParams.gravity=Gravity.RIGHT|Gravity.BOTTOM;floatingButton3.setLayoutParams(buttonParams);
-            tetogramSectionMenu=new SectionMenu(context,resourceProvider);
+            tetogramSectionMenu=new SectionMenu(context,getResourceProvider());
             tetogramSectionMenu.setStateListener((open,animated)->{if(floatingButton3==null)return;floatingButton3.imageView.animate().cancel();if(animated)floatingButton3.imageView.animate().rotation(open?180:0).setDuration(210).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start();else floatingButton3.imageView.setRotation(open?180:0);});
             contentView.addView(tetogramSectionMenu,LayoutHelper.createFrame(64,56,Gravity.RIGHT|Gravity.BOTTOM,0,0,12,72));
             floatingButton3.setOnLongClickListener(v->{if(tetogramSectionMenu!=null)tetogramSectionMenu.cancelAndHide();presentFragment(new SectionsActivity(currentAccount));return true;});
@@ -7113,6 +7154,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onResume() {
         super.onResume();
+        org.telegram.messenger.tetogram.AppearanceStore.load(currentAccount,(ok,c)->{if(ok&&!isPaused)tetogramRefreshAppearance();});
         if(isTetogramSectionList() && filterTabsView!=null)updateFilterTabs(true,false);
         AndroidUtilities.cancelRunOnUIThread(tetogramBadgeTick);if(isTetogramSectionList())AndroidUtilities.runOnUIThread(tetogramBadgeTick);
         if (dialogStoriesCell != null) {
@@ -7334,6 +7376,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     @Override
     public void onPause() {
+        if(tetogramListMedia!=null)tetogramListMedia.setResumed(false);
         AndroidUtilities.cancelRunOnUIThread(tetogramRulesChanged);tetogramRulesScheduled=false;AndroidUtilities.cancelRunOnUIThread(tetogramBadgeTick);
         if(tetogramSectionMenu!=null)tetogramSectionMenu.cancelAndHide();
         super.onPause();
@@ -10663,6 +10706,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     @SuppressWarnings("unchecked")
     @Override
     public void didReceivedNotification(int id, int account, Object... args) {
+        if (id == NotificationCenter.tetogramAppearanceChanged) {if ((int) args[0] == -1 || (int) args[0] == currentAccount) tetogramRefreshAppearance();return;}
         if(isTetogramSectionList() && (id==NotificationCenter.dialogsNeedReload || id==NotificationCenter.dialogsUnreadCounterChanged || id==NotificationCenter.notificationsSettingsUpdated || id==NotificationCenter.contactsDidLoad || id==NotificationCenter.dialogFiltersUpdated))tetogramRefreshRules();
         if (id == NotificationCenter.dialogsNeedReload) {
             if (viewPages == null || dialogsListFrozen) {

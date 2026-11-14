@@ -734,11 +734,14 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
     }
 
     private final Theme.ResourcesProvider resourcesProvider;
+    private final org.telegram.ui.tetogram.DialogRowAppearance tetogramRow;
+    private boolean tetogramLayoutInvalidated;
+    public void setTetogramAppearance(org.telegram.messenger.tetogram.AppearanceConfig.Resolved style) { if(tetogramRow.configure(style)){tetogramLayoutInvalidated=true;requestLayout();}tetogramRow.margins(this);invalidate(); }
 
     public DialogCell(DialogsActivity fragment, Context context, boolean needCheck, boolean forceThreeLines, int account, Theme.ResourcesProvider resourcesProvider) {
         super(context);
         storyParams.allowLongress = true;
-        this.resourcesProvider = resourcesProvider;
+        this.resourcesProvider = tetogramRow = new org.telegram.ui.tetogram.DialogRowAppearance(resourcesProvider,this,account);
         parentFragment = fragment;
         Theme.createDialogsResources(context);
         drawMonoforumAvatar = false;
@@ -954,6 +957,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
 
     @Override
     protected void onDetachedFromWindow() {
+        tetogramRow.detached();
         super.onDetachedFromWindow();
         isSliding = false;
         drawRevealBackground = false;
@@ -990,6 +994,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
 
     @Override
     protected void onAttachedToWindow() {
+        tetogramRow.attached();
         super.onAttachedToWindow();
         avatarImage.onAttachedToWindow();
         for (int i = 0; i < thumbImage.length; ++i) {
@@ -1289,7 +1294,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
         }
         if (isDialogCell) {
             boolean needUpdate = updateHelper.update();
-            if (!needUpdate && currentDialogFolderId == 0 && currentDialogCommunityId == 0 && encryptedChat == null) {
+            if (!needUpdate && !tetogramLayoutInvalidated && currentDialogFolderId == 0 && currentDialogCommunityId == 0 && encryptedChat == null) {
                 return;
             }
         }
@@ -1319,6 +1324,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             thumbSize = 19;
         }
 
+        tetogramLayoutInvalidated = false;
         currentDialogFolderDialogsCount = 0;
         CharSequence nameString = "";
         String timeString = "";
@@ -2520,6 +2526,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                 thumbImage[i].setImageCoords(thumbLeft + (thumbSize + 2) * i, avatarTop + dp(30) + (twoLinesForName ? dp(20) : 0) - (!(useForceThreeLines || SharedConfig.useThreeLinesLayout) && tags != null && !tags.isEmpty() ? dp(9) : 0), dp(thumbSize), dp(thumbSize));
             }
         }
+        tetogramRow.avatar(storyParams.originalAvatarRect);
         if (LocaleController.isRTL) {
             tagsRight = getMeasuredWidth() - dp(messagePaddingStart);
             tagsLeft = dp(64);
@@ -3845,6 +3852,14 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
     @SuppressLint("DrawAllocation")
     @Override
     protected void onDraw(Canvas canvas) {
+        int clipped=tetogramRow.clip(canvas,getWidth(),getHeight());
+        try (org.telegram.ui.tetogram.DialogRowAppearance.PaintScope colors=tetogramRow.begin()) {
+            tetogramRow.backdrop(canvas,getWidth(),getHeight(),translationX);
+            drawNativeDialog(canvas);
+        } finally {tetogramRow.finish(canvas,getWidth(),getHeight(),clipped);}
+    }
+
+    private void drawNativeDialog(Canvas canvas) {
         if (currentDialogId == 0 && customDialog == null) {
             return;
         }
@@ -4866,7 +4881,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
             canvas.restore();
         }
 
-        if (useSeparator) {
+        if (useSeparator && tetogramRow.separators()) {
             int left;
             if (fullSeparator || currentDialogFolderId != 0 && archiveHidden && !fullSeparator2 || fullSeparator2 && !archiveHidden) {
                 left = 0;

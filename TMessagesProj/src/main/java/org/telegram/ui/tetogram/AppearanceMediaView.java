@@ -2,6 +2,8 @@
 package org.telegram.ui.tetogram;
 import android.content.*;
 import android.graphics.Canvas;
+import android.graphics.RectF;
+import org.telegram.ui.Components.blur3.capture.IBlur3Capture;
 import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.os.*;
@@ -14,7 +16,7 @@ import org.telegram.messenger.*;
 import org.telegram.messenger.tetogram.*;
 import org.telegram.ui.Components.*;
 
-public final class AppearanceMediaView extends FrameLayout implements NotificationCenter.NotificationCenterDelegate {
+public final class AppearanceMediaView extends FrameLayout implements NotificationCenter.NotificationCenterDelegate, IBlur3Capture {
     private static WeakReference<AppearanceMediaView> active=new WeakReference<>(null);
     private final BackupImageView cover;
     private final TextureView texture;
@@ -68,5 +70,6 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     @Override public void didReceivedNotification(int id,int account,Object...args){reconcile();}
     @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){super.onSizeChanged(w,h,oldw,oldh);if(stableWidth!=w){stableWidth=w;stableHeight=h;}else stableHeight=Math.max(stableHeight,h);for(View child:new View[]{cover,texture,dim})if(child!=null){FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)child.getLayoutParams();if(lp.height!=stableHeight){lp.height=stableHeight;child.setLayoutParams(lp);}}updateTransform();}
     private void updateTransform(){if(texture==null||texture.getWidth()==0||texture.getHeight()==0||videoWidth<=0||videoHeight<=0)return;float w=texture.getWidth(),h=texture.getHeight();float scale="fit".equals(style.get("wallpaper.fit"))?Math.min(w/videoWidth,h/videoHeight):Math.max(w/videoWidth,h/videoHeight);scale*=Math.max(1,Math.min(4,style.number("wallpaper.zoom",1)));float dw=videoWidth*scale,dh=videoHeight*scale;float x=(w-dw)/2+style.number("wallpaper.panX",0)*Math.abs(w-dw)/2,y=(h-dh)/2+style.number("wallpaper.panY",0)*Math.abs(h-dh)/2;Matrix matrix=new Matrix();matrix.setScale(dw/w,dh/h);matrix.postTranslate(x,y);texture.setTransform(matrix);}
-    @Override protected void dispatchDraw(Canvas canvas){if(SizeNotifierFrameLayout.drawingBlur){cover.draw(canvas);dim.draw(canvas);}else super.dispatchDraw(canvas);}
+    @Override public void capture(Canvas canvas,RectF position){int save=canvas.save();canvas.clipRect(position);if(getAlpha()<1)canvas.saveLayerAlpha(position,Math.round(getAlpha()*255));cover.draw(canvas);dim.draw(canvas);canvas.restoreToCount(save);}
+    @Override protected void dispatchDraw(Canvas canvas){if(SizeNotifierFrameLayout.drawingBlur)capture(canvas,new RectF(0,0,getWidth(),getHeight()));else super.dispatchDraw(canvas);}
 }

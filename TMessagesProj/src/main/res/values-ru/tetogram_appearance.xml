@@ -73,4 +73,14 @@
   <string name="TetogramAppearanceGradientStop">Цвет градиента</string>
   <string name="TetogramAppearanceGradientAngle">Угол градиента (0–360°)</string>
   <string name="TetogramAppearanceGradientMotion">Штатный анимированный градиент (четыре цвета)</string>
+  <string name="TetogramAppearanceGroups">Оформление групп и каналов</string>
+  <string name="TetogramAppearanceRowOpacity">Непрозрачность строки чата (0–1)</string>
+  <string name="TetogramAppearanceRowRadius">Скругление строки чата (dp)</string>
+  <string name="TetogramAppearanceSideInset">Боковые отступы строки чата (dp)</string>
+  <string name="TetogramAppearanceRowGap">Расстояние между строками чатов (dp)</string>
+  <string name="TetogramAppearanceAvatarSize">Размер аватарки в штатном месте (dp)</string>
+  <string name="TetogramAppearanceOutlineWidth">Толщина контура строки (dp)</string>
+  <string name="TetogramAppearanceOutlineColor">Цвет контура строки</string>
+  <string name="TetogramAppearanceSeparators">Показывать разделители строк чатов</string>
+  <string name="TetogramAppearanceRowImageOnly">Для отдельного чата этот экран оформляет его строку в списке. Фон строки использует изображение; от видеопресета отображается статичная обложка без отдельного декодера для каждой строки. Для обоев переписки переключите предпросмотр на чат.</string>
 </resources>

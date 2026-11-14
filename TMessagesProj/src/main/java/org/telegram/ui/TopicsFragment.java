@@ -654,7 +654,8 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
                         finishDialogRightSlidingPreviewOnTransitionEnd = true;
                         Bundle bundle = new Bundle();
                         bundle.putLong("chat_id", chatId);
-                        ChatActivity chatActivity = new ChatActivity(bundle);
+                        org.telegram.messenger.tetogram.AppearanceNavigation.copySameDialog(TopicsFragment.this.getArguments(),bundle);
+        ChatActivity chatActivity = new ChatActivity(bundle);
                         chatActivity.setSwitchFromTopics(true);
                         presentFragment(chatActivity);
                         break;
@@ -1576,6 +1577,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
 
         Bundle bundle = new Bundle();
         bundle.putLong("chat_id", chatId);
+        org.telegram.messenger.tetogram.AppearanceNavigation.copySameDialog(TopicsFragment.this.getArguments(),bundle);
         ChatActivity chatActivity = new ChatActivity(bundle);
         chatActivity.setSwitchFromTopics(true);
         presentFragment(chatActivity);
@@ -2098,6 +2100,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
         prepareBlurBitmap();
         Bundle bundle = new Bundle();
         bundle.putLong("chat_id", chatId);
+        org.telegram.messenger.tetogram.AppearanceNavigation.copySameDialog(TopicsFragment.this.getArguments(),bundle);
         ChatActivity chatActivity = new ChatActivity(bundle);
         ForumUtilities.applyTopic(chatActivity, MessagesStorage.TopicKey.of(-chatId, mono ? DialogObject.getPeerDialogId(cell.forumTopic.from_id) : cell.forumTopic.id));
         presentFragmentAsPreviewWithMenu(chatActivity, previewMenu[0]);

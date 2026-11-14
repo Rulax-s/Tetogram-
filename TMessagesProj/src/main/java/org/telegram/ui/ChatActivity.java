@@ -18076,6 +18076,7 @@ public class ChatActivity extends BaseFragment implements
                 return;
             }
 
+            if (tetogramMediaBackground != null) Blur3Utils.captureRelativeParent(tetogramMediaBackground, blurCanvas, position, tetogramMediaBackground, this);
             final float searchListVisibilityFactor = animatorSearchResultAsListVisibility.getFloatValue();
             final int chatListAlpha = (int) (255 * (1f - searchListVisibilityFactor));
             final int searchListAlpha = (int) (255 * searchListVisibilityFactor);
@@ -21350,7 +21351,7 @@ public class ChatActivity extends BaseFragment implements
     @Override
     public void didReceivedNotification(int id, int account, final Object... args) {
         if (id == NotificationCenter.tetogramAppearanceChanged) {
-            if ((int) args[0] == currentAccount && themeDelegate != null) themeDelegate.reloadTetogramAppearance();
+            if (((int) args[0] == -1 || (int) args[0] == currentAccount) && themeDelegate != null) themeDelegate.reloadTetogramAppearance();
             return;
         }
         if (id == NotificationCenter.messagesDidLoad) {
@@ -44254,8 +44255,11 @@ public class ChatActivity extends BaseFragment implements
         @Override
         public boolean isDark() {
             String mode = tetogramStyle.get("mode");
-            if ("dark".equals(mode)) return true;
-            if ("light".equals(mode)) return false;
+            String modeOrigin = tetogramStyle.origins.get("mode");
+            if (!org.telegram.messenger.tetogram.AppearanceConfig.GLOBAL.equals(modeOrigin)) {
+                if ("dark".equals(mode)) return true;
+                if ("light".equals(mode)) return false;
+            }
             return currentColors != null && currentColors.size() > 0 ? isDark : Theme.isCurrentThemeDark();
         }
 
@@ -44313,6 +44317,7 @@ public class ChatActivity extends BaseFragment implements
         public int getColor(int key) {
             int customIndex = tetogramColors.indexOfKey(key);
             if (customIndex >= 0) return tetogramColors.valueAt(customIndex);
+            if (("dark".equals(tetogramStyle.get("mode")) || "light".equals(tetogramStyle.get("mode"))) && isDark() != Theme.isCurrentThemeDark()) return org.telegram.messenger.tetogram.AppearanceRuntime.baseColor(isDark(), key);
             if (animatingColors != null) {
                 int index = animatingColors.indexOfKey(key);
                 if (index >= 0) {
@@ -44351,6 +44356,7 @@ public class ChatActivity extends BaseFragment implements
         public int getCurrentColor(int key, boolean ignoreAnimation) {
             int customIndex = tetogramColors.indexOfKey(key);
             if (customIndex >= 0) return tetogramColors.valueAt(customIndex);
+            if (("dark".equals(tetogramStyle.get("mode")) || "light".equals(tetogramStyle.get("mode"))) && isDark() != Theme.isCurrentThemeDark()) return org.telegram.messenger.tetogram.AppearanceRuntime.baseColor(isDark(), key);
             if (chatTheme == null && backgroundDrawable == null) {
                 return Theme.getColor(key);
             }
@@ -45085,7 +45091,7 @@ public class ChatActivity extends BaseFragment implements
             if (tetogramMediaBackground != null) { tetogramMediaBackground.setResumed(false); contentView.removeView(tetogramMediaBackground); tetogramMediaBackground = null; }
             return;
         }
-        if (tetogramMediaBackground == null) { tetogramMediaBackground = new org.telegram.ui.tetogram.AppearanceMediaView(contentView.getContext()); contentView.addView(tetogramMediaBackground, 0, LayoutHelper.createFrame(-1, -1)); }
+        if (tetogramMediaBackground == null) { tetogramMediaBackground = new org.telegram.ui.tetogram.AppearanceMediaView(contentView.getContext()); contentView.addView(tetogramMediaBackground, contentView.backgroundView == null ? 0 : contentView.indexOfChild(contentView.backgroundView) + 1, LayoutHelper.createFrame(-1, -1)); }
         tetogramMediaBackground.configure(getUserConfig().getClientUserId(), style);
         tetogramMediaBackground.setResumed(!isPaused && getParentActivity() != null);
     }

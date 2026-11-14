@@ -73,4 +73,14 @@
   <string name="TetogramAppearanceGradientStop">Gradient color</string>
   <string name="TetogramAppearanceGradientAngle">Gradient angle (0–360°)</string>
   <string name="TetogramAppearanceGradientMotion">Native animated gradient (four colors)</string>
+  <string name="TetogramAppearanceGroups">Group and channel appearance</string>
+  <string name="TetogramAppearanceRowOpacity">Chat row opacity (0–1)</string>
+  <string name="TetogramAppearanceRowRadius">Chat row corner radius (dp)</string>
+  <string name="TetogramAppearanceSideInset">Chat row side margins (dp)</string>
+  <string name="TetogramAppearanceRowGap">Space between chat rows (dp)</string>
+  <string name="TetogramAppearanceAvatarSize">Avatar size within its native slot (dp)</string>
+  <string name="TetogramAppearanceOutlineWidth">Row outline width (dp)</string>
+  <string name="TetogramAppearanceOutlineColor">Row outline color</string>
+  <string name="TetogramAppearanceSeparators">Show chat row separators</string>
+  <string name="TetogramAppearanceRowImageOnly">For a single chat, this surface styles its row in the chat list. Row backgrounds use images; a video preset uses its static cover, without a decoder for each row. Switch to Chat preview to edit the conversation wallpaper.</string>
 </resources>

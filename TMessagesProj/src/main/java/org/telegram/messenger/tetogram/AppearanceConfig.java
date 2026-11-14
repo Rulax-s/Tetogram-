@@ -53,15 +53,18 @@ public final class AppearanceConfig {
     public Resolved resolveProfile(long dialog) { Resolved r = resolve(Context.direct(0, 0)); merge(r, "profile:" + dialog); return r; }
     private void merge(Resolved r, String scope) {
         Style s = scopes.get(scope); if (s == null) return;
-        String base=s.values.get("wallpaper.base");
+        for(String domain:new String[]{"wallpaper","list.wallpaper","banner.wallpaper"}){
+        String base=s.values.get(domain+".base");
         if(!GLOBAL.equals(scope) && ("global".equals(base)||"telegram".equals(base))){
-            for(String key:new ArrayList<>(r.values.keySet()))if(isWallpaperKey(key)){r.values.remove(key);r.origins.remove(key);}
+            for(String key:new ArrayList<>(r.values.keySet()))if(isSurfaceWallpaperKey(key,domain)){r.values.remove(key);r.origins.remove(key);}
             Style global=scopes.get(GLOBAL);
-            if("global".equals(base)&&global!=null)for(Map.Entry<String,String> e:global.values.entrySet())if(isWallpaperKey(e.getKey())){r.values.put(e.getKey(),e.getValue());r.origins.put(e.getKey(),GLOBAL);}
+            if("global".equals(base)&&global!=null)for(Map.Entry<String,String> e:global.values.entrySet())if(isSurfaceWallpaperKey(e.getKey(),domain)){r.values.put(e.getKey(),e.getValue());r.origins.put(e.getKey(),GLOBAL);}
+        }
         }
         for (Map.Entry<String,String> e : s.values.entrySet()) { r.values.put(e.getKey(), e.getValue()); r.origins.put(e.getKey(), scope); }
     }
     public static boolean isWallpaperKey(String key){return key.startsWith("wallpaper.")||key.startsWith("light.chat_wallpaper")||key.startsWith("dark.chat_wallpaper");}
+    public static boolean isSurfaceWallpaperKey(String key,String domain){if("wallpaper".equals(domain))return isWallpaperKey(key);String prefix=domain.substring(0,domain.length()-"wallpaper".length());return key.startsWith(domain+".")||key.startsWith("light."+prefix+"chat_wallpaper")||key.startsWith("dark."+prefix+"chat_wallpaper");}
     public void apply(String scope, Preset preset) { scopes.put(scope, preset.style.copy()); revision++; }
     public void reset(String scope) { scopes.remove(scope); revision++; }
     public AppearanceConfig copy() { return decode(encode()); }

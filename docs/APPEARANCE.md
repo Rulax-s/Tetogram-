@@ -46,3 +46,18 @@ API 31+ применяет blur RenderEffect. На Android до 12 включё�
 Media cleanup выполняется после atomic commit, проверяет ссылки всех scopes/пресетов и pending draft leases. Cancel/discard сериализованы с сохранением: закрытие редактора во время записи не удаляет только что сохранённый файл. Исходники галереи не меняются. Source и prepared media имеют отдельные UUID-файлы; новая область оформления не затрагивает иконки разделов 0.3.1.
 
 Новые JVM media-policy tests покрывают gates видимости/foreground/screen/mute-independent Lite/battery/animation, границы decode/range/quality и безопасный GC shared/pending assets. Реальные codecs/Surface/жесты/EXIF/device power events/keyboard/blur ещё NOT RUN на Android.
+
+
+## Отдельные поверхности и строки чатов
+
+Chat wallpaper, `list.wallpaper` и `banner.wallpaper` — разные домены. Глобальные обои переписки автоматически не становятся фоном списка. Раздел/папка могут дать свой фон списку через обычное наследование; явный list-domain имеет приоритет. Барьеры «общая тема» и «Telegram» снимают только wallpaper overrides выбранной поверхности, не остальные цвета. Pure `AppearanceSurfacesTest` проверяет независимость и mapping палитр.
+
+DialogsActivity публикует стабильный ResourcesProvider текущего пространства и один MediaView под страницами. Строки получают собственный immutable snapshot по dialog ID и конкретной странице адаптера. Во время folder swipe не используется общий нестабильный индекс страницы. Строка сохраняет реальные Dialog/MessageObject, сортировку и unread/mute данные. Цвета времени/бейджей, ранее хранившиеся в общих Paint, применяются только в draw scope и восстанавливаются в finally, без сохранения цвета другой строки.
+
+Локальные row opacity/rounding/контур/межстрочные и боковые margins/разделители используют существующий DialogCell; avatar меняет только native originalAvatarRect внутри штатно выделенного слота. Layout invalidation отдельный от Message/dialog identity cache. Сценарии swipe/archive/pinned/RTL/drag требуют Android UI проверки; методические source/model проверки её не заменяют.
+
+Для per-chat list image используется отдельный ImageReceiver с thumbnail cache и native attach/detach. Per-chat list video preset отображает только его cover, не запускает player на каждую строку. Фон полного списка поддерживает один video player. Actual SimpleGlass capture явно рисует cover прежде строк/сообщений, а не полагается на захват TextureView.
+
+Native-table access для draft preview обходит уже применённые global overrides, поэтому Reset виден до Apply. Противоположная day/night base palette загружается на themeQueue; не выполняется чтение assets в callback рисования. Server Telegram theme остаётся fallback, local mode не вызывает глобальную смену темы из другого чата.
+
+ForumUtilities/TopicsFragment передают origin только при переходе в тот же dialog. Ссылка на другой чат не получает случайный section/folder origin.

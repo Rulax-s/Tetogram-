@@ -33,7 +33,7 @@ public final class AppearanceStore {
                 CACHE.put(uid,c);
             }catch(Exception e){INVALID.add(uid);ok=false;FileLog.e("Tetogram appearance configuration unavailable");}
             final AppearanceConfig result=c==null?new AppearanceConfig():c.copy();final boolean success=ok;
-            AndroidUtilities.runOnUIThread(()->{if(uid!=owner(account))return;if(success)AppearanceRuntime.activate(account);if(callback!=null)callback.done(success,result);});
+            AndroidUtilities.runOnUIThread(()->{if(uid!=owner(account))return;if(success){AppearanceRuntime.activate(account);AppearanceRuntime.prepareBaseColors();}if(callback!=null)callback.done(success,result);});
         });
     }
     public static void save(int account,long uid,AppearanceConfig draft,long expectedRevision,Result callback) {

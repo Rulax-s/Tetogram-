@@ -1,0 +1,8 @@
+package org.telegram.messenger.tetogram;
+import org.junit.Test;
+import static org.junit.Assert.*;
+public class AppearanceSurfacesTest {
+    @Test public void globalChatWallpaperDoesNotBecomeListWallpaper(){AppearanceConfig c=new AppearanceConfig();c.edit("global").set("wallpaper.file","chat");assertNull(AppearanceSurfaces.list(c.resolve(AppearanceConfig.Context.direct(0,0))).get("wallpaper.file"));}
+    @Test public void explicitListAndBannerDomainsAreIndependent(){AppearanceConfig c=new AppearanceConfig();c.edit("global").set("wallpaper.file","chat");c.edit("global").set("list.wallpaper.file","list");c.edit("global").set("banner.wallpaper.file","banner");c.edit("global").color(false,"list.chat_wallpaper",123);c.edit("global").color(true,"banner.chat_wallpaper",456);AppearanceConfig.Resolved r=c.resolve(AppearanceConfig.Context.direct(0,0));assertEquals("list",AppearanceSurfaces.list(r).get("wallpaper.file"));assertEquals("banner",AppearanceSurfaces.banner(r).get("wallpaper.file"));assertEquals(Integer.valueOf(123),AppearanceSurfaces.list(r).color(false,"chat_wallpaper"));assertEquals(Integer.valueOf(456),AppearanceSurfaces.banner(r).color(true,"chat_wallpaper"));assertEquals("chat",r.get("wallpaper.file"));}
+    @Test public void aSectionWallpaperCanSupplyTheSectionListWithoutChangingGlobalList(){String id="b8348b88-aac9-4f3c-85f7-bb44b7e2b967";AppearanceConfig c=new AppearanceConfig();c.edit("section:"+id).set("wallpaper.file","section");assertEquals("section",AppearanceSurfaces.list(c.resolve(new AppearanceConfig.Context(id,null,0,0))).get("wallpaper.file"));assertNull(AppearanceSurfaces.list(c.resolve(AppearanceConfig.Context.direct(0,0))).get("wallpaper.file"));}
+}

@@ -6,6 +6,7 @@
 - Добавлены семь dual-palette пресетов, CRUD/duplicate, draft/Apply/Cancel/Undo, native color picker и native-cell preview, общий и per-chat/topic редакторы.
 - Подключены native Theme colors и независимые ChatActivity Paint/MessageDrawable, отдельные in/out bubble radii и origin контекст открытия из раздела/папки; поиск/уведомления используют direct context.
 - Добавлены private media import/prepare/GC, native PhotoViewer editing и silent VideoPlayer background с cover/Lite/battery/lifecycle gates; аппаратные Android-сценарии ещё NOT RUN.
+- Добавлены независимое оформление строк и фона списка, native avatar sizing, per-chat row image, сохранение origin при переходе в темы форума и отдельные домены обоев списка/баннера. Исправлен порядок медиаслоя относительно native BackgroundView.
 - Этапы полного оформления списков/профилей/launcher и portable media пока в работе; это не выпуск готовой 0.4.0. Android UI NOT RUN.
 - APP_VERSION_NAME 0.4.0, APP_VERSION_CODE input 11 (afat 119). Подпись, applicationId, Secrets, реклама и локальная история не меняются.
 
