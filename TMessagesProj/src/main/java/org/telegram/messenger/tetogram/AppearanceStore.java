@@ -32,6 +32,7 @@ public final class AppearanceStore {
                     try(FileInputStream in=file.openRead()){ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[16384];int n;while((n=in.read(b))!=-1){if(out.size()+n>4*1024*1024)throw new IOException("Appearance too large");out.write(b,0,n);}c=AppearanceConfig.decode(out.toString("UTF-8"));}
                 }else c=new AppearanceConfig();
                 CACHE.put(uid,c);
+                try{AppearanceMedia.cleanup(uid,c);AppearanceMedia.cleanupImports(uid);}catch(Exception ignored){FileLog.e("Tetogram appearance cleanup deferred");}
             }catch(Exception e){INVALID.add(uid);ok=false;FileLog.e("Tetogram appearance configuration unavailable");}
             final AppearanceConfig result=c==null?new AppearanceConfig():c.copy();final boolean success=ok;
             AndroidUtilities.runOnUIThread(()->{if(uid!=owner(account))return;if(success){AppearanceRuntime.activate(account);AppearanceRuntime.prepareBaseColors();}if(callback!=null)callback.done(success,result);});
