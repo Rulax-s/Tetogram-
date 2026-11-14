@@ -2186,6 +2186,10 @@ public class Theme {
         default boolean isCompactMode() {
             return SharedConfig.compactMode;
         }
+
+        default float getBubbleRadius(boolean outgoing) {
+            return Math.max(0, Math.min(32, org.telegram.messenger.tetogram.AppearanceRuntime.globalNumber(outgoing ? "bubble.outRadius" : "bubble.inRadius", SharedConfig.bubbleRadius)));
+        }
     }
 
     public static boolean isCompactMode(ResourcesProvider resourcesProvider) {
@@ -9123,6 +9127,11 @@ public class Theme {
     }
 
     public static int getColor(int key, boolean[] isDefault, boolean ignoreAnimation) {
+        Integer localAppearance = org.telegram.messenger.tetogram.AppearanceRuntime.globalColor(key);
+        if (localAppearance != null) {
+            if (isDefault != null) isDefault[0] = false;
+            return localAppearance;
+        }
         if (SharedConfig.compactMode) {
             // compact mode swaps some message colors for its own keys, see getCompactColor
             final Integer compactColor = getCompactColor(key, null);

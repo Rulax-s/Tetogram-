@@ -265,6 +265,9 @@ public class ApplicationLoader extends Application {
 
         ApplicationLoader app = (ApplicationLoader) ApplicationLoader.applicationContext;
         app.initPushServices();
+        org.telegram.messenger.tetogram.AppearanceStore.load(UserConfig.selectedAccount, (ok, c) -> {
+            if (ok) org.telegram.messenger.tetogram.AppearanceRuntime.changed(UserConfig.selectedAccount);
+        });
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("app initied");
         }

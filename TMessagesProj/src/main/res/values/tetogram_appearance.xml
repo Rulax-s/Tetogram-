@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="TetogramAppearance">Tetogram appearance</string>
+  <string name="TetogramAppearancePresets">Themes and presets</string>
+  <string name="TetogramAppearanceSimple">Simple editor</string>
+  <string name="TetogramAppearanceAdvanced">Advanced editor</string>
+  <string name="TetogramAppearanceNativeThemes">Telegram themes and wallpapers</string>
+  <string name="TetogramAppearanceChat">Appearance of a chat or group</string>
+  <string name="TetogramAppearanceSections">Section appearance</string>
+  <string name="TetogramAppearanceFolders">Folder appearance</string>
+  <string name="TetogramAppearanceEffects">Animations and power saving</string>
+  <string name="TetogramAppearanceReset">Restore inherited appearance</string>
+  <string name="TetogramAppearanceStorageError">Appearance could not be read. The saved file has not been overwritten.</string>
+  <string name="TetogramAppearanceLocal">Local appearance is visible only on this device. Telegram themes and group permissions remain available separately.</string>
+  <string name="TetogramAppearanceCreatePreset">Create preset</string>
+  <string name="TetogramAppearancePresetName">Preset name</string>
+  <string name="TetogramAppearanceBuiltins">Built-in presets</string>
+  <string name="TetogramAppearanceUserPresets">My presets</string>
+  <string name="TetogramAppearanceDraft">Preview draft. Colors are not saved until Apply. Each missing value inherits its parent or Telegram theme.</string>
+  <string name="TetogramAppearanceApply">Apply</string>
+  <string name="TetogramAppearanceUndo">Restore previous value</string>
+  <string name="TetogramAppearanceSavePreset">Save as preset</string>
+  <string name="TetogramAppearanceMode">Preview palette</string>
+  <string name="TetogramAppearanceDark">Dark</string>
+  <string name="TetogramAppearanceLight">Light</string>
+  <string name="TetogramAppearanceExplicit">Explicit</string>
+  <string name="TetogramAppearanceInherited">Inherited</string>
+  <string name="TetogramAppearanceInherit">Use inherited value</string>
+  <string name="TetogramAppearanceInRadius">Incoming bubble corner radius (dp)</string>
+  <string name="TetogramAppearanceOutRadius">Outgoing bubble corner radius (dp)</string>
+  <string name="TetogramAppearanceInvalidValue">Value is invalid or outside the supported range.</string>
+  <string name="TetogramAppearanceBackground">Chat background</string>
+  <string name="TetogramAppearanceIncoming">Incoming bubble background</string>
+  <string name="TetogramAppearanceOutgoing">Outgoing bubble background</string>
+  <string name="TetogramAppearanceIncomingText">Incoming message text</string>
+  <string name="TetogramAppearanceOutgoingText">Outgoing message text</string>
+  <string name="TetogramAppearanceDuplicate">Duplicate preset</string>
+  <string name="TetogramAppearanceDeletePreset">Delete this preset? Active appearance and other presets will not be deleted.</string>
+  <string name="TetogramAppearanceResetConfirm">Reset all local appearance overrides for this account? Presets, sections, icons and message history will remain.</string>
+  <string name="TetogramAppearanceConflict">Changes could not be saved. The account or saved revision may have changed. Reopen the editor to load current settings.</string>
+  <string name="TetogramPreviewName">Preview chat</string>
+  <string name="TetogramPreviewMessage">This is a safe preview message 👋</string>
+  <string name="TetogramPreviewAnswer">Your message style appears here.</string>
+  <string name="TetogramAppearanceDisplayMode">Display mode</string>
+</resources>

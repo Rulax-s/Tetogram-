@@ -2981,6 +2981,10 @@ public class ChatActivity extends BaseFragment implements
         }
 
         super.onFragmentCreate();
+        observersGroup.addGlobal(NotificationCenter.tetogramAppearanceChanged);
+        org.telegram.messenger.tetogram.AppearanceStore.load(currentAccount, (ok, config) -> {
+            if (ok && themeDelegate != null) themeDelegate.reloadTetogramAppearance();
+        });
 
         if (chatMode == MODE_PINNED) {
             ArrayList<MessageObject> messageObjects = new ArrayList<>();
@@ -3717,6 +3721,10 @@ public class ChatActivity extends BaseFragment implements
             @Override
             public void onItemClick(final int id) {
                 if (id == 46001) { presentFragment(new org.telegram.ui.tetogram.HistoryActivity(currentAccount, dialog_id)); return; }
+                if (id == 46003) {
+                    String appearanceScope = getTopicId() == 0 ? "chat:" + dialog_id : "topic:" + dialog_id + ":" + getTopicId();
+                    presentFragment(new org.telegram.ui.tetogram.AppearanceActivity(currentAccount, appearanceScope, arguments.getString("tetogram_appearance_section"), arguments.getString("tetogram_appearance_folder"), dialog_id, getTopicId())); return;
+                }
                 // the chat's menu is also opened from the sidebar: what it does is in the chat
                 if (id != chat_menu_options && id != chat_menu_topics_panel && id != -1 && topicsPanel != null && topicsPanel.isOpen()) {
                     topicsPanel.close();
@@ -4480,6 +4488,7 @@ public class ChatActivity extends BaseFragment implements
             headerItem.lazilyAddSubItem(rename_business_link, R.drawable.msg_edit, getString(R.string.Rename));
             trackRedHeaderItem(headerItem.lazilyAddSubItem(delete_business_link, R.drawable.msg_delete, getString(R.string.Delete)), true).setColors(Theme.getColor(Theme.key_text_RedRegular), Theme.getColor(Theme.key_text_RedRegular));
         }
+        if (headerItem != null && chatMode == MODE_DEFAULT) headerItem.lazilyAddSubItem(46003, R.drawable.settings_chat, getString(R.string.TetogramAppearance));
         if (headerItem != null && currentEncryptedChat == null && chatMode == MODE_DEFAULT) {
             headerItem.lazilyAddSubItem(46001, R.drawable.msg_delete, getString(R.string.TetogramDeletedMessages));
         }
@@ -21339,6 +21348,10 @@ public class ChatActivity extends BaseFragment implements
 
     @Override
     public void didReceivedNotification(int id, int account, final Object... args) {
+        if (id == NotificationCenter.tetogramAppearanceChanged) {
+            if ((int) args[0] == currentAccount && themeDelegate != null) themeDelegate.reloadTetogramAppearance();
+            return;
+        }
         if (id == NotificationCenter.messagesDidLoad) {
             didReceivedNotification_messagesDidLoad(id, account, args);
         } else {
@@ -30757,6 +30770,7 @@ public class ChatActivity extends BaseFragment implements
         AndroidUtilities.cancelRunOnUIThread(tetogramHistoryTick);
         AndroidUtilities.runOnUIThread(tetogramHistoryTick);
         super.onResume();
+        if (themeDelegate != null) themeDelegate.reloadTetogramAppearance();
         checkShowBlur(false);
         activityResumeTime = System.currentTimeMillis();
         if (openImport && getSendMessagesHelper().getImportingHistory(dialog_id) != null) {
@@ -44182,6 +44196,36 @@ public class ChatActivity extends BaseFragment implements
         private final HashMap<String, Drawable> currentDrawables = new HashMap<>();
         private final HashMap<String, Paint> currentPaints = new HashMap<>();
         private final Matrix actionMatrix = new Matrix();
+        private org.telegram.messenger.tetogram.AppearanceConfig.Resolved tetogramStyle = new org.telegram.messenger.tetogram.AppearanceConfig.Resolved();
+        private SparseIntArray tetogramColors = new SparseIntArray();
+        private Drawable tetogramWallpaper;
+
+        private org.telegram.messenger.tetogram.AppearanceConfig.Context tetogramContext() {
+            return new org.telegram.messenger.tetogram.AppearanceConfig.Context(arguments == null ? null : arguments.getString("tetogram_appearance_section"), arguments == null ? null : arguments.getString("tetogram_appearance_folder"), dialog_id, getTopicId());
+        }
+
+        public void reloadTetogramAppearance() {
+            if (parentThemeDelegate != null) return;
+            boolean had = !tetogramStyle.values.isEmpty();
+            tetogramStyle = org.telegram.messenger.tetogram.AppearanceStore.resolve(currentAccount, tetogramContext());
+            tetogramColors = org.telegram.messenger.tetogram.AppearanceRuntime.colors(tetogramStyle, isDark());
+            tetogramWallpaper = org.telegram.ui.tetogram.AppearanceBackgrounds.colors(tetogramStyle, isDark());
+            if (!tetogramStyle.values.isEmpty() || had) {
+                currentDrawables.clear(); currentPaints.clear();
+                if (!tetogramStyle.values.isEmpty() || chatTheme != null || backgroundDrawable != null || ownCompactResources) {
+                    Theme.createChatResources(ApplicationLoader.applicationContext, false); initDrawables(); initPaints();
+                }
+                if (contentView != null) {
+                    contentView.setBackgroundImage(getWallpaperDrawable(), isWallpaperMotion());
+                    contentView.invalidate(); updateVisibleRows();
+                }
+                ThemeBind.updateAll();
+            }
+        }
+
+        @Override public float getBubbleRadius(boolean outgoing) {
+            return Math.max(0, Math.min(32, tetogramStyle.number(outgoing ? "bubble.outRadius" : "bubble.inRadius", SharedConfig.bubbleRadius)));
+        }
 
         private SparseIntArray currentColors = new SparseIntArray();
         private SparseIntArray animatingColors;
@@ -44206,6 +44250,9 @@ public class ChatActivity extends BaseFragment implements
          */
         @Override
         public boolean isDark() {
+            String mode = tetogramStyle.get("mode");
+            if ("dark".equals(mode)) return true;
+            if ("light".equals(mode)) return false;
             return currentColors != null && currentColors.size() > 0 ? isDark : Theme.isCurrentThemeDark();
         }
 
@@ -44218,7 +44265,7 @@ public class ChatActivity extends BaseFragment implements
         private boolean ownCompactResources;
 
         private void updateCompactResources() {
-            if (parentThemeDelegate != null || chatTheme != null || wallpaper != null) return;
+            if (parentThemeDelegate != null || chatTheme != null || wallpaper != null || !tetogramStyle.values.isEmpty()) return;
             final boolean own = isCompactMode() && !SharedConfig.compactMode;
             if (!own && !ownCompactResources) return;
             ownCompactResources = own;
@@ -44261,6 +44308,8 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public int getColor(int key) {
+            int customIndex = tetogramColors.indexOfKey(key);
+            if (customIndex >= 0) return tetogramColors.valueAt(customIndex);
             if (animatingColors != null) {
                 int index = animatingColors.indexOfKey(key);
                 if (index >= 0) {
@@ -44297,6 +44346,8 @@ public class ChatActivity extends BaseFragment implements
         }
 
         public int getCurrentColor(int key, boolean ignoreAnimation) {
+            int customIndex = tetogramColors.indexOfKey(key);
+            if (customIndex >= 0) return tetogramColors.valueAt(customIndex);
             if (chatTheme == null && backgroundDrawable == null) {
                 return Theme.getColor(key);
             }
@@ -44358,7 +44409,7 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public Paint getPaint(String paintKey) {
-            return chatTheme != null || backgroundDrawable != null || ownCompactResources ? currentPaints.get(paintKey) : null;
+            return !tetogramStyle.values.isEmpty() || chatTheme != null || backgroundDrawable != null || ownCompactResources ? currentPaints.get(paintKey) : null;
         }
 
         public boolean isThemeChangeAvailable(boolean canEdit) {
@@ -44374,11 +44425,13 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public Drawable getWallpaperDrawable() {
+            if (tetogramWallpaper != null) return tetogramWallpaper;
             return backgroundDrawable != null ? backgroundDrawable : Theme.getCachedWallpaperNonBlocking();
         }
 
         @Override
         public boolean isWallpaperMotion() {
+            if (tetogramWallpaper != null) return false;
             return chatTheme != null ? false : Theme.isWallpaperMotion();
         }
 
@@ -44616,6 +44669,7 @@ public class ChatActivity extends BaseFragment implements
                     updateServiceMessageColor(1f);
                 }
             }
+            reloadTetogramAppearance();
         }
 
         private void initDrawables() {
@@ -45022,6 +45076,10 @@ public class ChatActivity extends BaseFragment implements
 
     private void updateBackground() {
         if (contentView == null || parentThemeDelegate != null) {
+            return;
+        }
+        if (themeDelegate.tetogramWallpaper != null) {
+            contentView.setBackgroundImage(themeDelegate.tetogramWallpaper, false);
             return;
         }
         if (themeDelegate.backgroundDrawable != null && contentView.getBackgroundImage() != null) {

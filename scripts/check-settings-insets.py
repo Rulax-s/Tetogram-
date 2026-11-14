@@ -39,7 +39,7 @@ class SettingsInsetsContracts(unittest.TestCase):
         self.assertRegex(navigation, r'fragment\.isSupportEdgeToEdge\(\) && fragment\.drawEdgeNavigationBar\(\)[\s\S]{0,150}fragment::onInsetsInternal')
 
     def test_all_custom_settings_inherit_shared_contract(self):
-        for name in ('LabsActivity', 'SectionsActivity', 'HistoryActivity', 'ExcludedChatsActivity'):
+        for name in ('LabsActivity', 'SectionsActivity', 'HistoryActivity', 'ExcludedChatsActivity', 'AppearanceActivity'):
             with self.subTest(screen=name):
                 screen = source('ui/tetogram/' + name + '.java')
                 self.assertIn('extends LabsPage', screen)

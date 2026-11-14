@@ -59,6 +59,7 @@ public final class SectionsActivity extends LabsPage {
   SectionConfig.Section s=config.section(sectionId);SectionConfig.Folder f=config.folders.get(folderId);
   if(s==null && f==null){items.add(UItem.asShadow(getString(R.string.TetogramSectionUnavailable)));return;}
   SectionConfig.Scope scope=s!=null?s:f;
+  button(items,getString(R.string.TetogramAppearance),()->presentFragment(new AppearanceActivity(currentAccount,s!=null?"section:"+s.id:"folder:"+f.id,s!=null?s.id:null,f!=null?f.id:null,0,0)));
   if(s!=null)items.add(UItem.asHeader(getString(R.string.TetogramSectionAppearance)));
   button(items,s!=null?s.name:f.name,()->input(getString(s!=null?R.string.TetogramSectionName:R.string.TetogramSectionFolderName),s!=null?s.name:f.name,name->{if(s!=null)s.name=name;else f.name=name;save();}));
   if(s!=null){

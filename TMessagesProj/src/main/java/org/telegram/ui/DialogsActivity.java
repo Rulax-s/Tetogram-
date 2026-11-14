@@ -8190,6 +8190,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             boolean canOpenInRightSlidingView = !(LocaleController.isRTL || searching || (AndroidUtilities.isTablet() && folderId != 0)) && LiteMode.isEnabled(LiteMode.FLAG_CHAT_FORUM_TWOCOLUMN) && !TMP_DISABLE_TOPICS_TWO_COLUMNS && communityId == 0;
             args.putInt("dialog_folder_id", folderId);
             args.putInt("dialog_filter_id", filterId);
+            if (!isGlobalSearch && message_id == 0 && isTetogramSectionList() && viewPages != null) {
+                for (ViewPage originPage : viewPages) if (originPage != null && originPage.dialogsAdapter == adapter) {
+                    if (tetogramSections != null && tetogramSections.section(tetogramSectionId) != null) args.putString("tetogram_appearance_section", tetogramSectionId);
+                    String originFolder = tetogramTabKey(originPage.selectedType);
+                    if (originFolder.startsWith("tg:") || originFolder.startsWith("local:")) args.putString("tetogram_appearance_folder", originFolder);
+                    break;
+                }
+            }
             if (AndroidUtilities.isTablet() && (!getMessagesController().isForum(dialogId) || !canOpenInRightSlidingView)) {
                 if (openedDialogId.dialogId == dialogId && (searchViewPager == null || adapter != searchViewPager.dialogsSearchAdapter)) {
                     if (getParentActivity() instanceof LaunchActivity) {

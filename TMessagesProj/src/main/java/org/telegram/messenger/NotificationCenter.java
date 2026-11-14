@@ -323,6 +323,7 @@ public class NotificationCenter {
     public static final int playerDidStartPlaying = totalEvents++;
     public static final int closeSearchByActiveAction = totalEvents++;
     public static final int messagePlayingSpeedChanged = totalEvents++;
+    public static final int tetogramAppearanceChanged = totalEvents++;
     public static final int screenStateChanged = totalEvents++;
     public static final int didClearDatabase = totalEvents++;
     public static final int voipServiceCreated = totalEvents++;

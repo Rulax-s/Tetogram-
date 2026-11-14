@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="TetogramAppearance">Оформление Tetogram</string>
+  <string name="TetogramAppearancePresets">Темы и пресеты</string>
+  <string name="TetogramAppearanceSimple">Простой редактор</string>
+  <string name="TetogramAppearanceAdvanced">Расширенный редактор</string>
+  <string name="TetogramAppearanceNativeThemes">Темы и обои Telegram</string>
+  <string name="TetogramAppearanceChat">Оформление чата или группы</string>
+  <string name="TetogramAppearanceSections">Оформление разделов</string>
+  <string name="TetogramAppearanceFolders">Оформление папок</string>
+  <string name="TetogramAppearanceEffects">Анимации и энергосбережение</string>
+  <string name="TetogramAppearanceReset">Вернуть наследуемое оформление</string>
+  <string name="TetogramAppearanceStorageError">Не удалось прочитать оформление. Сохранённый файл не перезаписан.</string>
+  <string name="TetogramAppearanceLocal">Локальное оформление видно только на этом устройстве. Темы Telegram и права групп работают отдельно.</string>
+  <string name="TetogramAppearanceCreatePreset">Создать пресет</string>
+  <string name="TetogramAppearancePresetName">Название пресета</string>
+  <string name="TetogramAppearanceBuiltins">Встроенные пресеты</string>
+  <string name="TetogramAppearanceUserPresets">Мои пресеты</string>
+  <string name="TetogramAppearanceDraft">Черновик предпросмотра. Цвета сохраняются только по кнопке «Применить». Отсутствующие значения наследуются от родителя или темы Telegram.</string>
+  <string name="TetogramAppearanceApply">Применить</string>
+  <string name="TetogramAppearanceUndo">Вернуть предыдущее значение</string>
+  <string name="TetogramAppearanceSavePreset">Сохранить как пресет</string>
+  <string name="TetogramAppearanceMode">Палитра предпросмотра</string>
+  <string name="TetogramAppearanceDark">Тёмная</string>
+  <string name="TetogramAppearanceLight">Светлая</string>
+  <string name="TetogramAppearanceExplicit">Задано вручную</string>
+  <string name="TetogramAppearanceInherited">Наследуется</string>
+  <string name="TetogramAppearanceInherit">Наследовать</string>
+  <string name="TetogramAppearanceInRadius">Радиус входящих сообщений (dp)</string>
+  <string name="TetogramAppearanceOutRadius">Радиус исходящих сообщений (dp)</string>
+  <string name="TetogramAppearanceInvalidValue">Значение недопустимо или находится вне поддерживаемого диапазона.</string>
+  <string name="TetogramAppearanceBackground">Фон переписки</string>
+  <string name="TetogramAppearanceIncoming">Фон входящих сообщений</string>
+  <string name="TetogramAppearanceOutgoing">Фон исходящих сообщений</string>
+  <string name="TetogramAppearanceIncomingText">Текст входящих сообщений</string>
+  <string name="TetogramAppearanceOutgoingText">Текст исходящих сообщений</string>
+  <string name="TetogramAppearanceDuplicate">Дублировать пресет</string>
+  <string name="TetogramAppearanceDeletePreset">Удалить этот пресет? Применённое оформление и другие пресеты сохранятся.</string>
+  <string name="TetogramAppearanceResetConfirm">Сбросить все локальные переопределения оформления этого аккаунта? Пресеты, разделы, иконки и история сообщений сохранятся.</string>
+  <string name="TetogramAppearanceConflict">Не удалось сохранить изменения. Возможно, изменился аккаунт или сохранённая ревизия. Откройте редактор заново для загрузки актуальных настроек.</string>
+  <string name="TetogramPreviewName">Пример чата</string>
+  <string name="TetogramPreviewMessage">Это безопасное сообщение предпросмотра 👋</string>
+  <string name="TetogramPreviewAnswer">Здесь отображается стиль вашего сообщения.</string>
+  <string name="TetogramAppearanceDisplayMode">Светлый или тёмный режим</string>
+</resources>

@@ -38,7 +38,7 @@ public final class AppearanceConfig {
     public static final class Resolved {
         public final LinkedHashMap<String, String> values = new LinkedHashMap<>(), origins = new LinkedHashMap<>();
         public String get(String key) { return values.get(key); }
-        public float number(String key, float fallback) { try { return Float.parseFloat(values.get(key)); } catch (Exception e) { return fallback; } }
+        public float number(String key, float fallback) { try { float v = Float.parseFloat(values.get(key)); return Float.isNaN(v) || Float.isInfinite(v) ? fallback : v; } catch (Exception e) { return fallback; } }
         public Integer color(boolean dark, String name) { try { String s = get((dark ? "dark." : "light.") + name); return s == null ? null : Integer.valueOf(s); } catch (Exception e) { return null; } }
     }
     public Style edit(String scope) { validateScope(scope); return scopes.computeIfAbsent(scope, k -> new Style()); }
