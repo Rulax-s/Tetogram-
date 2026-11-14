@@ -16,13 +16,19 @@ public final class AppearancePreview extends FrameLayout {
     public long positionMs(){return media==null?0:media.positionMs();}
     public void setResumed(boolean value){if(media!=null)media.setResumed(value);}
     public AppearancePreview(Context context,int account,AppearanceConfig.Resolved style,boolean dark,boolean dialogs){
-        super(context);LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);Theme.createChatResources(context,false);Theme.createDialogsResources(context);
+        this(context,account,style,dark,dialogs?1:0);
+    }
+    public AppearancePreview(Context context,int account,AppearanceConfig.Resolved style,boolean dark,int surface){
+        super(context);boolean dialogs=surface==1;LinearLayout content=new LinearLayout(context);content.setOrientation(LinearLayout.VERTICAL);Theme.createChatResources(context,false);Theme.createDialogsResources(context);
         AppearanceResources resources=new AppearanceResources(style,dark,null);
         setBackground( AppearanceBackgrounds.colors(style,dark));if(getBackground()==null)setBackgroundColor(resources.getColor(dialogs?Theme.key_windowBackgroundWhite:Theme.key_chat_wallpaper));
         String mediaOrigin=style.origins.get("wallpaper.file");boolean rowOnly=dialogs&&mediaOrigin!=null&&(mediaOrigin.startsWith("chat:")||mediaOrigin.startsWith("topic:"));
         if(!rowOnly&&AppearanceConfig.isMediaName(style.get("wallpaper.file"))){media=new AppearanceMediaView(context);media.configure(UserConfig.getInstance(account).getClientUserId(),style);addView(media,LayoutHelper.createFrame(-1,-1));}else media=null;
         addView(content,LayoutHelper.createFrame(-1,-2));
-        if(dialogs){for(int i=0;i<2;i++){DialogCell cell=new DialogCell(null,context,false,false,account,resources);DialogCell.CustomDialog d=new DialogCell.CustomDialog();cell.setTetogramAppearance(style);d.id=i+1;d.name=LocaleController.getString(R.string.TetogramPreviewName);d.message=LocaleController.getString(R.string.TetogramPreviewMessage);d.date=1700000000;d.unread_count=i==0?3:0;cell.setDialog(d);content.addView(cell,new LinearLayout.LayoutParams(-1,AndroidUtilities.dp(78)));cell.setTetogramAppearance(style);}}
+        if(surface==2){
+            org.telegram.ui.ProfileActivity2.AvatarImage avatar=new org.telegram.ui.ProfileActivity2.AvatarImage(context,resources);avatar.avatarDrawable.setInfo(0,"Tetogram","Preview");avatar.imageReceiver.setImageBitmap(avatar.avatarDrawable);avatar.setRelativeScrollTop(0);avatar.setExpandedHeight(AndroidUtilities.dp(220));addView(avatar,LayoutHelper.createFrame(-1,220));
+            SimpleTextView title=new SimpleTextView(context);title.setText("Tetogram");title.setTextSize(22);title.setTextColor(resources.getColor(Theme.key_windowBackgroundWhiteBlackText));addView(title,LayoutHelper.createFrame(-1,36,android.view.Gravity.TOP,120,12,20,0));
+        }else if(dialogs){for(int i=0;i<2;i++){DialogCell cell=new DialogCell(null,context,false,false,account,resources);DialogCell.CustomDialog d=new DialogCell.CustomDialog();cell.setTetogramAppearance(style);d.id=i+1;d.name=LocaleController.getString(R.string.TetogramPreviewName);d.message=LocaleController.getString(R.string.TetogramPreviewMessage);d.date=1700000000;d.unread_count=i==0?3:0;cell.setDialog(d);content.addView(cell,new LinearLayout.LayoutParams(-1,AndroidUtilities.dp(78)));cell.setTetogramAppearance(style);}}
         else for(int i=0;i<2;i++){
             TLRPC.TL_message m=new TLRPC.TL_message();m.id=i+1;m.date=1700000000+i*60;m.message=LocaleController.getString(i==0?R.string.TetogramPreviewMessage:R.string.TetogramPreviewAnswer);m.dialog_id=1;m.out=i==1;m.flags=259;m.media=new TLRPC.TL_messageMediaEmpty();m.peer_id=new TLRPC.TL_peerUser();m.peer_id.user_id=1;m.from_id=new TLRPC.TL_peerUser();m.from_id.user_id=m.out?UserConfig.getInstance(account).getClientUserId():1;
             MessageObject object=new MessageObject(account,m,true,false);object.eventId=1;

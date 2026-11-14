@@ -96,4 +96,6 @@
     <string name="TetogramAppearanceColorFormat">Форматы: #AARRGGBB, RGB(0–255,0–255,0–255,альфа 0–1), HSV(тон 0–360,насыщенность 0–100,яркость 0–100) или HSL(тон,насыщенность,светлота).</string>
     <string name="TetogramAppearanceFavoriteColor">Сохранить любимый цвет</string>
     <string name="TetogramAppearanceRestoreContrast">Восстановить контрастность текста</string>
+    <string name="TetogramAppearanceProfile">Оформление профиля (локальный баннер)</string>
+    <string name="TetogramAppearanceBannerHeight">Высота баннера</string>
 </resources>

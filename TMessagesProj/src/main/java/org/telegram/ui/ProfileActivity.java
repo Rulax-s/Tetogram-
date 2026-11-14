@@ -2084,8 +2084,22 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         scrimBlur3Factory.setLinkedViewsRef(new ReferenceList<>());
     }
 
+    private org.telegram.ui.tetogram.AppearanceBanner tetogramBanner;
+    private boolean tetogramBannerDestroyed;
+    private void tetogramUpdateBanner(){
+        if(tetogramBannerDestroyed||!(fragmentView instanceof FrameLayout)||topView==null||userId!=getUserConfig().getClientUserId())return;
+        org.telegram.messenger.tetogram.AppearanceConfig.Resolved style=org.telegram.messenger.tetogram.AppearanceStore.snapshot(currentAccount).resolveProfile(userId);
+        boolean enabled=false;for(String key:style.values.keySet())if(key.startsWith("banner.")||key.startsWith("light.banner.")||key.startsWith("dark.banner.")){enabled=true;break;}
+        FrameLayout parent=(FrameLayout)fragmentView;
+        if(!enabled){if(tetogramBanner!=null){tetogramBanner.setResumed(false);parent.removeView(tetogramBanner);tetogramBanner=null;}return;}
+        if(tetogramBanner==null){tetogramBanner=new org.telegram.ui.tetogram.AppearanceBanner(parent.getContext());parent.addView(tetogramBanner,parent.indexOfChild(topView)+1,LayoutHelper.createFrame(-1,280));}
+        FrameLayout.LayoutParams bannerParams=(FrameLayout.LayoutParams)tetogramBanner.getLayoutParams();int bannerHeight=dp(Math.max(120,Math.min(480,style.number("banner.height",280))));if(bannerParams.height!=bannerHeight){bannerParams.height=bannerHeight;tetogramBanner.setLayoutParams(bannerParams);}
+        tetogramBanner.configure(userId,style);tetogramBanner.setResumed(!isPaused);parent.invalidate();
+    }
+
     @Override
     public boolean onFragmentCreate() {
+        NotificationCenter.getGlobalInstance().addObserver(this,NotificationCenter.tetogramAppearanceChanged);
         userId = arguments.getLong("user_id", 0);
         chatId = arguments.getLong("chat_id", 0);
         topicId = arguments.getLong("topic_id", 0);
@@ -2361,6 +2375,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
     @Override
     public void onFragmentDestroy() {
+        tetogramBannerDestroyed=true;
+        NotificationCenter.getGlobalInstance().removeObserver(this,NotificationCenter.tetogramAppearanceChanged);
+        if(tetogramBanner!=null)tetogramBanner.setResumed(false);
         super.onFragmentDestroy();
         if (sharedMediaLayout != null) {
             sharedMediaLayout.onDestroy();
@@ -3446,6 +3463,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
             @Override
             protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+                if(child==tetogramBanner){float header=(ActionBar.getCurrentActionBarHeight()+(actionBar.getOccupyStatusBar()?AndroidUtilities.statusBarHeight:0)+extraHeight+searchTransitionOffset)*(1f-mediaHeaderAnimationProgress);tetogramBanner.viewport(header,1f-headerBlurFactor);}
                 if (pinchToZoomHelper.isInOverlayMode() && (child == avatarContainer2 || child == actionBar || child == writeButton)) {
                     return true;
                 }
@@ -5193,6 +5211,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         topView.setBackgroundColorId(peerColor, false);
         topView.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundGray));
         frameLayout.addView(topView);
+        tetogramUpdateBanner();
 
         animatedStatusView = new AnimatedStatusView(context, 20, 60);
         animatedStatusView.setPivotX(dp(30));
@@ -5897,6 +5916,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 if (isUnderGlass(topView, p, root)) {
                     Blur3Utils.captureRelativeParent((canvas, position) -> topView.drawForCapture(canvas), c, p, topView, root);
                 }
+                if(tetogramBanner!=null)Blur3Utils.captureRelativeParent(tetogramBanner,c,p,tetogramBanner,root);
                 // the rows' cards are the sections of the list, the renderer of its children does not draw them
                 Blur3Utils.captureRelativeParent(listView::captureSectionsBackgrounds, c, p, listView, root);
                 listViewCapture.capture(c, p);
@@ -9298,6 +9318,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     @SuppressWarnings("unchecked")
     @Override
     public void didReceivedNotification(int id, int account, final Object... args) {
+        if(id==NotificationCenter.tetogramAppearanceChanged){if(args.length>0&&((Integer)args[0]==currentAccount||(Integer)args[0]==-1))tetogramUpdateBanner();return;}
         if (id == NotificationCenter.uploadStoryEnd || id == NotificationCenter.chatWasBoostedByUser) {
             checkCanSendStoryForPosting();
         } else if (id == NotificationCenter.updateInterfaces) {
@@ -9810,6 +9831,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onResume() {
         super.onResume();
+        if(userId==getUserConfig().getClientUserId())org.telegram.messenger.tetogram.AppearanceStore.load(currentAccount,(ok,c)->{if(ok&&fragmentView!=null&&getParentActivity()!=null)tetogramUpdateBanner();});
+        if(tetogramBanner!=null)tetogramBanner.setResumed(true);
         if (sharedMediaLayout != null) {
             sharedMediaLayout.onResume();
         }
@@ -9859,6 +9882,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onPause() {
         super.onPause();
+        if(tetogramBanner!=null)tetogramBanner.setResumed(false);
         if (undoView != null) {
             undoView.hide(true, 0);
         }

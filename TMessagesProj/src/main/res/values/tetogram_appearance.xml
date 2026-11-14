@@ -96,4 +96,6 @@
     <string name="TetogramAppearanceColorFormat">Use #AARRGGBB, RGB(0–255,0–255,0–255,alpha 0–1), HSV(hue 0–360,saturation 0–100,value 0–100) or HSL(hue,saturation,lightness).</string>
     <string name="TetogramAppearanceFavoriteColor">Save favorite color</string>
     <string name="TetogramAppearanceRestoreContrast">Restore readable text colors</string>
+    <string name="TetogramAppearanceProfile">Profile appearance (local banner)</string>
+    <string name="TetogramAppearanceBannerHeight">Banner height</string>
 </resources>
