@@ -18,6 +18,7 @@ public final class AppearanceStore {
     public static File directory(long uid) { return new File(ApplicationLoader.getFilesDirFixed(), "tetogram_appearance/" + AppearanceConfig.accountDirectory(uid)); }
     public static AppearanceConfig snapshot(int account) { AppearanceConfig c=CACHE.get(owner(account));return c==null?new AppearanceConfig():c.copy(); }
     public static AppearanceConfig.Resolved resolve(int account,AppearanceConfig.Context context) { AppearanceConfig c=CACHE.get(owner(account));return c==null?new AppearanceConfig.Resolved():c.resolve(context); }
+    public static AppearanceConfig.Resolved resolveOwner(long uid,AppearanceConfig.Context context) { AppearanceConfig c=CACHE.get(uid);return c==null?new AppearanceConfig.Resolved():c.resolve(context); }
     static void io(Runnable task) { IO.postRunnable(task); }
     static java.util.Set<String> references(long uid) { AppearanceConfig c=CACHE.get(uid);return c==null?java.util.Collections.emptySet():c.mediaReferences(); }
     public static boolean loaded(int account) { return CACHE.containsKey(owner(account)); }

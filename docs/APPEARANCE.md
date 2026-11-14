@@ -61,3 +61,11 @@ DialogsActivity публикует стабильный ResourcesProvider тек
 Native-table access для draft preview обходит уже применённые global overrides, поэтому Reset виден до Apply. Противоположная day/night base palette загружается на themeQueue; не выполняется чтение assets в callback рисования. Server Telegram theme остаётся fallback, local mode не вызывает глобальную смену темы из другого чата.
 
 ForumUtilities/TopicsFragment передают origin только при переходе в тот же dialog. Ссылка на другой чат не получает случайный section/folder origin.
+
+### Кружочки разделов
+
+Палитры section.background/activeBackground/text/outline/activeOutline/badge/badgeText и section.outlineWidth применяются к существующему SectionCircle. Каждый кружочек разрешает оформление по собственным UID и section UUID, независимо от открытого раздела. Временный раздел наследует только общую палитру; пользовательская конфигурация разделов не изменяется. Предпросмотр использует тот же компонент. Android UI NOT RUN.
+
+### Цвета
+
+В редактор добавлены HEX ARGB, RGB(A), HSV и HSL с проверкой диапазонов и конечных значений, копирование цвета, 12 любимых и 12 последних цветов в draft/versioned document. Простой режим автоматически подбирает контрастный текст при изменении основных поверхностей; расширенный сохраняет ручные значения. Отдельное действие восстанавливает контраст основных текстовых ролей текущей палитры. Это не гарантия читаемости всех произвольных сочетаний native Theme keys. Проверки преобразований и alpha compositing — JVM; Android picker/визуальное оформление NOT RUN.

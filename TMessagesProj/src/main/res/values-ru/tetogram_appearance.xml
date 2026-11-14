@@ -83,4 +83,17 @@
   <string name="TetogramAppearanceOutlineColor">Цвет контура строки</string>
   <string name="TetogramAppearanceSeparators">Показывать разделители строк чатов</string>
   <string name="TetogramAppearanceRowImageOnly">Для отдельного чата этот экран оформляет его строку в списке. Фон строки использует изображение; от видеопресета отображается статичная обложка без отдельного декодера для каждой строки. Для обоев переписки переключите предпросмотр на чат.</string>
+    <string name="TetogramAppearanceCircleStyle">Оформление кружочка раздела</string>
+    <string name="TetogramAppearanceCircleBackground">Фон кружочка</string>
+    <string name="TetogramAppearanceCircleActive">Фон выбранного кружочка</string>
+    <string name="TetogramAppearanceCircleText">Цвет значка и текста</string>
+    <string name="TetogramAppearanceCircleOutline">Цвет обводки</string>
+    <string name="TetogramAppearanceCircleActiveOutline">Обводка выбранного кружочка</string>
+    <string name="TetogramAppearanceCircleBadge">Фон счётчика непрочитанных</string>
+    <string name="TetogramAppearanceCircleBadgeText">Текст счётчика непрочитанных</string>
+    <string name="TetogramAppearanceColorPicker">Цветовой круг</string>
+    <string name="TetogramAppearanceColorInput">Ввести HEX / RGB / HSV / HSL</string>
+    <string name="TetogramAppearanceColorFormat">Форматы: #AARRGGBB, RGB(0–255,0–255,0–255,альфа 0–1), HSV(тон 0–360,насыщенность 0–100,яркость 0–100) или HSL(тон,насыщенность,светлота).</string>
+    <string name="TetogramAppearanceFavoriteColor">Сохранить любимый цвет</string>
+    <string name="TetogramAppearanceRestoreContrast">Восстановить контрастность текста</string>
 </resources>

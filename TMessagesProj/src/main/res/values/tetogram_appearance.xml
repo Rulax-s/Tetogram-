@@ -83,4 +83,17 @@
   <string name="TetogramAppearanceOutlineColor">Row outline color</string>
   <string name="TetogramAppearanceSeparators">Show chat row separators</string>
   <string name="TetogramAppearanceRowImageOnly">For a single chat, this surface styles its row in the chat list. Row backgrounds use images; a video preset uses its static cover, without a decoder for each row. Switch to Chat preview to edit the conversation wallpaper.</string>
+    <string name="TetogramAppearanceCircleStyle">Section button appearance</string>
+    <string name="TetogramAppearanceCircleBackground">Button background</string>
+    <string name="TetogramAppearanceCircleActive">Selected button background</string>
+    <string name="TetogramAppearanceCircleText">Icon and emoji color</string>
+    <string name="TetogramAppearanceCircleOutline">Outline color</string>
+    <string name="TetogramAppearanceCircleActiveOutline">Selected outline color</string>
+    <string name="TetogramAppearanceCircleBadge">Unread badge background</string>
+    <string name="TetogramAppearanceCircleBadgeText">Unread badge text</string>
+    <string name="TetogramAppearanceColorPicker">Color wheel</string>
+    <string name="TetogramAppearanceColorInput">Enter HEX / RGB / HSV / HSL</string>
+    <string name="TetogramAppearanceColorFormat">Use #AARRGGBB, RGB(0–255,0–255,0–255,alpha 0–1), HSV(hue 0–360,saturation 0–100,value 0–100) or HSL(hue,saturation,lightness).</string>
+    <string name="TetogramAppearanceFavoriteColor">Save favorite color</string>
+    <string name="TetogramAppearanceRestoreContrast">Restore readable text colors</string>
 </resources>
