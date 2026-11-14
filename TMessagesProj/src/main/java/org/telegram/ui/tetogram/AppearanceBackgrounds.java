@@ -14,7 +14,7 @@ public final class AppearanceBackgrounds {
         if(second==null || second==0)return finish(new ColorDrawable(first),r);
         Integer third=r.color(dark,"chat_wallpaper_gradient_to2"),fourth=r.color(dark,"chat_wallpaper_gradient_to3");
         second=dim(second,dim);if(third!=null)third=dim(third,dim);if(fourth!=null)fourth=dim(fourth,dim);
-        int angle=Math.round(r.number("wallpaper.angle",45));
+        int angle=((Math.round(r.number("wallpaper.angle",45))%360)+360)%360;
         if("true".equals(r.get("wallpaper.gradientMotion"))&&!"false".equals(r.get("wallpaper.animate"))&&SectionMenu.animations(org.telegram.messenger.ApplicationLoader.applicationContext))return finish(new Motion(first,second,third==null?first:third,fourth==null?second:fourth,angle),r);
         int[] stops=third==null?new int[]{first,second}:fourth==null?new int[]{first,second,third}:new int[]{first,second,third,fourth};
         return finish(new Linear(stops,angle),r);

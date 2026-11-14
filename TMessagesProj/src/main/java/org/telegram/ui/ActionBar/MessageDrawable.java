@@ -69,6 +69,8 @@ public class MessageDrawable extends Drawable {
     private int[] currentShadowDrawableRadius = new int[]{-1, -1, -1, -1};
     private final long[] shadowStyleRevision=new long[4];
     private final long[][] backgroundStyleRevision=new long[4][4];
+    private static final java.util.concurrent.atomic.AtomicLong APPEARANCE_IDS=new java.util.concurrent.atomic.AtomicLong();
+    private final long appearanceOwnerId=APPEARANCE_IDS.incrementAndGet();
     private static final String[] APPEARANCE_CORNERS={"TopLeft","TopRight","BottomLeft","BottomRight"};
     private final Paint appearanceStroke=new Paint(Paint.ANTI_ALIAS_FLAG);
     private long transitionStyleRevision;
@@ -649,8 +651,8 @@ public class MessageDrawable extends Drawable {
         boolean invalidatePath;
         if (pathDrawCacheParams != null) {
             path = pathDrawCacheParams.path;
-            invalidatePath = pathDrawCacheParams.invalidatePath(bounds, drawFullBottom, drawFullTop) || pathDrawCacheParams.appearanceOwner != this || pathDrawCacheParams.appearanceRevision != appearanceRevision();
-            pathDrawCacheParams.appearanceOwner=this;pathDrawCacheParams.appearanceRevision=appearanceRevision();
+            invalidatePath = pathDrawCacheParams.invalidatePath(bounds, drawFullBottom, drawFullTop) || pathDrawCacheParams.appearanceOwner != appearanceOwnerId || pathDrawCacheParams.appearanceRevision != appearanceRevision();
+            pathDrawCacheParams.appearanceOwner=appearanceOwnerId;pathDrawCacheParams.appearanceRevision=appearanceRevision();
         } else {
             path = this.path;
             invalidatePath = true;
@@ -704,8 +706,8 @@ public class MessageDrawable extends Drawable {
         boolean invalidatePath;
         if (pathDrawCacheParams != null) {
             path = pathDrawCacheParams.path;
-            invalidatePath = pathDrawCacheParams.invalidatePath(bounds, drawFullBottom, drawFullTop) || pathDrawCacheParams.appearanceOwner != this || pathDrawCacheParams.appearanceRevision != appearanceRevision();
-            pathDrawCacheParams.appearanceOwner=this;pathDrawCacheParams.appearanceRevision=appearanceRevision();
+            invalidatePath = pathDrawCacheParams.invalidatePath(bounds, drawFullBottom, drawFullTop) || pathDrawCacheParams.appearanceOwner != appearanceOwnerId || pathDrawCacheParams.appearanceRevision != appearanceRevision();
+            pathDrawCacheParams.appearanceOwner=appearanceOwnerId;pathDrawCacheParams.appearanceRevision=appearanceRevision();
         } else {
             path = this.path;
             invalidatePath = true;
@@ -920,7 +922,7 @@ public class MessageDrawable extends Drawable {
 
     public static class PathDrawParams {
         Path path = new Path();
-        private MessageDrawable appearanceOwner;
+        private long appearanceOwner;
         private long appearanceRevision;
         Rect lastRect = new Rect();
         boolean lastDrawFullTop;
