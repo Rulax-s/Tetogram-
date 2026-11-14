@@ -553,6 +553,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private final ArrayList<String> tetogramTabs=new ArrayList<>();
     private SectionMenu tetogramSectionMenu;
     public boolean isTetogramSectionList() { return !onlySelect && initialDialogsType==DIALOGS_TYPE_DEFAULT && folderId==0 && communityId==0 && !inPreviewMode && TextUtils.isEmpty(searchString); }
+    /** Presentation eligibility is independent from section filtering; archive keeps its native dialog list. */
+    public boolean isTetogramAppearanceList() { return !onlySelect && initialDialogsType==DIALOGS_TYPE_DEFAULT && (folderId==0||folderId==1) && communityId==0 && !inPreviewMode && TextUtils.isEmpty(searchString); }
     public boolean isTetogramUnreadSection(){return isTetogramSectionList() && SectionUnreadPolicy.SYSTEM_ID.equals(tetogramSectionId);}
     public void leaveTetogramUnreadSection(){
         tetogramReadSections();if(tetogramSections==null)return;
@@ -670,7 +672,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         @Override public boolean isDark() { return tetogramListColors == null ? Theme.isCurrentThemeDark() : tetogramListColors.isDark(); }
     };
     @Override public Theme.ResourcesProvider getResourceProvider() {
-        return isTetogramSectionList() && tetogramListProvider != null ? tetogramListProvider : super.getResourceProvider();
+        return isTetogramAppearanceList() && tetogramListProvider != null ? tetogramListProvider : super.getResourceProvider();
     }
     public org.telegram.messenger.tetogram.AppearanceConfig.Context tetogramAppearanceContext(DialogsAdapter adapter,long dialog) {
         String section = null, folder = null;
@@ -683,7 +685,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         return new org.telegram.messenger.tetogram.AppearanceConfig.Context(section, folder, dialog, 0);
     }
     private void tetogramRefreshAppearance() {
-        if (!isTetogramSectionList() || !(fragmentView instanceof ContentView)) return;
+        if (!isTetogramAppearanceList() || !(fragmentView instanceof ContentView)) return;
         org.telegram.messenger.tetogram.AppearanceConfig.Resolved raw = org.telegram.messenger.tetogram.AppearanceStore.resolve(currentAccount, tetogramAppearanceContext(null,0));
         org.telegram.messenger.tetogram.AppearanceConfig.Resolved style = org.telegram.messenger.tetogram.AppearanceSurfaces.list(raw);
         boolean dark = org.telegram.messenger.tetogram.AppearanceConfig.GLOBAL.equals(style.origins.get("mode")) ? Theme.isCurrentThemeDark() : "dark".equals(style.get("mode")) || !"light".equals(style.get("mode")) && Theme.isCurrentThemeDark();
@@ -14376,7 +14378,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onThemeColorsChanged() {
         try {
-            if (tetogramListStyle != null && isTetogramSectionList()) {
+            if (tetogramListStyle != null && isTetogramAppearanceList()) {
                 boolean dark = org.telegram.messenger.tetogram.AppearanceConfig.GLOBAL.equals(tetogramListStyle.origins.get("mode")) ? Theme.isCurrentThemeDark() : "dark".equals(tetogramListStyle.get("mode")) || !"light".equals(tetogramListStyle.get("mode")) && Theme.isCurrentThemeDark();
                 if (dark != tetogramListDark) { tetogramRefreshAppearance(); return; }
             }
