@@ -531,8 +531,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private String tetogramPreviousSection="";
     private final Runnable tetogramBadgeTick=new Runnable(){@Override public void run(){
         if(!isTetogramSectionList() || isPaused)return;
-        tetogramRefreshBadgesNow();
-        if(isTetogramUnreadSection() && viewPages!=null && viewPages[0]!=null && viewPages[0].dialogsAdapter!=null && !dialogsListFrozen)viewPages[0].dialogsAdapter.updateList(null);
+        tetogramRefreshRules();
         AndroidUtilities.runOnUIThread(this,15000);
     }};
     private final Runnable tetogramRulesChanged=new Runnable(){@Override public void run(){
@@ -566,7 +565,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             id->{if(owner==getUserConfig().getClientUserId())tetogramChooseSection(id);},
             id->{if(owner!=getUserConfig().getClientUserId())return;tetogramReadSections();if(!SectionMenuState.canEdit(owner,getUserConfig().getClientUserId(),tetogramSections,id))return;if(SectionUnreadPolicy.SYSTEM_ID.equals(id))presentFragment(new SectionsActivity(currentAccount));else if(tetogramSections!=null && tetogramSections.section(id)!=null)presentFragment(new SectionsActivity(currentAccount,id));});
         FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)tetogramSectionMenu.getLayoutParams();int available=contentView==null?AndroidUtilities.displaySize.y:contentView.getHeight();
-        lp.height=Math.min(dp(56*tetogramSectionMenu.entries()+8),Math.max(dp(56),Math.min((int)(AndroidUtilities.displaySize.y*.55f),available-dp(160)-navigationBarHeight-additionFloatingButtonOffset)));tetogramSectionMenu.setLayoutParams(lp);
+        int height=Math.min(dp(56*tetogramSectionMenu.entries()+8),Math.max(dp(56),Math.min((int)(AndroidUtilities.displaySize.y*.55f),available-dp(160)-navigationBarHeight-additionFloatingButtonOffset)));if(lp.height!=height){lp.height=height;tetogramSectionMenu.setLayoutParams(lp);}
         if(tetogramSectionMenu.entries()==0)tetogramSectionMenu.collapse();
     }
     private void tetogramRefreshBadgesNow(){
