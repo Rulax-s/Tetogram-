@@ -48,7 +48,7 @@ public final class AppearanceStore {
                 if(old!=null && old.revision==expectedRevision){
                     appearanceChanged=!old.sameScopes(copy);AppearanceConfig.Style before=old.scopes.get(AppearanceConfig.GLOBAL),after=copy.scopes.get(AppearanceConfig.GLOBAL);modeChanged=!java.util.Objects.equals(before==null?null:before.values.get("mode"),after==null?null:after.values.get("mode"));
                     AtomicFile file=new AtomicFile(new File(directory(uid),"appearance.properties"));FileOutputStream out=null;
-                    try{if(!directory(uid).isDirectory() && !directory(uid).mkdirs())throw new IOException("Appearance storage unavailable");copy.revision=old.revision+1;byte[] data=copy.encode().getBytes(StandardCharsets.UTF_8);out=file.startWrite();out.write(data);if(uid!=owner(account))throw new IOException("Account changed");file.finishWrite(out);out=null;CACHE.put(uid,copy);AppearanceMedia.cleanup(uid,copy);ok=true;}
+                    try{if(!directory(uid).isDirectory() && !directory(uid).mkdirs())throw new IOException("Appearance storage unavailable");copy.revision=old.revision+1;byte[] data=copy.encode().getBytes(StandardCharsets.UTF_8);out=file.startWrite();out.write(data);if(uid!=owner(account))throw new IOException("Account changed");file.finishWrite(out);out=null;CACHE.put(uid,copy);ok=true;try{AppearanceMedia.cleanup(uid,copy);}catch(Exception ignored){FileLog.e("Tetogram appearance cleanup deferred");}}
                     catch(Exception e){if(out!=null)file.failWrite(out);FileLog.e("Tetogram appearance save failed");}
                 }
             }

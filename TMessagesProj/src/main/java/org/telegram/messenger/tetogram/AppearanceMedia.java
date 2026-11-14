@@ -29,7 +29,7 @@ public final class AppearanceMedia {
             }
             asset=new Asset();asset.video=video;
             if(video){readVideo(input,asset);asset.file=input;input=null;}
-            else{Bitmap bitmap=ImageLoader.loadBitmap(input.getAbsolutePath(),null,2048,2048,true);output=fresh(owner,bitmap.hasAlpha()?".png":".jpg");try{writeBitmap(output,bitmap);asset.width=bitmap.getWidth();asset.height=bitmap.getHeight();}finally{if(bitmap!=null)bitmap.recycle();}asset.file=output;output=null;}
+            else{Bitmap bitmap=ImageLoader.loadBitmap(input.getAbsolutePath(),null,2048,2048,true);if(bitmap==null)throw new IOException("Image decoder failed");output=fresh(owner,bitmap.hasAlpha()?".png":".jpg");try{writeBitmap(output,bitmap);asset.width=bitmap.getWidth();asset.height=bitmap.getHeight();}finally{if(bitmap!=null)bitmap.recycle();}asset.file=output;output=null;}
             check(job,owner,account);
         }catch(Exception|OutOfMemoryError e){if(asset!=null)discard(asset.file);asset=null;FileLog.e("Tetogram appearance media import failed");}
         finally{discard(input);discard(output);}
