@@ -137,7 +137,7 @@ public final class SectionsActivity extends LabsPage {
     ok=SectionsStore.updateIcon(currentAccount,owner,sectionId,type,value,image);
    }}catch(Exception e){}
    if(ok)SectionIcons.pending(file,false);
-   final boolean saved=ok;AndroidUtilities.runOnUIThread(()->{savingIcon=false;if(!valid()){SectionIcons.pending(file,false);if(!saved)SectionIcons.discard(file);return;}if(saved){SectionIcons.pending(file,false);if(pendingImage==file)pendingImage=null;draftType=draftValue=draftImage=null;refresh();}else iconError();});
+   final boolean saved=ok;AndroidUtilities.runOnUIThread(()->{savingIcon=false;if(saved && pendingImage==file)pendingImage=null;if(!valid()){SectionIcons.pending(file,false);if(!saved)SectionIcons.discard(file);return;}if(saved){SectionIcons.pending(file,false);if(pendingImage==file)pendingImage=null;draftType=draftValue=draftImage=null;refresh();}else iconError();});
   });
  }
  @Override public void onFragmentDestroy(){destroyed=true;iconEdit.cancel();SectionIcons.pending(inputImage,false);SectionIcons.discard(inputImage);if(!savingIcon){SectionIcons.pending(pendingImage,false);SectionIcons.discard(pendingImage);}if(iconUpdater!=null){iconUpdater.setDelegate(null);iconUpdater.parentFragment=null;iconUpdater.clear();iconUpdater=null;}super.onFragmentDestroy();}
