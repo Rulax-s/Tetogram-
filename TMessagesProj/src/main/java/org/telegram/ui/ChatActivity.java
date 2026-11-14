@@ -44227,6 +44227,7 @@ public class ChatActivity extends BaseFragment implements
             }
         }
 
+        @Override public Integer getAppearanceColor(String key) { return tetogramStyle.color(isDark(),key); }
         @Override public float getBubbleRadius(boolean outgoing) {
             return Math.max(0, Math.min(32, tetogramStyle.number(outgoing ? "bubble.outRadius" : "bubble.inRadius", SharedConfig.bubbleRadius)));
         }

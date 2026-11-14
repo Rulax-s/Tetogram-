@@ -138,6 +138,12 @@ public final class AppearanceActivity extends LabsPage {
             for(int index=0;index<circleKeys.length;index++){String key=circleKeys[index];Integer value=r.color(previewDark,key);button(items,getString(circleLabels[index]),()->colorDialog(key,value==null?Theme.getColor(Theme.key_chats_actionBackground):value));}
             number(items,"section.outlineWidth",getString(R.string.TetogramAppearanceOutlineWidth),0,6);
         }
+        for(int stop=1;stop<=3;stop++){
+            final String incoming="bubble.inGradient"+stop,outgoing="chat_outBubbleGradient"+stop;
+            Integer in=r.color(previewDark,incoming),out=r.color(previewDark,outgoing);
+            button(items,getString(R.string.TetogramAppearanceInGradient)+" "+stop,()->colorDialog(incoming,in==null?Theme.getColor(Theme.key_chat_inBubble):in));
+            button(items,getString(R.string.TetogramAppearanceOutGradient)+" "+stop,()->colorDialog(outgoing,out==null?Theme.getColor(Theme.key_chat_outBubble):out));
+        }
         number(items,"bubble.inRadius",getString(R.string.TetogramAppearanceInRadius),0,32);
         number(items,"bubble.outRadius",getString(R.string.TetogramAppearanceOutRadius),0,32);
         button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=new AppearanceConfig.Style();refresh();});

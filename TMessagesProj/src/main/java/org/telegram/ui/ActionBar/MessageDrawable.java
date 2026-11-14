@@ -91,6 +91,7 @@ public class MessageDrawable extends Drawable {
 
     Drawable transitionDrawable;
     int transitionDrawableColor;
+    int transitionCacheRadius;
     private int alpha;
     private boolean drawFullBubble;
 
@@ -227,13 +228,13 @@ public class MessageDrawable extends Drawable {
             animatedGradient = getCurrentColor(Theme.key_chat_outBubbleGradientAnimated) != 0;
         } else {
             color = getColor(isSelected ? Theme.key_chat_inBubbleSelected : Theme.key_chat_inBubble);
-            gradientColor1 = 0;
-            gradientColor2 = 0;
-            gradientColor3 = 0;
+            gradientColor1 = appearanceColor("bubble.inGradient1");
+            gradientColor2 = appearanceColor("bubble.inGradient2");
+            gradientColor3 = appearanceColor("bubble.inGradient3");
             animatedGradient = false;
         }
         if (gradientColor1 != 0) {
-            color = getColor(Theme.key_chat_outBubble);
+            color = getColor(isOut ? Theme.key_chat_outBubble : Theme.key_chat_inBubble);
         }
         int num = 0;
         if (themePreview) {
@@ -393,7 +394,7 @@ public class MessageDrawable extends Drawable {
             currentBackgroundDrawableRadius[idx2][idx] = newRad;
             renderingBackgroundCache = true;
             try {
-                Bitmap bitmap = Bitmap.createBitmap(dp(50), dp(40), Bitmap.Config.ARGB_8888);
+                Bitmap bitmap = Bitmap.createBitmap(cacheWidth(), cacheHeight(), Bitmap.Config.ARGB_8888);
                 Canvas canvas = new Canvas(bitmap);
 
                 backupRect.set(getBounds());
@@ -403,7 +404,7 @@ public class MessageDrawable extends Drawable {
 
                     Paint shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-                    LinearGradient gradientShader = new LinearGradient(0, 0, 0, dp(40), new int[]{0x155F6569, 0x295F6569}, null, Shader.TileMode.CLAMP);
+                    LinearGradient gradientShader = new LinearGradient(0, 0, 0, cacheHeight(), new int[]{0x155F6569, 0x295F6569}, null, Shader.TileMode.CLAMP);
                     shadowPaint.setShader(gradientShader);
                     shadowPaint.setColorFilter(new PorterDuffColorFilter(shadowColor, PorterDuff.Mode.MULTIPLY));
 
@@ -442,8 +443,10 @@ public class MessageDrawable extends Drawable {
     }
 
     public Drawable getTransitionDrawable(int color) {
-        if (transitionDrawable == null) {
-            Bitmap bitmap = Bitmap.createBitmap(dp(50), dp(40), Bitmap.Config.ARGB_8888);
+        int radiusSignature=dp(bubbleRadius());
+        if (transitionDrawable == null || transitionCacheRadius != radiusSignature) {
+            transitionCacheRadius=radiusSignature;
+            Bitmap bitmap = Bitmap.createBitmap(cacheWidth(), cacheHeight(), Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
 
             backupRect.set(getBounds());
@@ -496,12 +499,12 @@ public class MessageDrawable extends Drawable {
                 shadowDrawableBitmap[idx].recycle();
             }
             try {
-                Bitmap bitmap = Bitmap.createBitmap(dp(50), dp(40), Bitmap.Config.ARGB_8888);
+                Bitmap bitmap = Bitmap.createBitmap(cacheWidth(), cacheHeight(), Bitmap.Config.ARGB_8888);
                 Canvas canvas = new Canvas(bitmap);
 
                 Paint shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-                LinearGradient gradientShader = new LinearGradient(0, 0, 0, dp(40), new int[]{0x155F6569, 0x295F6569}, null, Shader.TileMode.CLAMP);
+                LinearGradient gradientShader = new LinearGradient(0, 0, 0, cacheHeight(), new int[]{0x155F6569, 0x295F6569}, null, Shader.TileMode.CLAMP);
                 shadowPaint.setShader(gradientShader);
 
                 shadowPaint.setShadowLayer(2, 0, 1, 0xffffffff);
@@ -875,6 +878,9 @@ public class MessageDrawable extends Drawable {
         }
     }
 
+    private int appearanceColor(String key) {Integer value=resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalNamedColor(key):resourcesProvider.getAppearanceColor(key);return value==null?0:value;}
+    private int cacheWidth(){return dp(org.telegram.messenger.tetogram.AppearanceGeometry.cacheWidth(bubbleRadius()));}
+    private int cacheHeight(){return dp(org.telegram.messenger.tetogram.AppearanceGeometry.cacheHeight(bubbleRadius()));}
     private float bubbleRadius() {
         return resourcesProvider != null ? resourcesProvider.getBubbleRadius(isOut) : Math.max(0, Math.min(32, org.telegram.messenger.tetogram.AppearanceRuntime.globalNumber(isOut ? "bubble.outRadius" : "bubble.inRadius", SharedConfig.bubbleRadius)));
     }

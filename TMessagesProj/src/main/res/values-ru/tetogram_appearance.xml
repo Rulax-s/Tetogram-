@@ -106,4 +106,6 @@
     <string name="TetogramAppearanceExportColors">Только настройки (без медиа)</string>
     <string name="TetogramAppearanceExportImages">Настройки и изображения</string>
     <string name="TetogramAppearanceExportVideos">Настройки, изображения и видео</string>
+    <string name="TetogramAppearanceInGradient">Цвет градиента входящих</string>
+    <string name="TetogramAppearanceOutGradient">Цвет градиента исходящих</string>
 </resources>

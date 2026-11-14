@@ -2099,7 +2099,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
     @Override
     public boolean onFragmentCreate() {
-        NotificationCenter.getGlobalInstance().addObserver(this,NotificationCenter.tetogramAppearanceChanged);
         userId = arguments.getLong("user_id", 0);
         chatId = arguments.getLong("chat_id", 0);
         topicId = arguments.getLong("topic_id", 0);
@@ -2318,7 +2317,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
         additionNavigationBarHeight = hasMainTabs ? dp(DialogsActivity.MAIN_TABS_HEIGHT_WITH_MARGINS) : 0;
         additionFloatingButtonOffset = hasMainTabs ? dp(DialogsActivity.MAIN_TABS_HEIGHT + DialogsActivity.MAIN_TABS_MARGIN) : 0;
-
+        NotificationCenter.getGlobalInstance().addObserver(this,NotificationCenter.tetogramAppearanceChanged);
         return true;
     }
 

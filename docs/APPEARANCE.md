@@ -77,3 +77,7 @@ ForumUtilities/TopicsFragment передают origin только при пер
 ### Переносимый пресет v1
 
 ZIP содержит appearance.properties (format/schema/name/style.*, SHA-256 индексы) и только выбранные медиа. Account/scope/session документы не сериализуются. Исходные source.file исключаются; без согласия на видео оно заменяется экспортированной обложкой, если разрешены изображения. Импорт ограничен 512 KiB manifest, 64 assets, 256 MiB на asset и 512 MiB суммарно. Traversal/абсолютные пути/неожиданные или дублированные ZIP entries/неизвестные метаданные/будущая схема/неверные SHA-256 отклоняются. Файлы получают новые UUID в private UID storage; проверяется полный набор ссылок. Импорт открывает draft native preview, не применяет оформление до Apply. Shared references сохраняются; pending media leases имеют счётчики для одновременного редактора и экспорта. При ошибке экспорта SAF-файл может остаться незавершённым — пользователь уведомляется. JVM проверки ZIP/GC-политик отделены от Android SAF/decoder UI (NOT RUN).
+
+### Градиенты и размеры bubble cache
+
+Incoming градиенты используют тот же native MessageDrawable LinearGradient renderer с отдельными bubble.inGradient1/2/3; outgoing используют существующие Telegram Theme keys. Нулевая ARGB первая точка отключает градиент. Размеры NinePatch-кэшей увеличиваются только для радиусов сверх native 16 dp, чтобы радиус 32 dp не обрезался старой заготовкой 50×40 dp. Обычный размер native cache сохраняется. Пересчёт transition cache учитывает радиус. JVM geometry-проверки не заменяют визуальные Android screenshots.

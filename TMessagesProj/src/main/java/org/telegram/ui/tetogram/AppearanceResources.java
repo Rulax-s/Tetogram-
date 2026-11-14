@@ -21,6 +21,7 @@ public final class AppearanceResources implements Theme.ResourcesProvider {
     public void update(AppearanceConfig.Resolved style,boolean dark){this.style=style;this.dark=dark;colors=AppearanceRuntime.colors(style,dark);drawables.clear();paints.clear();}
     @Override public boolean isDark(){return dark;}
     @Override public int getColor(int key){int i=colors.indexOfKey(key);return i<0?(base==null?AppearanceRuntime.baseColor(dark,key):base.getColor(key)):colors.valueAt(i);}
+    @Override public Integer getAppearanceColor(String key){return style.color(dark,key);}
     @Override public float getBubbleRadius(boolean outgoing){return Math.max(0,Math.min(32,style.number(outgoing?"bubble.outRadius":"bubble.inRadius",SharedConfig.bubbleRadius)));}
     @Override public Paint getPaint(String key){
         if(paints.containsKey(key))return paints.get(key);Paint original=base==null?Theme.getThemePaint(key):base.getPaint(key);if(original==null)original=Theme.getThemePaint(key);if(original==null)return null;
