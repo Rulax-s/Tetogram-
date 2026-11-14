@@ -108,4 +108,12 @@
     <string name="TetogramAppearanceExportVideos">Settings, images and videos</string>
     <string name="TetogramAppearanceInGradient">Incoming gradient stop</string>
     <string name="TetogramAppearanceOutGradient">Outgoing gradient stop</string>
+    <string name="TetogramAppearanceLauncher">App name and icon</string>
+    <string name="TetogramAppearanceLauncherLimits">Built-in icons change the installed launcher entry. A custom name, emoji or image creates an additional home-screen shortcut only after launcher confirmation. Android keeps the app name in system settings. Launcher support varies; remove a shortcut by holding it on the home screen.</string>
+    <string name="TetogramAppearanceLauncherName">Custom shortcut name</string>
+    <string name="TetogramAppearanceLauncherNames">Predefined shortcut names</string>
+    <string name="TetogramAppearancePinShortcut">Add personalized home-screen shortcut</string>
+    <string name="TetogramAppearanceRemoveShortcut">Disable personalized shortcut</string>
+    <string name="TetogramAppearanceShortcutRemoved">The personalized shortcut is disabled. To remove its icon, hold it on the home screen and choose Remove. The installed app and its data remain available.</string>
+    <string name="TetogramAppearanceShortcutUnsupported">The launcher did not accept this shortcut. Try adding it with another launcher.</string>
 </resources>

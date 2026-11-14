@@ -35,8 +35,8 @@ public class LauncherIconController {
 
     public enum LauncherIcon {
         DEFAULT("DefaultIcon", R.drawable.tetogram_icon_background, R.drawable.tetogram_mark, R.string.AppIconDefault),
-        VINTAGE("VintageIcon", R.drawable.tetogram_icon_background, R.drawable.tetogram_mark, R.string.AppIconVintage),
-        AQUA("AquaIcon", R.drawable.tetogram_icon_background, R.drawable.tetogram_mark, R.string.AppIconAqua),
+        VINTAGE("VintageIcon", R.drawable.tetogram_icon_background, R.drawable.tetogram_artwork, R.string.AppIconVintage),
+        AQUA("AquaIcon", R.drawable.tetogram_aqua_background, R.drawable.tetogram_mark, R.string.AppIconAqua),
         PREMIUM("PremiumIcon", R.drawable.tetogram_icon_background, R.drawable.tetogram_mark, R.string.AppIconPremium, true),
         TURBO("TurboIcon", R.drawable.tetogram_icon_background, R.drawable.tetogram_mark, R.string.AppIconTurbo, true),
         NOX("NoxIcon", R.drawable.tetogram_icon_background, R.drawable.tetogram_mark, R.string.AppIconNox, true);

@@ -76,6 +76,7 @@ public final class AppearanceActivity extends LabsPage {
             button(items,getString(R.string.TetogramAppearanceSections),()->pickSection(false));
             button(items,getString(R.string.TetogramAppearanceFolders),()->pickSection(true));
             button(items,getString(R.string.TetogramAppearanceProfile),()->editScope("profile:"+owner,null,null,0,0));
+            button(items,getString(R.string.TetogramAppearanceLauncher),()->presentFragment(new AppearanceLauncherActivity(currentAccount)));
             button(items,getString(R.string.TetogramAppearanceEffects),()->presentFragment(new LiteModeSettingsActivity()));
             button(items,getString(R.string.TetogramAppearanceImport),this::importPreset);
             button(items,getString(R.string.TetogramAppearanceExport),()->{AppearanceConfig.Preset p=new AppearanceConfig.Preset();p.name="Tetogram";p.style=config.edit(AppearanceConfig.GLOBAL).copy();exportPreset(p);});

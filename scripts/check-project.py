@@ -50,7 +50,7 @@ def main():
             for name in ('icon', 'roundIcon'):
                 icon = node.get(ANDROID + name)
                 if icon:
-                    require(icon == '@mipmap/tetogram_launcher', f'Official launcher icon in {path.name}')
+                    require(icon in {'@mipmap/tetogram_launcher', '@mipmap/tetogram_launcher_art', '@mipmap/tetogram_launcher_aqua'}, f'Unexpected launcher icon in {path.name}')
     for name in ('auth.xml', 'sync_contacts.xml'):
         root = ET.parse(ROOT / 'TMessagesProj/src/main/res/xml' / name).getroot()
         require(root.get(ANDROID + 'accountType') == 'org.tetogram.messenger', 'Account type conflict')

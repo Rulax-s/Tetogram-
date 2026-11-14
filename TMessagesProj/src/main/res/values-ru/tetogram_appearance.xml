@@ -108,4 +108,12 @@
     <string name="TetogramAppearanceExportVideos">Настройки, изображения и видео</string>
     <string name="TetogramAppearanceInGradient">Цвет градиента входящих</string>
     <string name="TetogramAppearanceOutGradient">Цвет градиента исходящих</string>
+    <string name="TetogramAppearanceLauncher">Название и иконка приложения</string>
+    <string name="TetogramAppearanceLauncherLimits">Встроенные иконки меняют системный значок в лаунчере. Собственное имя, эмодзи или изображение создают дополнительный ярлык только после подтверждения лаунчера. Название приложения в настройках Android сохраняется. Поддержка зависит от лаунчера; удалить ярлык можно долгим нажатием на главном экране.</string>
+    <string name="TetogramAppearanceLauncherName">Собственное название ярлыка</string>
+    <string name="TetogramAppearanceLauncherNames">Предустановленные названия</string>
+    <string name="TetogramAppearancePinShortcut">Добавить персонализированный ярлык</string>
+    <string name="TetogramAppearanceRemoveShortcut">Отключить персонализированный ярлык</string>
+    <string name="TetogramAppearanceShortcutRemoved">Персонализированный ярлык отключён. Чтобы убрать значок, зажмите его на главном экране и выберите удаление ярлыка. Установленное приложение и его данные остаются доступны.</string>
+    <string name="TetogramAppearanceShortcutUnsupported">Лаунчер не принял этот ярлык. Попробуйте добавить его в другом лаунчере.</string>
 </resources>

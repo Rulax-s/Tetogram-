@@ -132,8 +132,8 @@
             android:enabled="false"
             android:name="org.telegram.messenger.VintageIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/tetogram_launcher"
-            android:roundIcon="@mipmap/tetogram_launcher"
+            android:icon="@mipmap/tetogram_launcher_art"
+            android:roundIcon="@mipmap/tetogram_launcher_art"
             android:exported="true">
 
             <intent-filter>
@@ -148,8 +148,8 @@
             android:enabled="false"
             android:name="org.telegram.messenger.AquaIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
-            android:icon="@mipmap/tetogram_launcher"
-            android:roundIcon="@mipmap/tetogram_launcher"
+            android:icon="@mipmap/tetogram_launcher_aqua"
+            android:roundIcon="@mipmap/tetogram_launcher_aqua"
             android:exported="true">
 
             <intent-filter>
