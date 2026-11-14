@@ -1718,7 +1718,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
 
         if (!backAnimation) {
             distToMove = Math.abs(containerView.getMeasuredWidth() - x);
-            int duration = Math.max((int) (200.0f / containerView.getMeasuredWidth() * distToMove), newBackTransitions() ? 380 : 50);
+            int duration = org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(Math.max((int) (200.0f / containerView.getMeasuredWidth() * distToMove), newBackTransitions() ? 380 : 50));
             if (!overrideTransition) {
                 animatorSet.playTogether(
                     ObjectAnimator.ofFloat(containerView, View.TRANSLATION_X, (containerView.getMeasuredWidth() + (predictiveBackInProgress ? dp(56) : 0))).setDuration(duration),
@@ -1730,7 +1730,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
             }
         } else {
             distToMove = x;
-            int duration = Math.max((int) (320.0f / containerView.getMeasuredWidth() * distToMove), newBackTransitions() ? 320 : 120);
+            int duration = org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(Math.max((int) (320.0f / containerView.getMeasuredWidth() * distToMove), newBackTransitions() ? 320 : 120));
             if (!overrideTransition) {
                 animatorSet.playTogether(
                     ObjectAnimator.ofFloat(containerView, View.TRANSLATION_X, 0).setDuration(duration),
@@ -1944,7 +1944,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     dt = 18;
                 }
                 lastFrameTime = newTime;
-                float duration = preview && open ? 190.0f : 150.0f;
+                float duration = org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(preview && open ? 190 : 150);
                 animationProgress += dt / duration;
                 if (animationProgress > 1.0f) {
                     animationProgress = 1.0f;
@@ -2111,7 +2111,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         if (parentActivity.getCurrentFocus() != null && fragment.hideKeyboardOnShow() && !preview) {
             AndroidUtilities.hideKeyboard(parentActivity.getCurrentFocus());
         }
-        boolean needAnimation = preview || !forceWithoutAnimation && MessagesController.getGlobalMainSettings().getBoolean("view_animations", true);
+        boolean needAnimation = org.telegram.messenger.tetogram.AppearanceRuntime.effectsAllowed() && (preview || !forceWithoutAnimation && MessagesController.getGlobalMainSettings().getBoolean("view_animations", true));
 
         final BaseFragment currentFragment = !fragmentsStack.isEmpty() ? fragmentsStack.get(fragmentsStack.size() - 1) : null;
 
@@ -2284,7 +2284,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                 currentAnimation = new AnimatorSet();
                 currentAnimation.playTogether(animators);
                 currentAnimation.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);
-                currentAnimation.setDuration(200);
+                currentAnimation.setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(200));
                 currentAnimation.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -2624,7 +2624,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         animatorSet.playTogether(
                 ObjectAnimator.ofFloat(fragment.fragmentView, View.SCALE_X, 1.0f, 1.05f, 1.0f),
                 ObjectAnimator.ofFloat(fragment.fragmentView, View.SCALE_Y, 1.0f, 1.05f, 1.0f));
-        animatorSet.setDuration(200);
+        animatorSet.setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(200));
         animatorSet.setInterpolator(new CubicBezierInterpolator(0.42, 0.0, 0.58, 1.0));
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -2680,7 +2680,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
             AndroidUtilities.hideKeyboard(parentActivity.getCurrentFocus());
         }
         setInnerTranslationX(0);
-        boolean needAnimation = !forceNoAnimation && (inPreviewMode || transitionAnimationPreviewMode || animated && MessagesController.getGlobalMainSettings().getBoolean("view_animations", true));
+        boolean needAnimation = org.telegram.messenger.tetogram.AppearanceRuntime.effectsAllowed() && !forceNoAnimation && (inPreviewMode || transitionAnimationPreviewMode || animated && MessagesController.getGlobalMainSettings().getBoolean("view_animations", true));
         final BaseFragment currentFragment = fragmentsStack.get(fragmentsStack.size() - 1);
         BaseFragment previousFragment = null;
         if (fragmentsStack.size() > 1) {
@@ -2836,7 +2836,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                 currentAnimation = new AnimatorSet();
                 currentAnimation.playTogether(animators);
                 currentAnimation.setInterpolator(accelerateDecelerateInterpolator);
-                currentAnimation.setDuration(200);
+                currentAnimation.setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(200));
                 currentAnimation.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -3221,7 +3221,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     }
                 });
                 themeAnimatorSet.playTogether(ObjectAnimator.ofFloat(this, "themeAnimationValue", 0.0f, 1.0f));
-                themeAnimatorSet.setDuration(settings.duration);
+                themeAnimatorSet.setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration((int)settings.duration));
                 themeAnimatorSet.start();
             }
             if (onDone != null) {

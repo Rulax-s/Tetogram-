@@ -13,6 +13,7 @@
 - Добавлены переносимые ZIP-пресеты с opt-in images/video, bounded/checked import в draft preview, SHA-256 и новыми media UUID; pending leases учитывают параллельных пользователей.
 - Добавлены независимые incoming/outgoing градиенты через native MessageDrawable и адаптивные размеры NinePatch cache для увеличенных радиусов.
 - Добавлены native alias selector с собственными вариантами, avatar crop для произвольного shortcut icon, name/emoji preview и явные requestPinShortcut/disable действия. Настоящее системное имя APK не подменяется.
+- Добавлены глобальные transition timings/no-animations/battery gates через native ActionBarLayout/SectionMenu и рабочие Glass/Minimal параметры; исправлен контраст встроенных action icon/unread badge.
 - Этапы полного оформления списков/профилей/launcher и portable media пока в работе; это не выпуск готовой 0.4.0. Android UI NOT RUN.
 - APP_VERSION_NAME 0.4.0, APP_VERSION_CODE input 11 (afat 119). Подпись, applicationId, Secrets, реклама и локальная история не меняются.
 

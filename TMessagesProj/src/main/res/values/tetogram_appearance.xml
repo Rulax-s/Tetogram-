@@ -116,4 +116,8 @@
     <string name="TetogramAppearanceRemoveShortcut">Disable personalized shortcut</string>
     <string name="TetogramAppearanceShortcutRemoved">The personalized shortcut is disabled. To remove its icon, hold it on the home screen and choose Remove. The installed app and its data remain available.</string>
     <string name="TetogramAppearanceShortcutUnsupported">The launcher did not accept this shortcut. Try adding it with another launcher.</string>
+    <string name="TetogramAppearanceAnimationsEnabled">Enable appearance transitions and animated backgrounds</string>
+    <string name="TetogramAppearanceTransitionDuration">Transition duration multiplier</string>
+    <string name="TetogramAppearanceReduceOnBattery">Reduce effects in power saving mode</string>
+    <string name="TetogramAppearanceNativeEffects">Telegram Lite Mode and native effects</string>
 </resources>

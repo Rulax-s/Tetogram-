@@ -33,7 +33,7 @@ public final class AppearanceActivity extends LabsPage {
     private final ArrayDeque<AppearanceConfig.Style> undo=new ArrayDeque<>();
     private EditTextBoldCursor searchInput;
     private AppearancePreview preview;
-    private boolean foreground,mediaBusy,previewDialogs;
+    private boolean foreground,mediaBusy,previewDialogs,effectsPage;
     private static final int PICK_APPEARANCE_MEDIA=61041,IMPORT_PRESET=61042,EXPORT_PRESET=61043;
     private AppearanceConfig.Preset exporting;private boolean exportImages,exportVideos;
     private boolean pickingVideo;
@@ -77,7 +77,7 @@ public final class AppearanceActivity extends LabsPage {
             button(items,getString(R.string.TetogramAppearanceFolders),()->pickSection(true));
             button(items,getString(R.string.TetogramAppearanceProfile),()->editScope("profile:"+owner,null,null,0,0));
             button(items,getString(R.string.TetogramAppearanceLauncher),()->presentFragment(new AppearanceLauncherActivity(currentAccount)));
-            button(items,getString(R.string.TetogramAppearanceEffects),()->presentFragment(new LiteModeSettingsActivity()));
+            button(items,getString(R.string.TetogramAppearanceEffects),()->{AppearanceActivity editor=new AppearanceActivity(currentAccount,AppearanceConfig.GLOBAL,null,null,0,0);editor.effectsPage=true;presentFragment(editor);});
             button(items,getString(R.string.TetogramAppearanceImport),this::importPreset);
             button(items,getString(R.string.TetogramAppearanceExport),()->{AppearanceConfig.Preset p=new AppearanceConfig.Preset();p.name="Tetogram";p.style=config.edit(AppearanceConfig.GLOBAL).copy();exportPreset(p);});
             button(items,getString(R.string.TetogramAppearanceReset),()->confirmReset());
@@ -104,6 +104,7 @@ public final class AppearanceActivity extends LabsPage {
         button(items,getString(R.string.TetogramAppearancePreviewSurface),getString(previewDialogs?R.string.TetogramAppearanceDialogList:R.string.TetogramAppearanceChat),()->{previewDialogs=!previewDialogs;refresh();});
         preview=new AppearancePreview(getContext(),currentAccount,previewStyle(),previewDark,scope.startsWith("profile:")?2:previewDialogs?1:0);preview.setResumed(foreground&&!mediaBusy);items.add(UItem.asCustom(preview,240));
         if(mediaBusy)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePreparingMedia)));
+        if(effectsPage){items.add(UItem.asHeader(getString(R.string.TetogramAppearanceEffects)));toggle(items,"effects.enabled",getString(R.string.TetogramAppearanceAnimationsEnabled),true);number(items,"effects.durationScale",getString(R.string.TetogramAppearanceTransitionDuration),.25f,2);toggle(items,"effects.reduceOnBattery",getString(R.string.TetogramAppearanceReduceOnBattery),true);button(items,getString(R.string.TetogramAppearanceNativeEffects),()->presentFragment(new LiteModeSettingsActivity()));button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();for(String key:new ArrayList<>(draft.values.keySet()))if(key.startsWith("effects."))draft.values.remove(key);refresh();});return;}
         mediaControls(items);
         if(scope.startsWith("profile:")){number(items,"banner.height",getString(R.string.TetogramAppearanceBannerHeight),120,480);number(items,"banner.radius",getString(R.string.TetogramAppearanceRowRadius),0,40);button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=new AppearanceConfig.Style();refresh();});return;}
         if(searchInput!=null)items.add(UItem.asCustom(searchInput,48));
@@ -155,7 +156,7 @@ public final class AppearanceActivity extends LabsPage {
     private String mediaKey(String part){return mediaPrefix()+"."+part;}
     private String wallpaperColorName(String tail){return (scope.startsWith("profile:")?"banner.":previewDialogs?"list.":"")+"chat_wallpaper"+tail;}
     private AppearanceConfig.Resolved previewStyle(){AppearanceConfig.Resolved r=resolved();return scope.startsWith("profile:")?AppearanceSurfaces.banner(r):previewDialogs?AppearanceSurfaces.list(r):r;}
-    private float defaultNumber(String key){if(key.startsWith("bubble."))return SharedConfig.bubbleRadius;if(key.equals(mediaKey("fps")))return 30;if(key.equals(mediaKey("quality")))return 1280;if(key.equals("list.rowOpacity"))return 1;if(key.equals("list.avatarSize"))return SharedConfig.useThreeLinesLayout?56:52;if(key.endsWith("angle"))return 45;if(key.endsWith("opacity")||key.endsWith("speed")||key.endsWith("zoom"))return 1;return 0;}
+    private float defaultNumber(String key){if(key.equals("effects.durationScale"))return 1;if(key.startsWith("bubble."))return SharedConfig.bubbleRadius;if(key.equals(mediaKey("fps")))return 30;if(key.equals(mediaKey("quality")))return 1280;if(key.equals("list.rowOpacity"))return 1;if(key.equals("list.avatarSize"))return SharedConfig.useThreeLinesLayout?56:52;if(key.endsWith("angle"))return 45;if(key.endsWith("opacity")||key.endsWith("speed")||key.endsWith("zoom"))return 1;return 0;}
     private void number(ArrayList<UItem> items,String key,CharSequence label,float min,float max){String value=Float.toString(resolved().number(key,defaultNumber(key)));button(items,label,value+(draft.values.containsKey(key)?"":" · "+getString(R.string.TetogramAppearanceInherited)),()->showDialog(new AlertDialog.Builder(getContext()).setTitle(label).setItems(new CharSequence[]{getString(R.string.Edit),getString(R.string.TetogramAppearanceInherit)},(d,n)->{if(n==1){checkpoint();draft.values.remove(key);refresh();return;}input(label,value,text->{try{float parsed=Float.parseFloat(text);if(Float.isNaN(parsed)||Float.isInfinite(parsed)||parsed<min||parsed>max)throw new IllegalArgumentException();checkpoint();draft.set(key,Float.toString(parsed));refresh();}catch(Exception e){error(getString(R.string.TetogramAppearanceInvalidValue));}});}).create()));}
 
     private void colorDialog(String name,int color){

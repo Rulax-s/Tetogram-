@@ -20,14 +20,18 @@ public final class AppearancePresets {
         AppearanceConfig.Preset p = new AppearanceConfig.Preset(); p.name = name;
         p.id = UUID.nameUUIDFromBytes(("Tetogram builtin:" + name).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
         for (boolean dark : new boolean[]{false, true}) {
-            int bg = dark ? darkBg : lightBg, surface = dark ? mix(darkBg, 0xffffffff, .06f) : 0xffffffff, text = contrast(surface), out = dark ? darkOut : lightOut;
-            colors(p.style, dark, bg, "windowBackgroundGray", "chat_wallpaper", "chats_actionBackground");
+            int bg = dark ? darkBg : lightBg, surface = dark ? name.equals("AMOLED") ? 0xff000000 : mix(darkBg, 0xffffffff, .06f) : 0xffffffff, text = contrast(surface), out = dark ? darkOut : lightOut;
+            colors(p.style, dark, bg, "windowBackgroundGray", "chat_wallpaper");
             colors(p.style, dark, surface, "windowBackgroundWhite", "actionBarDefault", "chat_messagePanelBackground", "chat_inBubble", "chat_inBubbleMedia");
             colors(p.style, dark, text, "windowBackgroundWhiteBlackText", "actionBarDefaultTitle", "actionBarDefaultIcon", "chat_messageTextIn", "chats_name", "chat_messagePanelText");
             colors(p.style, dark, out, "chat_outBubble", "chat_outBubbleMedia");
             colors(p.style, dark, contrast(out), "chat_messageTextOut");
-            colors(p.style, dark, accent, "windowBackgroundWhiteBlueText", "windowBackgroundWhiteBlueText4", "chat_messageLinkIn", "chat_messageLinkOut", "chats_unreadCounter", "chat_inReplyLine", "chat_outReplyLine");
+            colors(p.style, dark, accent, "chats_actionBackground", "windowBackgroundWhiteBlueText", "windowBackgroundWhiteBlueText4", "chat_messageLinkIn", "chat_messageLinkOut", "chats_unreadCounter", "chat_inReplyLine", "chat_outReplyLine");
+            colors(p.style,dark,contrast(accent),"chats_actionIcon","chats_unreadCounterText");
+            if(name.equals("Glass")){colors(p.style,dark,bg,"list.chat_wallpaper");colors(p.style,dark,mix(bg,accent,.35f),"list.chat_wallpaper_gradient_to1");}
         }
+        if(name.equals("Glass")){p.style.set("list.wallpaper.type","gradient");p.style.set("list.rowOpacity","0.76");p.style.set("list.radius","14");p.style.set("list.sideInset","8");p.style.set("list.rowGap","4");}
+        if(name.equals("Minimal")){p.style.set("list.separators","false");p.style.set("effects.enabled","false");}
         p.style.set("mode", name.equals("Tetogram Dark") || name.equals("AMOLED") || name.equals("Neon") ? "dark" : name.equals("Tetogram Classic") || name.equals("Pastel") || name.equals("Minimal") ? "light" : "auto");
         p.style.set("bubble.inRadius", "16"); p.style.set("bubble.outRadius", "16");
         return p;

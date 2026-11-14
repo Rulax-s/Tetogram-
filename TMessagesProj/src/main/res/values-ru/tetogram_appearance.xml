@@ -116,4 +116,8 @@
     <string name="TetogramAppearanceRemoveShortcut">Отключить персонализированный ярлык</string>
     <string name="TetogramAppearanceShortcutRemoved">Персонализированный ярлык отключён. Чтобы убрать значок, зажмите его на главном экране и выберите удаление ярлыка. Установленное приложение и его данные остаются доступны.</string>
     <string name="TetogramAppearanceShortcutUnsupported">Лаунчер не принял этот ярлык. Попробуйте добавить его в другом лаунчере.</string>
+    <string name="TetogramAppearanceAnimationsEnabled">Переходы оформления и анимированные фоны</string>
+    <string name="TetogramAppearanceTransitionDuration">Множитель длительности переходов</string>
+    <string name="TetogramAppearanceReduceOnBattery">Уменьшать эффекты при энергосбережении</string>
+    <string name="TetogramAppearanceNativeEffects">Lite Mode и штатные эффекты Telegram</string>
 </resources>
