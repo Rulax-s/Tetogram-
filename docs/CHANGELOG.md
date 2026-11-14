@@ -117,3 +117,5 @@ Splash Android 12+ использует собственный анимиров�
 - Native unread/mute union badges без дубликатов, mandatory muted exclusion для пользовательских разделов, show/compact prefs и refresh по native событиям/expiry.
 - Добавлен opt-out системный временный 📩 «Непрочитанные», не сохраняемый как обычный раздел: no folders, optional muted, active-empty retention и явный Back/выход.
 - versionCode input 9, version 0.3.1. applicationId и постоянная подпись сохранены. Новые JVM/CI проверки добавлены; реальные Android gestures/crop/animations остаются NOT RUN агентом. Подробности — SECTIONS.md.
+
+- По первому cloud-логу исправлена область видимости layout root при расчёте высоты меню. Для системного unread добавлен явный no-pagination guard, включая аккаунт без пользовательских разделов.
