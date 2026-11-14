@@ -115,6 +115,9 @@ jobs:
           ./gradlew --no-daemon --no-build-cache --console=plain \
             '-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g' --max-workers=2 \
             :TMessagesProj:testDebugUnitTest --stacktrace 2>&1 | tee build-logs/history-policy-tests.log
+      - name: Collect JVM test results without captured output
+        if: always()
+        run: python3 scripts/summarize-jvm-tests.py
       - name: Build ARM64 debug APK
         run: |
           set -o pipefail
