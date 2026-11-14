@@ -165,4 +165,5 @@
     <string name="TetogramAppearanceHeaderSubtitle">Дополнительный текст</string>
     <string name="TetogramAppearanceInterfaceColors">Цвета интерфейса</string>
     <string name="TetogramAppearanceBannerParallax">Параллакс баннера при прокрутке</string>
+    <string name="TetogramAppearanceAvatarAlignment">Положение аватарки (слева −1, по центру 0, справа 1)</string>
 </resources>

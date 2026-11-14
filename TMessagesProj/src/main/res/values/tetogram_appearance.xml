@@ -165,4 +165,5 @@
     <string name="TetogramAppearanceHeaderSubtitle">Secondary text</string>
     <string name="TetogramAppearanceInterfaceColors">Interface colors</string>
     <string name="TetogramAppearanceBannerParallax">Banner parallax while scrolling</string>
+    <string name="TetogramAppearanceAvatarAlignment">Avatar horizontal position (left −1, center 0, right 1)</string>
 </resources>

@@ -2099,11 +2099,12 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         org.telegram.messenger.tetogram.AppearanceConfig.Resolved style=org.telegram.messenger.tetogram.AppearanceStore.snapshot(currentAccount).resolveProfile(userId);
         boolean enabled=false;for(String key:style.values.keySet())if(key.startsWith("banner.")||key.startsWith("light.banner.")||key.startsWith("dark.banner.")){enabled=true;break;}
         FrameLayout parent=(FrameLayout)fragmentView;
-        if(!enabled){if(tetogramBanner!=null){tetogramBanner.setResumed(false);parent.removeView(tetogramBanner);tetogramBanner=null;}return;}
+        if(!enabled){if(tetogramBanner!=null){tetogramBanner.setResumed(false);parent.removeView(tetogramBanner);tetogramBanner=null;if(avatarContainer!=null&&listView!=null)fixAvatarImageInCenter();}return;}
         if(tetogramBanner==null){tetogramBanner=new org.telegram.ui.tetogram.AppearanceBanner(parent.getContext());parent.addView(tetogramBanner,parent.indexOfChild(topView)+1,LayoutHelper.createFrame(-1,280));}
         FrameLayout.LayoutParams bannerParams=(FrameLayout.LayoutParams)tetogramBanner.getLayoutParams();int bannerHeight=dp(Math.max(120,Math.min(480,style.number("banner.height",280))));if(bannerParams.height!=bannerHeight){bannerParams.height=bannerHeight;tetogramBanner.setLayoutParams(bannerParams);}
         tetogramBannerStyle=style;
         if(nameTextView!=null)nameTextView.invalidate();if(onlineTextView!=null)onlineTextView.invalidate();
+        if(avatarContainer!=null&&listView!=null)fixAvatarImageInCenter();
         tetogramBanner.configure(userId,style);tetogramBanner.setResumed(!isPaused);parent.invalidate();
     }
 
@@ -6597,7 +6598,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private void fixAvatarImageInCenter() {
         if (listView == null) return;
         final FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) avatarContainer.getLayoutParams();
-        avatarX = listView.getMeasuredWidth() / 2f - (params.width * avatarScale * 0.5f);
+        float alignment=tetogramBanner!=null&&tetogramBannerStyle!=null&&userId==getUserConfig().getClientUserId()?tetogramBannerStyle.number("banner.avatarAlignment",0):0;
+        avatarX = org.telegram.messenger.tetogram.AppearanceProfileGeometry.horizontal(listView.getMeasuredWidth(),params.width*avatarScale,dp(16),alignment,calculateHeaderExtraDiff());
         if (openAnimationInProgress) {
             avatarX = lerp(prevAvatarTranslation, avatarX, avatarAnimationProgress);
         }
