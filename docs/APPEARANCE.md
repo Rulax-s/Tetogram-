@@ -101,3 +101,15 @@ Native MessageDrawable расширен отдельными in/out corner overr
 ### Предпросмотр при поиске и выборе цвета
 
 Поиск фильтрует подписи/значения параметров, включая русские названия цветов, числовые параметры и действия медиа. Неизменившийся scene переиспользуется: ввод поискового текста не пересоздаёт video player. Пересоздание fragment View сбрасывает scene ownership; preview перехватывает touches, поэтому синтетические tabs/avatars не открывают реальные экраны. Native color picker содержит обновляемый с ограничением частоты native-cell preview; видео в модальном sample заменяется cover (второй декодер не создаётся), основной player приостановлен до закрытия диалога. Цвет не записывается в draft до OK, Cancel сохраняет исходное значение. Android UI/rotation/scroll/gesture checks NOT RUN.
+
+### Контраст и наследование в редакторе
+
+Apply проверяет изменённые основные пары текста/поверхностей в обеих палитрах, включая прозрачность. Проблемные цвета требуют восстановления либо редактирования; посторонняя native тема без локальных переопределений не переписывается. Проверка не анализирует каждый кадр изображения/видео и не гарантирует контраст всех декоративных Theme keys. Active/inactive section icons имеют независимые цвета. Color picker preview использует те же подготовительные правила, что OK (сброс image override при выборе solid/gradient и подбор текста в простом режиме). Boolean controls используют native Check cells, отдельные явные значения можно вернуть к наследованию. Источники значений показывают имена разделов/папок/чатов, а не UUID; это только локальный интерфейс, имена не добавляются в переносимый preset. JVM contrast tests отделены от визуальных Android checks (NOT RUN).
+
+### Медиа и согласованность геометрии
+
+ChatMessageCell теперь использует scoped radius и в расчётах текста/времени/цитат/медиа, а не только в фоне. Внешние углы фото/видео учитывают corner overrides, сохраняя внутренние стыки альбомов, caption/header, document/story/compact/live-location правила. При смене provider revision применяется штатный layout rebind той же MessageObject; ID, авторы, массив messages и сортировка не меняются. Сохранённые local-deleted cells не пропускают необходимый appearance update. Wallpaper playback проверяет видимый viewport и перекрывающие PhotoViewer/SecretMediaViewer/StoryViewer, без чтения их содержимого. Эти integrations требуют Android visual/regression checks (NOT RUN).
+
+### Пипетка
+
+Используется штатный Paint.Views.PipettePickerView, Photo Picker/SAF и bounded ImageLoader (до 1024). Отдельный декодер/сохранение изображения/полный доступ к галерее не нужны. Геометрия выборки проверяется pure JVM; выбор работает и при системной нулевой длительности анимаций. Bitmap принадлежит одноразовой pipette view, отменённый или закрытый диалог не применяет цвет. JPEG/PNG/WebP/EXIF фактическое поведение определяется native decoder, Android UI/decoder checks NOT RUN.

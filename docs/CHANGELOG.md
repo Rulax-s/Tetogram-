@@ -16,6 +16,8 @@
 - Добавлены глобальные transition timings/no-animations/battery gates через native ActionBarLayout/SectionMenu и рабочие Glass/Minimal параметры; исправлен контраст встроенных action icon/unread badge.
 - Предпросмотр расширен до chat/group/list/section/folder/profile с native UI и изолированными фиктивными данными; добавлен локальный цвет имён в группах.
 - Добавлены независимые углы/штатный tail/native shadow/outline пузырей, revision-aware path/fill/shadow caches и быстрый числовой fallback без exceptions при отрисовке.
+- Добавлены проверка контраста основных solid-поверхностей перед Apply, независимый active icon color, native boolean cells с per-field Inherit и имена источников оформления вместо UUID.
+- Добавлены native pipette из выбранного изображения, корректная передача scoped radius в media/text layout и остановка wallpaper под полноэкранными media/story viewers.
 - Этапы полного оформления списков/профилей/launcher и portable media пока в работе; это не выпуск готовой 0.4.0. Android UI NOT RUN.
 - APP_VERSION_NAME 0.4.0, APP_VERSION_CODE input 11 (afat 119). Подпись, applicationId, Secrets, реклама и локальная история не меняются.
 
