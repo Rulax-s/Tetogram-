@@ -7,6 +7,7 @@
 - Поле поиска локальной истории перенесено из абсолютного overlay в первую строку списка, чтобы оно участвовало в штатных отступах. Хранение и обработка истории не меняются.
 - APP_VERSION_CODE 9 → 10 (afat APK 99 → 109), версия приложения остаётся 0.3.1. Постоянная подпись, package name, Secrets и данные сохранены.
 - Добавлены шесть статических integration-contract проверок в CI и docs/SETTINGS_INSETS.md с Android 14 matrix. Android UI-проверки агентом NOT RUN; сборка сама по себе не подтверждает визуальные отступы.
+- Source 8a23d71905095381cfd912db05a6a9fe2940c455 успешно собран в CI 43561916169. Проверены versionCode 109, package, постоянная подпись, ARM64, JVM/TL/19 SQLite tests и 108 localization keys. Скачанная APK и копия в Android Download сверены по SHA-256. Метаданные — APK-0.3.1-insets.json; Android UI NOT RUN.
 
 ## 0.1.0 — подготовка, 2026-11-13
 

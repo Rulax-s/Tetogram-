@@ -1,0 +1,30 @@
+{
+  "file_name": "Tetogram-debug.apk",
+  "version": "0.3.1",
+  "version_code": 109,
+  "application_id": "org.tetogram.messenger",
+  "size_bytes": 70613931,
+  "sha256": "839a35e6c3080d11b42807281b1db1bca0d24fc2d66d2c678fcb7ccecedb986b",
+  "signature_certificate_sha256": "147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "partial_media_permission": true,
+  "update_compatible_with_verified_0_3_1_code99": true,
+  "run_id": 43561916169,
+  "source_commit": "8a23d71905095381cfd912db05a6a9fe2940c455",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43561916169/artifacts/14100819601",
+  "artifact_expires_at": "2026-11-28T05:49:43Z",
+  "device_copy": "/sdcard/Download/Tetogram-0.3.1-109-debug.apk",
+  "runtime_tested": false,
+  "android_ui_matrix": "NOT_RUN: Android 14, light/dark, gesture/3-button, portrait/landscape, Back/nested screens/scroll/crop return",
+  "android_update_installation": "NOT_RUN",
+  "static_settings_insets_contracts": 6,
+  "junit_task": ":TMessagesProj:testDebugUnitTest SUCCESS",
+  "junit_test_methods_in_sources": 116,
+  "sqlite_tests": 19,
+  "localization_keys_verified_in_apk": 108
+}

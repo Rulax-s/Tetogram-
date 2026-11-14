@@ -1,0 +1,10 @@
+.github/workflows/android-build.yml
+README.md
+TMessagesProj/src/main/java/org/telegram/ui/tetogram/HistoryActivity.java
+TMessagesProj/src/main/java/org/telegram/ui/tetogram/LabsPage.java
+docs/APK-0.3.1-insets.json
+docs/CHANGED-0.3.1-insets.txt
+docs/CHANGELOG.md
+docs/SETTINGS_INSETS.md
+gradle.properties
+scripts/check-settings-insets.py
