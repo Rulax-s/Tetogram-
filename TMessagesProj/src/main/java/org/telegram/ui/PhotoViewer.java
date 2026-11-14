@@ -2990,6 +2990,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
         default void onReleasePlayerBeforeClose(int currentIndex) {};
         default long getDialogId() { return 0; }
+        default boolean forceMuteVideo() { return false; }
         default boolean canSchedule() { return false; }
         default boolean canSetTimer() { return false; }
         default boolean canSendAsFile() { return true; }
@@ -4729,7 +4730,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         Theme.createChatResources(activity, false);
         this.resourcesProvider = resourcesProvider;
         this.parentFragment = fragment;
-        currentAccount = UserConfig.selectedAccount;
+        currentAccount = fragment != null ? fragment.getCurrentAccount() : UserConfig.selectedAccount;
         centerImage.setCurrentAccount(currentAccount);
         leftImage.setCurrentAccount(currentAccount);
         rightImage.setCurrentAccount(currentAccount);
@@ -6700,6 +6701,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         ScaleStateListAnimator.apply(muteButton);
         containerView.addView(muteButton, LayoutHelper.createFrame(40, 40, Gravity.LEFT | Gravity.BOTTOM, 8, 0, 0, -4));
         muteButton.setOnClickListener(v -> {
+            if (placeProvider != null && placeProvider.forceMuteVideo()) return;
             if (isCaptionOpen()) {
                 return;
             }
@@ -21658,7 +21660,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
         videoTimelineView.setVideoPath(videoPath, videoPathOffset, start, end, livePhotoTimestampUs);
         videoPreviewMessageObject = null;
-        muteVideo = muted || sendPhotoType == SELECT_TYPE_AVATAR;
+        muteVideo = muted || sendPhotoType == SELECT_TYPE_AVATAR || placeProvider != null && placeProvider.forceMuteVideo();
 
         compressionsCount = -1;
         rotationValue = 0;

@@ -3343,6 +3343,7 @@ public class ChatActivity extends BaseFragment implements
 
     @Override
     public void onFragmentDestroy() {
+        if (tetogramMediaBackground != null) tetogramMediaBackground.setResumed(false);
         AndroidUtilities.cancelRunOnUIThread(tetogramHistoryTick);
         super.onFragmentDestroy();
         if (messageMetricsView != null) {
@@ -19376,7 +19377,7 @@ public class ChatActivity extends BaseFragment implements
                     }
                 } else if (child == videoPlayerContainer) {
                     childTop = actionBar.getMeasuredHeight();
-                } else if (child == instantCameraView || child == overlayView || child == animatingImageView) {
+                } else if (child == tetogramMediaBackground || child == instantCameraView || child == overlayView || child == animatingImageView) {
                     childTop = 0;
                 } else if (child instanceof MessagePreviewView) {
                     childTop = AndroidUtilities.statusBarHeight;
@@ -30986,6 +30987,7 @@ public class ChatActivity extends BaseFragment implements
 
     @Override
     public void onPause() {
+        if (tetogramMediaBackground != null) tetogramMediaBackground.setResumed(false);
         AndroidUtilities.cancelRunOnUIThread(tetogramHistoryTick);
         super.onPause();
         scrolling = false;
@@ -44217,6 +44219,7 @@ public class ChatActivity extends BaseFragment implements
                 }
                 if (contentView != null) {
                     contentView.setBackgroundImage(getWallpaperDrawable(), isWallpaperMotion());
+                    updateTetogramMediaBackground();
                     contentView.invalidate(); updateVisibleRows();
                 }
                 ThemeBind.updateAll();
@@ -45072,6 +45075,19 @@ public class ChatActivity extends BaseFragment implements
         public TLRPC.WallPaper getCurrentWallpaper() {
             return wallpaper;
         }
+    }
+
+    private org.telegram.ui.tetogram.AppearanceMediaView tetogramMediaBackground;
+    private void updateTetogramMediaBackground() {
+        if (contentView == null || themeDelegate == null || parentThemeDelegate != null) return;
+        org.telegram.messenger.tetogram.AppearanceConfig.Resolved style = themeDelegate.tetogramStyle;
+        if (!org.telegram.messenger.tetogram.AppearanceConfig.isMediaName(style.get("wallpaper.file"))) {
+            if (tetogramMediaBackground != null) { tetogramMediaBackground.setResumed(false); contentView.removeView(tetogramMediaBackground); tetogramMediaBackground = null; }
+            return;
+        }
+        if (tetogramMediaBackground == null) { tetogramMediaBackground = new org.telegram.ui.tetogram.AppearanceMediaView(contentView.getContext()); contentView.addView(tetogramMediaBackground, 0, LayoutHelper.createFrame(-1, -1)); }
+        tetogramMediaBackground.configure(getUserConfig().getClientUserId(), style);
+        tetogramMediaBackground.setResumed(!isPaused && getParentActivity() != null);
     }
 
     private void updateBackground() {

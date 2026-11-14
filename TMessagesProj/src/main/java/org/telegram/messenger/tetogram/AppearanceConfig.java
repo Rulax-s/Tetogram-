@@ -51,7 +51,17 @@ public final class AppearanceConfig {
         return r;
     }
     public Resolved resolveProfile(long dialog) { Resolved r = resolve(Context.direct(0, 0)); merge(r, "profile:" + dialog); return r; }
-    private void merge(Resolved r, String scope) { Style s = scopes.get(scope); if (s != null) for (Map.Entry<String,String> e : s.values.entrySet()) { r.values.put(e.getKey(), e.getValue()); r.origins.put(e.getKey(), scope); } }
+    private void merge(Resolved r, String scope) {
+        Style s = scopes.get(scope); if (s == null) return;
+        String base=s.values.get("wallpaper.base");
+        if(!GLOBAL.equals(scope) && ("global".equals(base)||"telegram".equals(base))){
+            for(String key:new ArrayList<>(r.values.keySet()))if(isWallpaperKey(key)){r.values.remove(key);r.origins.remove(key);}
+            Style global=scopes.get(GLOBAL);
+            if("global".equals(base)&&global!=null)for(Map.Entry<String,String> e:global.values.entrySet())if(isWallpaperKey(e.getKey())){r.values.put(e.getKey(),e.getValue());r.origins.put(e.getKey(),GLOBAL);}
+        }
+        for (Map.Entry<String,String> e : s.values.entrySet()) { r.values.put(e.getKey(), e.getValue()); r.origins.put(e.getKey(), scope); }
+    }
+    public static boolean isWallpaperKey(String key){return key.startsWith("wallpaper.")||key.startsWith("light.chat_wallpaper")||key.startsWith("dark.chat_wallpaper");}
     public void apply(String scope, Preset preset) { scopes.put(scope, preset.style.copy()); revision++; }
     public void reset(String scope) { scopes.remove(scope); revision++; }
     public AppearanceConfig copy() { return decode(encode()); }
