@@ -16,8 +16,8 @@ public final class AppearanceSurfaces {
         for(Map.Entry<String,String> e:source.values.entrySet()){
             String target=null,key=e.getKey();
             if(key.startsWith(domain+".wallpaper."))target=key.substring(domain.length()+1);
-            if(key.startsWith("light."+domain+".chat_wallpaper"))target="light."+key.substring(7+domain.length());
-            if(key.startsWith("dark."+domain+".chat_wallpaper"))target="dark."+key.substring(6+domain.length());
+            if(key.startsWith("light."+domain+"."))target="light."+key.substring(7+domain.length());
+            if(key.startsWith("dark."+domain+"."))target="dark."+key.substring(6+domain.length());
             if(target!=null){out.values.put(target,e.getValue());out.origins.put(target,source.origins.getOrDefault(key,AppearanceConfig.GLOBAL));}
         }
         return out;
