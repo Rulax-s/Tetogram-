@@ -34,6 +34,7 @@ public final class AppearanceActivity extends LabsPage {
     private EditTextBoldCursor searchInput;
     private AppearancePreview preview;
     private boolean foreground,mediaBusy,previewDialogs,effectsPage;
+    private int previewKind;
     private static final int PICK_APPEARANCE_MEDIA=61041,IMPORT_PRESET=61042,EXPORT_PRESET=61043;
     private AppearanceConfig.Preset exporting;private boolean exportImages,exportVideos;
     private boolean pickingVideo;
@@ -41,7 +42,7 @@ public final class AppearanceActivity extends LabsPage {
     private final ArrayList<File> pendingMedia=new ArrayList<>();
     public AppearanceActivity(int account){this(account,"home",AppearanceConfig.GLOBAL,null,null,0,0);}
     public AppearanceActivity(int account,String scope,String section,String folder,long dialog,long topic){this(account,"edit",scope,section,folder,dialog,topic);}
-    private AppearanceActivity(int account,String page,String scope,String section,String folder,long dialog,long topic){super(account);this.owner=UserConfig.getInstance(account).getClientUserId();this.page=page;this.scope=scope;this.section=section;this.folder=folder;this.dialog=dialog;this.topic=topic;previewDark=Theme.isCurrentThemeDark();}
+    private AppearanceActivity(int account,String page,String scope,String section,String folder,long dialog,long topic){super(account);this.owner=UserConfig.getInstance(account).getClientUserId();this.page=page;this.scope=scope;this.section=section;this.folder=folder;this.dialog=dialog;this.topic=topic;previewKind=scope.startsWith("profile:")?2:section!=null?4:folder!=null?5:dialog<0?3:0;previewDialogs=previewKind==4||previewKind==5;previewDark=Theme.isCurrentThemeDark();}
     @Override protected CharSequence title(){return getString(R.string.TetogramAppearance);}
     private boolean valid(){return !destroyed && owner>0 && owner==getUserConfig().getClientUserId();}
     @Override public View createView(Context context){
@@ -72,7 +73,7 @@ public final class AppearanceActivity extends LabsPage {
             button(items,getString(R.string.TetogramAppearanceNativeThemes),()->presentFragment(new ThemeActivity(ThemeActivity.THEME_TYPE_BASIC)));
             button(items,getString(R.string.TetogramAppearanceChat),()->pickChat());
             button(items,getString(R.string.TetogramAppearanceGroups),()->pickChat(true));
-            button(items,getString(R.string.TetogramAppearanceDialogList),()->{AppearanceActivity editor=new AppearanceActivity(currentAccount,AppearanceConfig.GLOBAL,null,null,0,0);editor.previewDialogs=true;presentFragment(editor);});
+            button(items,getString(R.string.TetogramAppearanceDialogList),()->{AppearanceActivity editor=new AppearanceActivity(currentAccount,AppearanceConfig.GLOBAL,null,null,0,0);editor.previewDialogs=true;editor.previewKind=1;presentFragment(editor);});
             button(items,getString(R.string.TetogramAppearanceSections),()->pickSection(false));
             button(items,getString(R.string.TetogramAppearanceFolders),()->pickSection(true));
             button(items,getString(R.string.TetogramAppearanceProfile),()->editScope("profile:"+owner,null,null,0,0));
@@ -101,12 +102,12 @@ public final class AppearanceActivity extends LabsPage {
         button(items,getString(R.string.TetogramAppearanceDisplayMode),draft.values.getOrDefault("mode",getString(R.string.TetogramAppearanceInherited)),()->showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearanceDisplayMode)).setItems(new CharSequence[]{getString(R.string.TetogramAppearanceLight),getString(R.string.TetogramAppearanceDark),getString(R.string.TetogramAppearanceInherit)},(d,n)->{checkpoint();if(n==2)draft.values.remove("mode");else draft.set("mode",n==0?"light":"dark");previewDark=n==1;refresh();}).create()));
         button(items,getString(R.string.TetogramAppearanceMode),previewDark?getString(R.string.TetogramAppearanceDark):getString(R.string.TetogramAppearanceLight),()->{previewDark=!previewDark;refresh();});
         button(items,getString(R.string.TetogramAppearanceAdvanced),advanced?getString(R.string.TetogramAppearanceAdvanced):getString(R.string.TetogramAppearanceSimple),()->{advanced=!advanced;refresh();});
-        button(items,getString(R.string.TetogramAppearancePreviewSurface),getString(previewDialogs?R.string.TetogramAppearanceDialogList:R.string.TetogramAppearanceChat),()->{previewDialogs=!previewDialogs;refresh();});
-        preview=new AppearancePreview(getContext(),currentAccount,previewStyle(),previewDark,scope.startsWith("profile:")?2:previewDialogs?1:0);preview.setResumed(foreground&&!mediaBusy);items.add(UItem.asCustom(preview,240));
+        button(items,getString(R.string.TetogramAppearancePreviewSurface),getString(surfaceLabel(previewKind)),this::choosePreview);
+        preview=new AppearancePreview(getContext(),currentAccount,previewStyle(),previewDark,previewKind);preview.setResumed(foreground&&!mediaBusy);items.add(UItem.asCustom(preview,240));
         if(mediaBusy)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePreparingMedia)));
         if(effectsPage){items.add(UItem.asHeader(getString(R.string.TetogramAppearanceEffects)));toggle(items,"effects.enabled",getString(R.string.TetogramAppearanceAnimationsEnabled),true);number(items,"effects.durationScale",getString(R.string.TetogramAppearanceTransitionDuration),.25f,2);toggle(items,"effects.reduceOnBattery",getString(R.string.TetogramAppearanceReduceOnBattery),true);button(items,getString(R.string.TetogramAppearanceNativeEffects),()->presentFragment(new LiteModeSettingsActivity()));button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();for(String key:new ArrayList<>(draft.values.keySet()))if(key.startsWith("effects."))draft.values.remove(key);refresh();});return;}
         mediaControls(items);
-        if(scope.startsWith("profile:")){number(items,"banner.height",getString(R.string.TetogramAppearanceBannerHeight),120,480);number(items,"banner.radius",getString(R.string.TetogramAppearanceRowRadius),0,40);button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=new AppearanceConfig.Style();refresh();});return;}
+        if(previewKind==2){number(items,"banner.height",getString(R.string.TetogramAppearanceBannerHeight),120,480);number(items,"banner.radius",getString(R.string.TetogramAppearanceRowRadius),0,40);button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=new AppearanceConfig.Style();refresh();});return;}
         if(searchInput!=null)items.add(UItem.asCustom(searchInput,48));
         String[] simple=previewDialogs?new String[]{"list.chat_wallpaper","windowBackgroundWhite","chats_name","chats_message","chats_date","chats_unreadCounter","chats_unreadCounterText","actionBarDefault"}:new String[]{"chat_wallpaper","chat_inBubble","chat_outBubble","chat_messageTextIn","chat_messageTextOut","actionBarDefault","chats_name","chats_unreadCounter"};
         ArrayList<String> keys=new ArrayList<>();
@@ -118,6 +119,7 @@ public final class AppearanceActivity extends LabsPage {
             String origin=draft.values.containsKey(key)?getString(R.string.TetogramAppearanceExplicit):getString(R.string.TetogramAppearanceInherited)+" · "+r.origins.getOrDefault(key,"Telegram");
             button(items,colorLabel(name),String.format(java.util.Locale.ROOT,"#%08X",color)+" · "+origin,()->colorDialog(name,color));
         }
+        if(dialog<0||scope.equals(AppearanceConfig.GLOBAL)||scope.startsWith("section:")||scope.startsWith("folder:")){Integer name=r.color(previewDark,"group.senderName");button(items,getString(R.string.TetogramAppearanceSenderNames),()->colorDialog("group.senderName",name==null?Theme.getColor(Theme.key_chat_inForwardedNameText):name));}
         button(items,getString(R.string.TetogramAppearanceRestoreContrast),this::restoreContrast);
         if(previewDialogs){
             number(items,"list.rowOpacity",getString(R.string.TetogramAppearanceRowOpacity),0,1);
@@ -151,11 +153,13 @@ public final class AppearanceActivity extends LabsPage {
         button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=new AppearanceConfig.Style();refresh();});
     }
     private CharSequence colorLabel(String name){switch(name){case "chat_wallpaper":return getString(R.string.TetogramAppearanceBackground);case "chat_inBubble":return getString(R.string.TetogramAppearanceIncoming);case "chat_outBubble":return getString(R.string.TetogramAppearanceOutgoing);case "chat_messageTextIn":return getString(R.string.TetogramAppearanceIncomingText);case "chat_messageTextOut":return getString(R.string.TetogramAppearanceOutgoingText);default:return name;}}
+    private int surfaceLabel(int kind){switch(kind){case 1:return R.string.TetogramAppearanceDialogList;case 2:return R.string.TetogramAppearanceProfile;case 3:return R.string.TetogramAppearanceGroups;case 4:return R.string.TetogramAppearanceSections;case 5:return R.string.TetogramAppearanceFolders;default:return R.string.TetogramAppearanceChat;}}
+    private void choosePreview(){ArrayList<Integer> kinds=new ArrayList<>();if(scope.startsWith("profile:"))kinds.add(2);else{Collections.addAll(kinds,0,3,1);if(scope.equals(AppearanceConfig.GLOBAL)||scope.startsWith("section:")||scope.startsWith("folder:"))Collections.addAll(kinds,4,5);if(scope.equals(AppearanceConfig.GLOBAL))kinds.add(2);}CharSequence[] names=new CharSequence[kinds.size()];for(int i=0;i<names.length;i++)names[i]=getString(surfaceLabel(kinds.get(i)));showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearancePreviewSurface)).setItems(names,(d,n)->{previewKind=kinds.get(n);previewDialogs=previewKind==1||previewKind==4||previewKind==5;refresh();}).create());}
     private boolean rowMedia(){return previewDialogs&&(scope.startsWith("chat:")||scope.startsWith("topic:"));}
-    private String mediaPrefix(){return scope.startsWith("profile:")?"banner.wallpaper":previewDialogs?"list.wallpaper":"wallpaper";}
+    private String mediaPrefix(){return previewKind==2?"banner.wallpaper":previewDialogs?"list.wallpaper":"wallpaper";}
     private String mediaKey(String part){return mediaPrefix()+"."+part;}
-    private String wallpaperColorName(String tail){return (scope.startsWith("profile:")?"banner.":previewDialogs?"list.":"")+"chat_wallpaper"+tail;}
-    private AppearanceConfig.Resolved previewStyle(){AppearanceConfig.Resolved r=resolved();return scope.startsWith("profile:")?AppearanceSurfaces.banner(r):previewDialogs?AppearanceSurfaces.list(r):r;}
+    private String wallpaperColorName(String tail){return (previewKind==2?"banner.":previewDialogs?"list.":"")+"chat_wallpaper"+tail;}
+    private AppearanceConfig.Resolved previewStyle(){AppearanceConfig.Resolved r=resolved();return previewKind==2?AppearanceSurfaces.banner(r):previewDialogs?AppearanceSurfaces.list(r):r;}
     private float defaultNumber(String key){if(key.equals("effects.durationScale"))return 1;if(key.startsWith("bubble."))return SharedConfig.bubbleRadius;if(key.equals(mediaKey("fps")))return 30;if(key.equals(mediaKey("quality")))return 1280;if(key.equals("list.rowOpacity"))return 1;if(key.equals("list.avatarSize"))return SharedConfig.useThreeLinesLayout?56:52;if(key.endsWith("angle"))return 45;if(key.endsWith("opacity")||key.endsWith("speed")||key.endsWith("zoom"))return 1;return 0;}
     private void number(ArrayList<UItem> items,String key,CharSequence label,float min,float max){String value=Float.toString(resolved().number(key,defaultNumber(key)));button(items,label,value+(draft.values.containsKey(key)?"":" · "+getString(R.string.TetogramAppearanceInherited)),()->showDialog(new AlertDialog.Builder(getContext()).setTitle(label).setItems(new CharSequence[]{getString(R.string.Edit),getString(R.string.TetogramAppearanceInherit)},(d,n)->{if(n==1){checkpoint();draft.values.remove(key);refresh();return;}input(label,value,text->{try{float parsed=Float.parseFloat(text);if(Float.isNaN(parsed)||Float.isInfinite(parsed)||parsed<min||parsed>max)throw new IllegalArgumentException();checkpoint();draft.set(key,Float.toString(parsed));refresh();}catch(Exception e){error(getString(R.string.TetogramAppearanceInvalidValue));}});}).create()));}
 

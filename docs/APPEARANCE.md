@@ -89,3 +89,7 @@ AppearanceLauncherActivity использует native AppIconsSelectorCell с �
 ### Эффекты
 
 Глобальные effects.enabled/durationScale/reduceOnBattery управляют native ActionBarLayout transition timings (включая возврат и смену темы), SectionMenu и animation gate фонов. Android animator setting читается и соблюдается, но не изменяется. Для отключённых анимаций manual progress duration остаётся 1 ms (без деления на ноль), переходы идут через штатную ветку без анимации. Независимые эффекты сообщений/Lite Mode остаются в штатном LiteModeSettingsActivity. Встроенные пресеты имеют контрастный action icon/unread text; Glass использует работающие полупрозрачные rows/gradient list background, Minimal отключает переходы. Android gestures/transition callbacks/reduced motion NOT RUN.
+
+### Контексты предпросмотра
+
+Глобальный редактор переключает chat/group/list/section/folder/profile previews. Используются native ChatMessageCell (customName/customAvatarDrawable с фиктивными данными), DialogCell.CustomDialog, SectionCircle, ScrollSlidingTextTabStrip и ProfileActivity2.AvatarImage. Просмотр не создаёт настоящие папки/разделы/чаты и не отправляет сообщения. Scoped editor предлагает только применимые контексты, чтобы не сохранять profile-параметры в chat scope. Поля group.senderName меняют только Paint имён групповых сообщений, не sender ID/содержимое/серверные PeerColors. UI checks NOT RUN.

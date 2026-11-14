@@ -120,4 +120,5 @@
     <string name="TetogramAppearanceTransitionDuration">Transition duration multiplier</string>
     <string name="TetogramAppearanceReduceOnBattery">Reduce effects in power saving mode</string>
     <string name="TetogramAppearanceNativeEffects">Telegram Lite Mode and native effects</string>
+    <string name="TetogramAppearanceSenderNames">Sender name color in groups</string>
 </resources>

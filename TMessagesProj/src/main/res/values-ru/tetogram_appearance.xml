@@ -120,4 +120,5 @@
     <string name="TetogramAppearanceTransitionDuration">Множитель длительности переходов</string>
     <string name="TetogramAppearanceReduceOnBattery">Уменьшать эффекты при энергосбережении</string>
     <string name="TetogramAppearanceNativeEffects">Lite Mode и штатные эффекты Telegram</string>
+    <string name="TetogramAppearanceSenderNames">Цвет имён отправителей в группах</string>
 </resources>

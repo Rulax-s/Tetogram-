@@ -18518,6 +18518,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 } else {
                     color = getThemedColor(Theme.key_chat_inForwardedNameText);
                 }
+                if(currentMessageObject.getDialogId()<0){Integer localNameColor=resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalNamedColor("group.senderName"):resourcesProvider.getAppearanceColor("group.senderName");if(localNameColor!=null)Theme.chat_namePaint.setColor(localNameColor);}
                 nameY = dp(drawPinnedTop ? 9 : 10) + compactHeaderHeight;
             }
             if (currentMessagesGroup != null && currentMessagesGroup.transitionParams.backgroundChangeBounds) {
