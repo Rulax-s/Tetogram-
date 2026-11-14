@@ -2086,6 +2086,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
     private org.telegram.ui.tetogram.AppearanceBanner tetogramBanner;
     private boolean tetogramBannerDestroyed;
+    private org.telegram.messenger.tetogram.AppearanceConfig.Resolved tetogramBannerStyle;
+    private Integer tetogramBannerTextColor(String key){
+        if(tetogramBanner==null||tetogramBannerStyle==null)return null;
+        String mode=tetogramBannerStyle.get("mode");
+        boolean dark=org.telegram.messenger.tetogram.AppearanceConfig.GLOBAL.equals(tetogramBannerStyle.origins.get("mode"))?Theme.isCurrentThemeDark():"dark".equals(mode)||!"light".equals(mode)&&Theme.isCurrentThemeDark();
+        Integer color=tetogramBannerStyle.color(dark,key);
+        return color==null?null:ColorUtils.blendARGB(color,getThemedColor(key.equals("banner.text")?Theme.key_windowBackgroundWhiteBlackText:Theme.key_windowBackgroundWhiteGrayText),headerBlurFactor);
+    }
     private void tetogramUpdateBanner(){
         if(tetogramBannerDestroyed||!(fragmentView instanceof FrameLayout)||topView==null||userId!=getUserConfig().getClientUserId())return;
         org.telegram.messenger.tetogram.AppearanceConfig.Resolved style=org.telegram.messenger.tetogram.AppearanceStore.snapshot(currentAccount).resolveProfile(userId);
@@ -2094,6 +2102,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         if(!enabled){if(tetogramBanner!=null){tetogramBanner.setResumed(false);parent.removeView(tetogramBanner);tetogramBanner=null;}return;}
         if(tetogramBanner==null){tetogramBanner=new org.telegram.ui.tetogram.AppearanceBanner(parent.getContext());parent.addView(tetogramBanner,parent.indexOfChild(topView)+1,LayoutHelper.createFrame(-1,280));}
         FrameLayout.LayoutParams bannerParams=(FrameLayout.LayoutParams)tetogramBanner.getLayoutParams();int bannerHeight=dp(Math.max(120,Math.min(480,style.number("banner.height",280))));if(bannerParams.height!=bannerHeight){bannerParams.height=bannerHeight;tetogramBanner.setLayoutParams(bannerParams);}
+        tetogramBannerStyle=style;
+        if(nameTextView!=null)nameTextView.invalidate();if(onlineTextView!=null)onlineTextView.invalidate();
         tetogramBanner.configure(userId,style);tetogramBanner.setResumed(!isPaused);parent.invalidate();
     }
 
@@ -5529,7 +5539,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             @Override
             protected void onDraw(Canvas canvas) {
                 final int wasRightDrawableX = getRightDrawableX();
-                super.onDraw(canvas);
+                int original=getPaint().getColor();Integer bannerColor=tetogramBannerTextColor("banner.text");
+                try {if(bannerColor!=null)getPaint().setColor(bannerColor);super.onDraw(canvas);}finally{getPaint().setColor(original);}
                 if (wasRightDrawableX != getRightDrawableX()) {
                     updateCollectibleHint();
                 }
@@ -5549,6 +5560,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         avatarContainer2.addView(nameTextView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 109, -6, 0, 0));
 
         onlineTextView = new AnimatedClickableSmallTextView(context) {
+            @Override protected void onDraw(Canvas canvas){
+                int original=getPaint().getColor();Integer bannerColor=tetogramBannerTextColor("banner.secondaryText");
+                try{if(bannerColor!=null)getPaint().setColor(bannerColor);super.onDraw(canvas);}finally{getPaint().setColor(original);}
+            }
             @Override
             public void setAlpha(float alpha) {
                 super.setAlpha(alpha);

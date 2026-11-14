@@ -522,7 +522,7 @@ public abstract class ViewPagerActivity extends BaseFragment {
 
         @Override
         protected long getManualScrollDuration() {
-            return 320L;
+            return org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(320);
         }
 
         @Override

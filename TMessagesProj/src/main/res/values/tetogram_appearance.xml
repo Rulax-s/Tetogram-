@@ -86,7 +86,7 @@
     <string name="TetogramAppearanceCircleStyle">Section button appearance</string>
     <string name="TetogramAppearanceCircleBackground">Button background</string>
     <string name="TetogramAppearanceCircleActive">Selected button background</string>
-    <string name="TetogramAppearanceCircleText">Icon and emoji color</string>
+    <string name="TetogramAppearanceCircleText">Built-in icon color</string>
     <string name="TetogramAppearanceCircleOutline">Outline color</string>
     <string name="TetogramAppearanceCircleActiveOutline">Selected outline color</string>
     <string name="TetogramAppearanceCircleBadge">Unread badge background</string>
@@ -162,4 +162,7 @@
     <string name="TetogramAppearanceInputBackground">Message input background</string>
     <string name="TetogramAppearanceInputText">Message input text</string>
     <string name="TetogramAppearanceNavigationOpacity">Navigation background opacity</string>
+    <string name="TetogramAppearanceHeaderSubtitle">Secondary text</string>
+    <string name="TetogramAppearanceInterfaceColors">Interface colors</string>
+    <string name="TetogramAppearanceBannerParallax">Banner parallax while scrolling</string>
 </resources>

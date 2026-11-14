@@ -44203,6 +44203,7 @@ public class ChatActivity extends BaseFragment implements
         private SparseIntArray tetogramColors = new SparseIntArray();
         private Drawable tetogramWallpaper;
         private long tetogramStyleRevision;
+        private boolean tetogramColorsDark;
 
         private org.telegram.messenger.tetogram.AppearanceConfig.Context tetogramContext() {
             return new org.telegram.messenger.tetogram.AppearanceConfig.Context(arguments == null ? null : arguments.getString("tetogram_appearance_section"), arguments == null ? null : arguments.getString("tetogram_appearance_folder"), dialog_id, getTopicId());
@@ -44213,7 +44214,8 @@ public class ChatActivity extends BaseFragment implements
             boolean had = !tetogramStyle.values.isEmpty();
             tetogramStyleRevision++;
             tetogramStyle = org.telegram.messenger.tetogram.AppearanceStore.resolve(currentAccount, tetogramContext());
-            tetogramColors = org.telegram.messenger.tetogram.AppearanceRuntime.colors(tetogramStyle, isDark());
+            tetogramColorsDark=isDark();
+            tetogramColors = org.telegram.messenger.tetogram.AppearanceRuntime.colors(tetogramStyle, tetogramColorsDark);
             tetogramWallpaper = org.telegram.ui.tetogram.AppearanceBackgrounds.colors(tetogramStyle, isDark());
             if (!tetogramStyle.values.isEmpty() || had) {
                 currentDrawables.clear(); currentPaints.clear();
@@ -44320,15 +44322,15 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public int getColor(int key) {
-            int customIndex = tetogramColors.indexOfKey(key);
-            if (customIndex >= 0) return tetogramColors.valueAt(customIndex);
-            if (("dark".equals(tetogramStyle.get("mode")) || "light".equals(tetogramStyle.get("mode"))) && isDark() != Theme.isCurrentThemeDark()) return org.telegram.messenger.tetogram.AppearanceRuntime.baseColor(isDark(), key);
             if (animatingColors != null) {
                 int index = animatingColors.indexOfKey(key);
                 if (index >= 0) {
                     return animatingColors.valueAt(index);
                 }
             }
+            int customIndex = tetogramColors.indexOfKey(key);
+            if (customIndex >= 0) return tetogramColors.valueAt(customIndex);
+            if (("dark".equals(tetogramStyle.get("mode")) || "light".equals(tetogramStyle.get("mode"))) && isDark() != Theme.isCurrentThemeDark()) return org.telegram.messenger.tetogram.AppearanceRuntime.baseColor(isDark(), key);
             if (ownCompactResources) {
                 final Integer compactColor = Theme.getCompactColor(key, this);
                 if (compactColor != null) {
@@ -44359,6 +44361,12 @@ public class ChatActivity extends BaseFragment implements
         }
 
         public int getCurrentColor(int key, boolean ignoreAnimation) {
+            if (!ignoreAnimation && animatingColors != null) {
+                int index = animatingColors.indexOfKey(key);
+                if (index >= 0) {
+                    return animatingColors.valueAt(index);
+                }
+            }
             int customIndex = tetogramColors.indexOfKey(key);
             if (customIndex >= 0) return tetogramColors.valueAt(customIndex);
             if (("dark".equals(tetogramStyle.get("mode")) || "light".equals(tetogramStyle.get("mode"))) && isDark() != Theme.isCurrentThemeDark()) return org.telegram.messenger.tetogram.AppearanceRuntime.baseColor(isDark(), key);
@@ -44366,12 +44374,6 @@ public class ChatActivity extends BaseFragment implements
                 return Theme.getColor(key);
             }
 
-            if (!ignoreAnimation && animatingColors != null) {
-                int index = animatingColors.indexOfKey(key);
-                if (index >= 0) {
-                    return animatingColors.valueAt(index);
-                }
-            }
             if (currentColors != null) {
                 int index = currentColors.indexOfKey(key);
                 if (index >= 0) {
@@ -48238,6 +48240,7 @@ public class ChatActivity extends BaseFragment implements
     @Override
     public void onThemeColorsChanged() {
         try {
+            if(themeDelegate!=null&&parentThemeDelegate==null&&themeDelegate.tetogramColorsDark!=themeDelegate.isDark())themeDelegate.reloadTetogramAppearance();
             super.onThemeColorsChanged();
             invalidateGlassSources();
             if (actionBarBackgroundPaint != null) {

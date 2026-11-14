@@ -162,4 +162,7 @@
     <string name="TetogramAppearanceInputBackground">Фон поля ввода</string>
     <string name="TetogramAppearanceInputText">Текст поля ввода</string>
     <string name="TetogramAppearanceNavigationOpacity">Непрозрачность фона нижней навигации</string>
+    <string name="TetogramAppearanceHeaderSubtitle">Дополнительный текст</string>
+    <string name="TetogramAppearanceInterfaceColors">Цвета интерфейса</string>
+    <string name="TetogramAppearanceBannerParallax">Параллакс баннера при прокрутке</string>
 </resources>
