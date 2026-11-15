@@ -38,10 +38,14 @@ public abstract class LabsPage extends BaseFragment {
     }
     private void updateBottomActionsInsets(){
         if(list==null)return;
-        if(topContent!=null){FrameLayout.LayoutParams top=(FrameLayout.LayoutParams)topContent.getLayoutParams();int y=mSystemInsets.top+ActionBar.getCurrentActionBarHeight();if(top.topMargin!=y||top.leftMargin!=mSystemInsets.left||top.rightMargin!=mSystemInsets.right){top.topMargin=y;top.leftMargin=mSystemInsets.left;top.rightMargin=mSystemInsets.right;topContent.setLayoutParams(top);}}
+        int dockHeight=bottomActions==null?0:Math.max(bottomActions.getMeasuredHeight(),org.telegram.messenger.AndroidUtilities.dp(72));
+        int viewport=fragmentView.getHeight()>0?fragmentView.getHeight():org.telegram.messenger.AndroidUtilities.displaySize.y;
+        int visibleTopHeight=org.telegram.messenger.tetogram.AppearanceEditorPolicy.previewHeight(topContentHeight,viewport,mSystemInsets.top+mSystemInsets.bottom+ActionBar.getCurrentActionBarHeight()+dockHeight,org.telegram.messenger.AndroidUtilities.dp(96));
+        if(visibleTopHeight<org.telegram.messenger.AndroidUtilities.dp(80))visibleTopHeight=0;
+        if(topContent!=null){topContent.setVisibility(visibleTopHeight==0?View.GONE:View.VISIBLE);FrameLayout.LayoutParams top=(FrameLayout.LayoutParams)topContent.getLayoutParams();int y=mSystemInsets.top+ActionBar.getCurrentActionBarHeight();if(top.height!=visibleTopHeight||top.topMargin!=y||top.leftMargin!=mSystemInsets.left||top.rightMargin!=mSystemInsets.right){top.height=visibleTopHeight;top.topMargin=y;top.leftMargin=mSystemInsets.left;top.rightMargin=mSystemInsets.right;topContent.setLayoutParams(top);}}
         if(bottomActions!=null){FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)bottomActions.getLayoutParams();
         if(lp.bottomMargin!=mSystemInsets.bottom||lp.leftMargin!=mSystemInsets.left||lp.rightMargin!=mSystemInsets.right){lp.bottomMargin=mSystemInsets.bottom;lp.leftMargin=mSystemInsets.left;lp.rightMargin=mSystemInsets.right;bottomActions.setLayoutParams(lp);}}
-        org.telegram.utils.glass.BaseFragmentSimpleGlass.setListViewParams(list,mSystemInsets.top,mSystemInsets.bottom,ActionBar.getCurrentActionBarHeight()+topContentHeight,bottomActions==null?0:bottomActions.getMeasuredHeight());
+        org.telegram.utils.glass.BaseFragmentSimpleGlass.setListViewParams(list,mSystemInsets.top,mSystemInsets.bottom,ActionBar.getCurrentActionBarHeight()+visibleTopHeight,bottomActions==null?0:bottomActions.getMeasuredHeight());
     }
     @Override public void onInsets(int left,int top,int right,int bottom){super.onInsets(left,top,right,bottom);updateBottomActionsInsets();}
     protected abstract CharSequence title();
@@ -63,6 +67,7 @@ public abstract class LabsPage extends BaseFragment {
         bottomActions=null;topContent=null;topContentHeight=0;
         FrameLayout frame=new FrameLayout(context);
         fragmentView=frame;
+        frame.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(b-t!=ob-ot)updateBottomActionsInsets();});
         ThemeBind.backgroundColor(frame,Theme.key_windowBackgroundGray);
         list=new UniversalRecyclerView(this,this::fill,this::click,null);
         list.setSectionsDrawBackground(true);

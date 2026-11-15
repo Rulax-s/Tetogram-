@@ -4,6 +4,7 @@
 
 - Девять отдельных категорий вместо повторных входов в монолит; единая принадлежность ключей, прежние scopes/storage/presets, явные источники и влияние изменений.
 - Native header Undo/⋮, pinned Apply/Cancel, dirty/exit guard; сохранение пресета отдельно от применения. Общий LabsPage учитывает top preview/bottom dock через системные Insets.
+- Preview адаптируется к фактической высоте окна/Insets/dock, оставляя место параметрам на низком экране; слишком тесный preview автоматически скрывается, полноэкранный остаётся доступен через меню.
 - SP/multiline title/value rows и native Switch; короткие Simple/Advanced labels, локализованные значения режима и fit/fill, поиск по RU labels и raw keys.
 - Переиспользуемый preview media вне RecyclerView, обновляемые сцены, видимые Expand/Hide, demo profile без реальных данных и сохранение позиции при lifecycle stop.
 - Числовые fallback-значения берутся из общего определения параметра; высота баннера без override отображается как 280 dp, а не ошибочные 0 dp.

@@ -59,7 +59,9 @@ class SettingsInsetsContracts(unittest.TestCase):
     def test_pinned_preview_and_dock_use_shared_native_insets(self):
         page=source('ui/tetogram/LabsPage.java')
         self.assertIn('mSystemInsets.top+ActionBar.getCurrentActionBarHeight()',page)
-        self.assertIn('ActionBar.getCurrentActionBarHeight()+topContentHeight',page)
+        self.assertIn('ActionBar.getCurrentActionBarHeight()+visibleTopHeight',page)
+        self.assertIn('AppearanceEditorPolicy.previewHeight(',page)
+        self.assertIn('top.height=visibleTopHeight',page)
         self.assertIn('lp.leftMargin=mSystemInsets.left',page)
         self.assertIn('lp.rightMargin=mSystemInsets.right',page)
         screen=source('ui/tetogram/AppearanceActivity.java')

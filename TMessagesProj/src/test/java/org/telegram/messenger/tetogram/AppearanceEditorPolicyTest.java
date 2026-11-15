@@ -3,6 +3,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.telegram.messenger.tetogram.AppearanceEditorPolicy.*;
 public class AppearanceEditorPolicyTest {
+ @Test public void previewReservesSettingsSpaceInLandscapeAndWithLargeFonts(){assertEquals(200,previewHeight(200,800,140,96));assertEquals(124,previewHeight(360,360,140,96));assertEquals(0,previewHeight(200,200,140,96));}
  @Test public void wallpaperFieldsHaveOneCategoryRegardlessOfScopeDomain(){for(String key:new String[]{"wallpaper.file","list.wallpaper.speed","banner.wallpaper.blur","light.chat_wallpaper","dark.list.chat_wallpaper_gradient_to1"})assertEquals(Category.WALLPAPERS,category(key));}
  @Test public void listAndMessagesAreSeparate(){assertEquals(Category.LIST,category("light.list.chats_name"));assertEquals(Category.CHATS,category("light.chat_outBubble"));assertEquals(Category.SECTIONS,category("dark.list.chats_tabText"));}
  @Test public void resettingOneCategoryPreservesOtherValuesAndOriginal(){AppearanceConfig.Style s=new AppearanceConfig.Style();s.set("wallpaper.zoom","2");s.set("bubble.inRadius","20");s.color(false,"list.chats_name",4);AppearanceConfig.Style reset=resetCategory(s,Category.WALLPAPERS);assertFalse(reset.values.containsKey("wallpaper.zoom"));assertEquals("20",reset.values.get("bubble.inRadius"));assertEquals(3,s.values.size());}

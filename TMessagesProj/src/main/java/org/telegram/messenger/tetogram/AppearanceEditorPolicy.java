@@ -31,6 +31,7 @@ public final class AppearanceEditorPolicy {
         String fallback="inherit";if(kind==Kind.BOOLEAN)fallback=Boolean.toString(!Arrays.asList("parallax","gradientMotion","pattern").contains(part));else if(kind==Kind.NUMBER)fallback=part.equals("fps")?"30":part.equals("quality")?"1920":part.equals("angle")?"45":part.equals("patternIntensity")?"34":name.equals("launcher.iconScale")?"0.78":name.equals("banner.height")?"280":name.equals("section.outlineWidth")?"2":name.startsWith("bubble.")?"native":part.toLowerCase(Locale.ROOT).endsWith("opacity")||part.equals("speed")||part.equals("zoom")||part.equals("durationScale")?"1":"0";
         return new Definition(key,category(key),kind,fallback);
     }
+    public static int previewHeight(int desired,int viewport,int occupied,int reserve){return Math.max(0,Math.min(desired,viewport-occupied-reserve));}
     public static int preview(Category category){switch(category){case LIST:return 1;case PROFILE:return 2;case SECTIONS:return 4;default:return 0;}}
     public static boolean dirty(AppearanceConfig.Style saved,AppearanceConfig.Style draft){return !((saved==null?Collections.emptyMap():saved.values).equals(draft==null?Collections.emptyMap():draft.values));}
     /** Selecting another category/mode is a view operation, never a storage migration. */
