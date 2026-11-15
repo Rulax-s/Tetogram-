@@ -1,6 +1,8 @@
 # История изменений
 
-## 0.4.0 — переработка редактора, code149 (проверяется)
+## 0.4.0 — переработка редактора, code149 (APK собрана)
+
+- Source 05765744c07817fee114a41095c23b7be9ac3c82; CI 43698098220 success. Реальный JUnit report: 210 tests / 0 failures / 0 errors / 0 skipped (94 appearance). 19 SQLite, 7 Insets + 7 editor source contracts, 331 localization keys; APK/сертификат/ARM64 проверены, копия в Download. APK-0.4.0-editor.json и TESTS-0.4.0-editor.json. Android UI/One UI NOT RUN.
 
 - Девять отдельных категорий вместо повторных входов в монолит; единая принадлежность ключей, прежние scopes/storage/presets, явные источники и влияние изменений.
 - Native header Undo/⋮, pinned Apply/Cancel, dirty/exit guard; сохранение пресета отдельно от применения. Общий LabsPage учитывает top preview/bottom dock через системные Insets.

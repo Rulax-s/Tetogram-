@@ -1,0 +1,53 @@
+{
+  "file_name": "Tetogram-debug.apk",
+  "version": "0.4.0",
+  "version_code": 149,
+  "application_id": "org.tetogram.messenger",
+  "size_bytes": 82832368,
+  "sha256": "b3746d937cabcd121ed045ca6dc8854e9409b5a9efd6170e81990082e02cd83d",
+  "signature_certificate_sha256": "147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "seasonal_aliases_verified": [
+    "MikuAutumnIcon",
+    "MikuSpringIcon",
+    "MikuSummerIcon",
+    "MikuWinterIcon",
+    "TetoAutumnIcon",
+    "TetoSpringIcon",
+    "TetoWinterIcon"
+  ],
+  "partial_media_permission": true,
+  "update_compatible_with_verified_0_3_1_code99": true,
+  "supplied_artwork_byte_equal": 7,
+  "supplied_artwork_dimensions": [
+    1254,
+    1254
+  ],
+  "update_compatible_with_verified_0_4_0_code139": true,
+  "run_id": 43698098220,
+  "source_commit": "05765744c07817fee114a41095c23b7be9ac3c82",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43698098220/artifacts/14156035977",
+  "artifact_expires_at": "2026-11-29T09:26:30Z",
+  "file_on_phone": "/sdcard/Download/Tetogram-0.4.0-149-debug.apk",
+  "jvm_tests": {
+    "tests": 210,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "appearance_tests": 94
+  },
+  "sqlite_tests": 19,
+  "settings_insets_source_contracts": 7,
+  "appearance_editor_source_contracts": 7,
+  "localization_keys_in_apk": 331,
+  "android_ui_tests": "NOT RUN",
+  "missing_artwork": [
+    "tetogram_teto_summer_art.png"
+  ],
+  "implementation_status": "Reworked scoped appearance editor; Android gestures, visual results, codecs and One UI require manual verification"
+}

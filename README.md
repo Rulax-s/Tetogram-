@@ -4,11 +4,13 @@ Tetogram — независимый неофициальный Android-клие�
 
 Цель первой версии — сохранить существующие чаты, навигацию, темы, медиа, звонки и MTProto. Собственный сервер сообщений, Bot API и демонстрационные чаты не используются. Дополнительные возможности Tetogram Labs и разделов описаны ниже; новые UI-сценарии требуют проверки на устройстве.
 
+**Редактор оформления 0.4.0 / code149:** [Скачать ZIP с APK](https://github.com/Rulax-s/Tetogram-/actions/runs/43698098220/artifacts/14156035977) · [успешная сборка](https://github.com/Rulax-s/Tetogram-/actions/runs/43698098220). Отдельные категории, область/источник наследования, закреплённые Apply/Cancel, живой preview, native палитра и сезонные значки. Проверено: 210 JVM tests (94 appearance), 19 SQLite, 14 source contracts, APK identity/signature/ARM64 и 331 EN/RU localization keys. Android UI/One UI/кодеки/жесты **NOT RUN**. Файл на телефоне: `/sdcard/Download/Tetogram-0.4.0-149-debug.apk`. [Изменения и ручная приёмка](docs/APPEARANCE_EDITOR.md), [иконки и недостающий Teto summer](docs/ICON_ASSETS.md), [метаданные APK](docs/APK-0.4.0-editor.json), [реальный JUnit report](docs/TESTS-0.4.0-editor.json), [файлы](docs/CHANGED-0.4.0-editor.txt). Установить поверх прежней версии без удаления приложения; package и сертификат сохранены. Артефакт до 2026-11-29.
+
 - Application ID: `org.tetogram.messenger`, включая debug без `.beta`.
-- Разрабатываемая версия: `0.4.0` (персонализация), предыдущая сборка — `0.3.1`; исходная версия Telegram: `13.2.2`.
+- Версия: `0.4.0`, текущая сборка — code149; предыдущая сборка персонализации — code139. Исходная версия Telegram: `13.2.2`.
 - Android 6.0+ (API 23), первая конфигурация — ARM64 (`arm64-v8a`).
 - Русский язык при первом запуске; остальные переводы и выбор языка сохранены.
-- Временная иконка — белая буква T на фиолетовом фоне, без логотипа Telegram.
+- Значок по умолчанию — белая T на фиолетовом фоне; семь сезонных Tetogram/Mikugram вариантов и персонализированный ярлык описаны в ICON_ASSETS.md.
 
 **Тестовая APK 0.4.0, versionCode 139:** [скачать ZIP с APK](https://github.com/Rulax-s/Tetogram-/actions/runs/43675297320/artifacts/14146850490) (до 29 ноября 2026), [успешная сборка](https://github.com/Rulax-s/Tetogram-/actions/runs/43675297320), [метаданные/контрольная сумма](docs/APK-0.4.0.json). Копия на телефоне: `/sdcard/Download/Tetogram-0.4.0-139-debug.apk`. 189 выполненных JVM-тестов (73 appearance), 19 SQLite, 6 source Insets contracts и 279 EN/RU bindings прошли. Подпись совпадает с 0.3.1, package сохранён; установка поверх старой APK без удаления приложения. Android UI/codec/gestures/сенсоры агентом NOT RUN; полная приёмка исходного ТЗ не объявляется. [Поддерживаемые параметры/ограничения](docs/APPEARANCE_KEYS.md), [ручная матрица](docs/APPEARANCE_MANUAL_TESTING.md), [изменённые файлы](docs/CHANGED-0.4.0.txt).
 

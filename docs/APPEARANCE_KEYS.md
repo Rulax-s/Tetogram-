@@ -28,7 +28,7 @@ FPS/quality применяются при подготовке/подтверж�
 
 Глобальные `effects.enabled`, `effects.durationScale` (.25..2), `effects.reduceOnBattery` управляют подключёнными native переходами; native Lite Mode сохранён. Они не добавляют собственную систему анимации сообщений.
 
-`launcher.label`, `launcher.emoji`, `launcher.icon.file` используются только для явного pinned shortcut. Native alias selector действует штатно; произвольное системное имя/иконка установленной APK не обещаются. Preset не создаёт shortcut автоматически. Android/launcher может потребовать ручное удаление плитки.
+`launcher.label`, `launcher.emoji`, `launcher.icon.file`, `launcher.iconScale` (.45–1.1, default .78) используются только для явного pinned shortcut. Native brand/season alias selector действует на устройство, см. APPEARANCE_EDITOR.md и ICON_ASSETS.md; произвольное системное имя/иконка установленной APK не обещаются. Preset не создаёт shortcut автоматически. Android/launcher может потребовать ручное удаление плитки.
 
 ## Безопасность и расширение
 
