@@ -668,9 +668,13 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private boolean tetogramListDark;
     private org.telegram.ui.tetogram.AppearanceMediaView tetogramListMedia;
     private View tetogramListTint;
+    private void tetogramResetDetachedListLayers(ContentView root){
+        if(tetogramListMedia!=null&&tetogramListMedia.getParent()!=root){tetogramListMedia.setResumed(false);AndroidUtilities.removeFromParent(tetogramListMedia);tetogramListMedia=null;}
+        if(tetogramListTint!=null&&tetogramListTint.getParent()!=root){AndroidUtilities.removeFromParent(tetogramListTint);tetogramListTint=null;}
+    }
     private void tetogramRefreshListTint(){
         if(!(fragmentView instanceof ContentView)||tetogramListStyle==null)return;
-        ContentView root=(ContentView)fragmentView;
+        ContentView root=(ContentView)fragmentView;tetogramResetDetachedListLayers(root);
         boolean flat=org.telegram.messenger.tetogram.AppearanceListStyle.uniform(tetogramListStyle);
         if(flat){if(tetogramListTint==null){tetogramListTint=new View(root.getContext());int index=tetogramListMedia!=null?root.indexOfChild(tetogramListMedia)+1:root.backgroundView==null?0:root.indexOfChild(root.backgroundView)+1;root.addView(tetogramListTint,index,LayoutHelper.createFrame(-1,-1));}tetogramListTint.setBackgroundColor(org.telegram.messenger.tetogram.AppearanceListStyle.tint(tetogramListColors.getColor(Theme.key_windowBackgroundWhite),tetogramListStyle.number("list.rowOpacity",1)));}
         else if(tetogramListTint!=null){root.removeView(tetogramListTint);tetogramListTint=null;}
@@ -700,7 +704,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         tetogramListStyle=style;tetogramListDark=dark;
         tetogramListColors = new org.telegram.ui.tetogram.AppearanceResources(style, dark, super.getResourceProvider());
         if(mainTabsActivityController!=null)mainTabsActivityController.setAppearance(getUserConfig().getClientUserId(),style,dark);
-        ContentView root = (ContentView) fragmentView;
+        ContentView root = (ContentView) fragmentView;tetogramResetDetachedListLayers(root);
         Drawable background = org.telegram.ui.tetogram.AppearanceBackgrounds.colors(style,dark);
         root.setBackgroundImage(background,false);
         if (org.telegram.messenger.tetogram.AppearanceConfig.isMediaName(style.get("wallpaper.file"))) {

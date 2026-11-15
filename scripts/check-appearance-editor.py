@@ -18,6 +18,7 @@ class EditorContracts(unittest.TestCase):
   src=source('ui/tetogram/AppearancePreview.java');update=src.split('public void update(',1)[1].split('private boolean resumed',1)[0]
   self.assertNotIn('new AppearanceMediaView',update);self.assertNotIn('removeAllViews();media',update);self.assertIn('media.configure(',update)
   media=source('ui/tetogram/AppearanceMediaView.java');self.assertIn('if(!sameSource){stop();resumePosition=0;',media);self.assertIn('instance.seekTo(resumePosition)',media)
+  dialogs=source('ui/DialogsActivity.java');self.assertIn('tetogramListMedia.getParent()!=root',dialogs);self.assertIn('tetogramListTint.getParent()!=root',dialogs);self.assertIn('tetogramResetDetachedListLayers(root)',dialogs)
  def test_accessible_rows_grow_with_font_scale(self):
   row=source('ui/tetogram/AppearanceSettingRow.java');self.assertIn('COMPLEX_UNIT_SP',row);self.assertIn('setSingleLine(false)',row);self.assertIn('setMaxLines(Integer.MAX_VALUE)',row);self.assertNotIn('setEllipsize',row)
  def test_seasonal_icons_do_not_use_old_premium_selector(self):

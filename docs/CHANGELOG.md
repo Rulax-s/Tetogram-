@@ -9,6 +9,7 @@
 - Переиспользуемый preview media вне RecyclerView, обновляемые сцены, видимые Expand/Hide, demo profile без реальных данных и сохранение позиции при lifecycle stop.
 - Числовые fallback-значения берутся из общего определения параметра; высота баннера без override отображается как 280 dp, а не ошибочные 0 dp.
 - Прямой native color picker с HEX/RGB/HSV/HSL, alpha, recent/favorites, pipette, live sample и popup actions.
+- При пересоздании ContentView слои фона списка освобождаются от старого root/Activity и привязываются к новому, вместо сохранения невидимого старого media/tint view.
 - Transparent/Glass/Cards используют прежние поля; flat tint распространяется на пустой viewport, individual row/cards сохраняют собственную заливку.
 - Предпросмотр масок и shortcut fallback учитывают background выбранного native alias, включая фиолетовый Classic и бирюзовый T, вместо общей чёрной заливки.
 - Device-wide Tetogram/Mikugram seasonal aliases, safe-zone layers, calendar refresh, три preview masks/shortcut zoom; старый Premium selector убран из основного экрана. Teto summer artwork отсутствует и явно отмечен, не заменён случайным изображением.
