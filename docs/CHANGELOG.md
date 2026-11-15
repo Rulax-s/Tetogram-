@@ -1,6 +1,8 @@
 # История изменений
 
-## 0.4.0 — история правок и локальные профили, code209 (проверяется)
+## 0.4.0 — история правок и локальные профили, code209 (APK собрана)
+
+- CI 43769585618 success, source a33f15ba6cdc435a1dd11792be5228c5b144beeb. Фактический JUnit: 288 tests / 0 failures / 0 errors / 0 skipped (25 edit + 6 profile). 32 SQLite (13 edit), 44 source contracts, 4 asset tests. APK: package/постоянный сертификат/ARM64/371 EN-RU keys/новые классы DEX проверены. Android UI/живой MTProto NOT RUN. Receipts: APK-0.4.0-edit-history.json и TESTS-0.4.0-edit-history.json.
 
 - Реализована история редактирования вместо прежнего «недоступно»: отдельное согласие/default off, capture до native SQLite overwrite, старые/новые TL snapshots, mark в чате, контекстное меню/список чата в Labs, UID/did/mid, очистка/retention/исключения. Секретные/TTL/одноразовые/ephemeral/protected не сохраняются.
 - Новая таблица в существующей базе, без копий версий в обычном списке messages и без изменения оригиналов на сервере. Повторы дедуплицируются по последнему состоянию; same-second A → B → A не теряется.

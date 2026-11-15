@@ -1,0 +1,2107 @@
+{
+  "summary": {
+    "tests": 288,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceAccentTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "extremeAccentsKeepCoreTextReadable",
+          "class": "org.telegram.messenger.tetogram.AppearanceAccentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "listOnlyPaletteDoesNotOverwriteChatColorsOrMedia",
+          "class": "org.telegram.messenger.tetogram.AppearanceAccentTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceArchiveTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "refusingVideoCanExportOnlyItsCover",
+          "class": "org.telegram.messenger.tetogram.AppearanceArchiveTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "paletteRoundTripHasFreshIdAndNoScopes",
+          "class": "org.telegram.messenger.tetogram.AppearanceArchiveTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "imagesAreOptInAndRenamedWithStableSharedReferences",
+          "class": "org.telegram.messenger.tetogram.AppearanceArchiveTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "rejectsChecksumMismatchAndMissingAssetsAndCleansStaging",
+          "class": "org.telegram.messenger.tetogram.AppearanceArchiveTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "manifestIsBounded",
+          "class": "org.telegram.messenger.tetogram.AppearanceArchiveTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "rejectsUnsafePathsUnknownMetadataAndFutureSchema",
+          "class": "org.telegram.messenger.tetogram.AppearanceArchiveTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceColorsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "modelsAndAlpha",
+          "class": "org.telegram.messenger.tetogram.AppearanceColorsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "transparentTextCannotPassContrast",
+          "class": "org.telegram.messenger.tetogram.AppearanceColorsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "hexUsesAndroidArgb",
+          "class": "org.telegram.messenger.tetogram.AppearanceColorsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "conversionsArePortableStyleValues",
+          "class": "org.telegram.messenger.tetogram.AppearanceColorsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "rejectMalformedAndNonFinite",
+          "class": "org.telegram.messenger.tetogram.AppearanceColorsTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "groupCanChooseGlobalOrTelegramWallpaperWithoutLosingOtherInheritance",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "chatsAndAccountsAreIndependent",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "applyingAndDuplicatingNeverShareMutableStyle",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "noExistingSectionMigrationOrSessionStorageIsNeeded",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "roundtripPreservesUnicodeAndBothPalettes",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "builtinsProvideBothPalettesWithReadableText",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "mediaReferencesIncludeInactivePresets",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "openingAnEmptyScopeDoesNotCountAsApplyingATheme",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "oneFolderInTwoSectionsHasSameExplicitFolderOverride",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "rejectsFutureSchema",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "presetCrudDoesNotChangeAppliedScopes",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "directSearchAndNotificationDoNotPickRandomFolder",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "inheritanceIsPerPropertyAndResetRestoresParent",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "rejectsUnsafeScope",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "mediaNamesRejectTraversalAndAbsolutePaths",
+          "class": "org.telegram.messenger.tetogram.AppearanceConfigTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceContrastTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "activeAndInactiveSectionIconsCanHaveIndependentContrast",
+          "class": "org.telegram.messenger.tetogram.AppearanceContrastTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "transparentTextIsRejectedAndRepairIsUndoableByCopy",
+          "class": "org.telegram.messenger.tetogram.AppearanceContrastTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "untouchedExternalThemeIsNotRewritten",
+          "class": "org.telegram.messenger.tetogram.AppearanceContrastTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "lightRepairDoesNotChangeDarkPalette",
+          "class": "org.telegram.messenger.tetogram.AppearanceContrastTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "unsupportedScopeControlsAreNotOffered",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "localEditsStillRespectInheritanceAndAccountCopies",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "listAndMessagesAreSeparate",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "resettingOneBackgroundDoesNotRemoveOtherSurfaces",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "wallpaperFieldsHaveOneCategoryRegardlessOfScopeDomain",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "previewReservesSettingsSpaceInLandscapeAndWithLargeFonts",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "ordinaryColorChangesKeepVideoIdentity",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "resettingOneCategoryPreservesOtherValuesAndOriginal",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "viewChangesDoNotDirtyDraftAndChangesCanBeUndone",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "definitionsKeepNumericAndBooleanParallaxDistinct",
+          "class": "org.telegram.messenger.tetogram.AppearanceEditorPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceEffectsTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "systemAndBatteryGatesAreRespected",
+          "class": "org.telegram.messenger.tetogram.AppearanceEffectsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "noAnimationAvoidsZeroDivisions",
+          "class": "org.telegram.messenger.tetogram.AppearanceEffectsTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceGeometryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "largeCurvesFitWithoutClippingNinePatchEdges",
+          "class": "org.telegram.messenger.tetogram.AppearanceGeometryTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "shapeSettingsRoundTripWithoutSharingChatOverrides",
+          "class": "org.telegram.messenger.tetogram.AppearanceGeometryTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "invalidInputsDoNotAllocateUnboundedBitmaps",
+          "class": "org.telegram.messenger.tetogram.AppearanceGeometryTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "defaultCacheRemainsNative",
+          "class": "org.telegram.messenger.tetogram.AppearanceGeometryTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "manualSeasonsNeverDependOnMonth",
+          "class": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "automaticAndExplicitChoicesAreDeterministic",
+          "class": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "autoChangesOnlySeasonAndKeepsCharacter",
+          "class": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "monthBoundariesAndLeapDayUseLocalCalendar",
+          "class": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "everyCalendarMonthHasCorrectSeason",
+          "class": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "fullMatrixHasEightDistinctLogicalAliases",
+          "class": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "oldAliasesAreEquivalentWithoutForcedComponentMigration",
+          "class": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sameInstantUsesLocalMonthAcrossTimeZones",
+          "class": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "completeArtworkSquareFitsGuaranteedAdaptiveSafeCircle",
+          "class": "org.telegram.messenger.tetogram.AppearanceIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceLeasesTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "closingAnExportDoesNotReleaseAnEditor",
+          "class": "org.telegram.messenger.tetogram.AppearanceLeasesTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "accountsAndFilesAreIndependent",
+          "class": "org.telegram.messenger.tetogram.AppearanceLeasesTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceListStyleTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "transparentRowsAndEmptySpaceHaveTheSameTint",
+          "class": "org.telegram.messenger.tetogram.AppearanceListStyleTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "nativeListDoesNotGainAnOverlay",
+          "class": "org.telegram.messenger.tetogram.AppearanceListStyleTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "individualChatOpacityIsNotMovedIntoGlobalBackground",
+          "class": "org.telegram.messenger.tetogram.AppearanceListStyleTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "cardsKeepIndependentFill",
+          "class": "org.telegram.messenger.tetogram.AppearanceListStyleTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "flatGlassUsesOneContinuousSurface",
+          "class": "org.telegram.messenger.tetogram.AppearanceListStyleTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "encodingCapsDoNotTrustImportedStyleRanges",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "abandonedImportCleanupNeverTargetsForeignDirectories",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "cleanupProtectsSharedPresetReferencesAndPendingDrafts",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "rotatedEncoderAxesMatchNativeMediaController",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "videoDimensionsStayEvenAndDoNotUpscale",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "cleanupDoesNotTouchForeignFiles",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "rejectsEmptyRange",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "selectedRangeIsBoundedBySource",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "onlyVisibleForegroundSurfacePlays",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "batterySaverAlwaysStopsVideo",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "firstFrameRequiresMetadataAndLaidOutSurface",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "largePortraitAndLandscapeUseBoundedDecode",
+          "class": "org.telegram.messenger.tetogram.AppearanceMediaPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceParameterNamesTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "russianSearchTermsExistForTechnicalRoles",
+          "class": "org.telegram.messenger.tetogram.AppearanceParameterNamesTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "englishLabelsAreReadableAndKeysAreNotMutated",
+          "class": "org.telegram.messenger.tetogram.AppearanceParameterNamesTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceProfileGeometryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "defaultAndCollapsedEndpointsStayNative",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfileGeometryTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "avatarAlignmentStaysInsideSafeHorizontalMargins",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfileGeometryTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "expandedPhotoDoesNotReceiveAnExtraOffset",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfileGeometryTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "recomputationDoesNotAccumulateOffsetsAndInvalidControlsFallBack",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfileGeometryTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceProfilePolicyTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "ownProfileKeepsGlobalBannerCompatibility",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfilePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "otherProfilesStayNativeUntilExplicitlyCustomized",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfilePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "overridesAndResetDoNotChangeOwnProfileOrChat",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfilePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "logoutCannotActivateAnotherOwnersProfile",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfilePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "userAndGroupTargetsHaveDifferentNamespaces",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfilePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "zeroTargetDoesNotCreateAnInvalidScope",
+          "class": "org.telegram.messenger.tetogram.AppearanceProfilePolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceSampleTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "letterboxIsNotAColor",
+          "class": "org.telegram.messenger.tetogram.AppearanceSampleTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "portraitAndBoundaries",
+          "class": "org.telegram.messenger.tetogram.AppearanceSampleTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "invalidBoundsAreSafe",
+          "class": "org.telegram.messenger.tetogram.AppearanceSampleTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceSurfacesTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "explicitListAndBannerDomainsAreIndependent",
+          "class": "org.telegram.messenger.tetogram.AppearanceSurfacesTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "profileBannerDoesNotChangeChatOrAnotherProfile",
+          "class": "org.telegram.messenger.tetogram.AppearanceSurfacesTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "globalChatWallpaperDoesNotBecomeListWallpaper",
+          "class": "org.telegram.messenger.tetogram.AppearanceSurfacesTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "circlePaletteInheritsGlobalButDoesNotLeakAnotherSection",
+          "class": "org.telegram.messenger.tetogram.AppearanceSurfacesTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "shortcutDraftFieldsDoNotChangeMessagesOrOtherScopes",
+          "class": "org.telegram.messenger.tetogram.AppearanceSurfacesTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "aSectionWallpaperCanSupplyTheSectionListWithoutChangingGlobalList",
+          "class": "org.telegram.messenger.tetogram.AppearanceSurfacesTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "listPaletteOverridesDoNotRecolorTheRestOfTheApp",
+          "class": "org.telegram.messenger.tetogram.AppearanceSurfacesTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "portraitPhotoAndRotatedVideoUseSameMath",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "invalidSourceDoesNotMutateCoordinates",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "corruptStoredControlsAreBounded",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "allThreeDomainsSurviveSerializationAndKeepMediaUnchanged",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "fitKeepsLetterboxAndUniformAspectRatio",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "resizeRetainsNormalizedValuesWithoutStretch",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "doubleTapAndResetHaveDeterministicDefaults",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "fillClampsAtActualImageEdgesWithoutReleaseSnap",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "repeatedSmallGesturesMatchOneContinuousDrag",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "zoomKeepsSourcePointUnderFingers",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "zeroTravelAxisCannotAcquirePhantomPan",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "movingPinchCentroidTranslatesAndZooms",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "oneFingerMovesExactlyInPixels",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "maximumAndMinimumZoomAreStable",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "cancelledEditorCannotWriteIntoOriginalStyle",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "localPositionDoesNotChangeOtherChatsOrInheritedMedia",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportEditorTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceViewportTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "invalidGeometryAndNonFiniteControlsAreSafe",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "portraitAndLandscapeFillWithoutStretch",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "fitAndZoomApplyToImagesAndVideoCovers",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "cropPanningIsBoundedAtEdges",
+          "class": "org.telegram.messenger.tetogram.AppearanceViewportTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.AppearanceWallpaperTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "firstGradientStopMaterializesTheBaseColor",
+          "class": "org.telegram.messenger.tetogram.AppearanceWallpaperTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "colorReplacementReleasesAllObsoleteMediaReferences",
+          "class": "org.telegram.messenger.tetogram.AppearanceWallpaperTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "inheritedBaseAndTransparentBlackArePreserved",
+          "class": "org.telegram.messenger.tetogram.AppearanceWallpaperTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.DeletedBlockquoteTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "multilineQuoteUsesUtf16WithAuthorInEveryChat",
+          "class": "org.telegram.messenger.tetogram.DeletedBlockquoteTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "whitespaceOnlySnippetHasNonemptyVisibleRange",
+          "class": "org.telegram.messenger.tetogram.DeletedBlockquoteTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "trailingWhitespaceIsNotIncludedAndInternalLineBreaksRemain",
+          "class": "org.telegram.messenger.tetogram.DeletedBlockquoteTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "generatedEntitiesRoundTripThroughTelegramTlSerialization",
+          "class": "org.telegram.messenger.tetogram.DeletedBlockquoteTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "quoteContainsAuthorAndSourceThenOneSeparator",
+          "class": "org.telegram.messenger.tetogram.DeletedBlockquoteTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "emptyCaptionStillContainsRealBlockquoteEntity",
+          "class": "org.telegram.messenger.tetogram.DeletedBlockquoteTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "repeatedPreparationDoesNotAccumulateEntitiesOrModifySource",
+          "class": "org.telegram.messenger.tetogram.DeletedBlockquoteTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "usersCodeQuoteAndBoldRemainOutsideGeneratedQuote",
+          "class": "org.telegram.messenger.tetogram.DeletedBlockquoteTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.DeletedMentionTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "receivedMentionWireTypeKeepsTheSameProfileId",
+          "class": "org.telegram.messenger.tetogram.DeletedMentionTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "wireMentionCarriesOriginalSenderIdAndAccessHash",
+          "class": "org.telegram.messenger.tetogram.DeletedMentionTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "originalInputUserAndAnswerEntitiesAreNotMutated",
+          "class": "org.telegram.messenger.tetogram.DeletedMentionTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "authorMentionIsNestedInsideOneOuterQuote",
+          "class": "org.telegram.messenger.tetogram.DeletedMentionTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "deletedFromMessageReferenceIsNotUsedForMention",
+          "class": "org.telegram.messenger.tetogram.DeletedMentionTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "unavailableWrongAndNonUserSendersHaveNoFakeMention",
+          "class": "org.telegram.messenger.tetogram.DeletedMentionTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "selfInputIsBoundToOwnUserAndHasIdForNativeLocalClick",
+          "class": "org.telegram.messenger.tetogram.DeletedMentionTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "repeatedPreparationNeverPrefixesAnInputTwice",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "photoCaptionAndEmptyCaptionUseSamePrefix",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "accountDialogSecretAndEphemeralBoundaries",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "formattingIsClonedAndShiftedWithoutMutatingCaller",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "utf16OffsetIncludesAuthorEmojiAndSingleSeparator",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "surrogatePairsNeverSplit",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "shortQuoteHasTwentyCharactersIncludingEllipsis",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "independentRepliesKeepTheirOwnAuthorsAndText",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "reusedAccountSlotCannotSendPreviousUsersQuote",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "authorIsAlwaysIncludedBeforeQuote",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "familyFlagsAccentsAndSkinTonesStayWhole",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "retryAndExistingServerMessageAreNotConverted",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.DeletedReplyProtocolTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "forumRootSurvivesNativeSerializationAndDeletedIdIsAbsent",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyProtocolTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "actualEntitiesKeepFormattingAndPayloadAfterUnicodePrefix",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyProtocolTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "generalTopicUsesNativeImplicitRouting",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyProtocolTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "packedEphemeralIdCannotBecomeForumRoot",
+          "class": "org.telegram.messenger.tetogram.DeletedReplyProtocolTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.DeletedRowPolicyTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "missingStableIdsAllocateDistinctRows",
+          "class": "org.telegram.messenger.tetogram.DeletedRowPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "repeatedDeletionKeepsIdentity",
+          "class": "org.telegram.messenger.tetogram.DeletedRowPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sharedNotificationCreatesIndependentRowsForTwoFragments",
+          "class": "org.telegram.messenger.tetogram.DeletedRowPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sameMessageIdInOtherAccountOrDialogCannotReplaceRow",
+          "class": "org.telegram.messenger.tetogram.DeletedRowPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "rebuildingRowsAfterModelRecreationPreservesPayloads",
+          "class": "org.telegram.messenger.tetogram.DeletedRowPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "twoAuthorsKeepDistinctStableIdsThroughRepeatedBinding",
+          "class": "org.telegram.messenger.tetogram.DeletedRowPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "batchDeletionAndNewMessagesDoNotAliasRows",
+          "class": "org.telegram.messenger.tetogram.DeletedRowPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "fileReferenceRefreshIsIgnored",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "longMultilineTextIsNotTruncated",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "textChangeIsDistinct",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "nullAndEmptyTextAreEquivalent",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "emojiAndCombiningTextSurviveDigestWithoutMutation",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sameTextWithBoldIsARealChange",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "changedAttachmentWithSameCaptionIsDistinct",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "urlsAndMentionsPreserveEntityPayload",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "webpageArrivalDoesNotCreateFalseEdit",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "deliveryReadAndViewMetadataDoNotCreateVersions",
+          "class": "org.telegram.messenger.tetogram.EditHistoryContentTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "unseenOriginalIsNotFabricated",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "oneKnownVersionHasNoPreviousVersionBadge",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "firstKnownSnapshotCanBeAppendedWithoutInventingOldText",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "keysSeparateAccountsChatsAndMessages",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "timestampOnlyChangeIsNotAnotherContentVersion",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sameSecondDifferentTextIsAnotherVersion",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "markPreferenceAndPrivacyAreIndependentGates",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "delayedVersionCannotBeAppendedAfterNewerOne",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "oldHistoryPageCannotRollBackLatestVersion",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "firstActualEditIsDetected",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "groupAndDirectNamespacesCannotCollide",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "uneditedMessagesAreNotVersions",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "reactionAndViewUpdatesAreNotEdits",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "repeatedUpdateIsNotAppended",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sameSecondReturnToEarlierTextIsARealTransition",
+          "class": "org.telegram.messenger.tetogram.EditHistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.HistoryPagePolicyTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "newerPagesChooseClosestNotNewest",
+          "class": "org.telegram.messenger.tetogram.HistoryPagePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "aroundReplyKeepsAnchorAndOriginalOrder",
+          "class": "org.telegram.messenger.tetogram.HistoryPagePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "finalSmallPageDoesNotInventMoreData",
+          "class": "org.telegram.messenger.tetogram.HistoryPagePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "olderPagesNeverSkipLargeDeletedGaps",
+          "class": "org.telegram.messenger.tetogram.HistoryPagePolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.HistoryPolicyTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "retentionSurvivesUnknownFutureOrCorruptValues",
+          "class": "org.telegram.messenger.tetogram.HistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "ordinaryIncomingIsAllowedOnlyWithConsent",
+          "class": "org.telegram.messenger.tetogram.HistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "secretOutgoingAndExcludedNeverSave",
+          "class": "org.telegram.messenger.tetogram.HistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "selfDestructionAndViewOnceAreExcluded",
+          "class": "org.telegram.messenger.tetogram.HistoryPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "corruptedTypesAndUnknownSelectionsHaveSafeTetogramDefaults",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "editingDraftDoesNotMutateSavedDeviceChoice",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "switchingBackToAutoRemembersManualSeason",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "versionTwoReadsLastAliasRevisionAndRememberedManual",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "legacyAutoKeepsItsMode",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "legacyManualChoiceMigratesWithoutChangingBrand",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "emptyPreferencesDoNotOptIntoSeasonalSwitching",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "automaticAliasBookkeepingDoesNotCountAsAUserChoiceChange",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "characterChangeDoesNotChangeModeOrManualSeason",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSettingsTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.LauncherIconSwitchTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "enableHappensBeforeAnyDisable",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSwitchTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "emptyStateCanBeRecoveredToTetogramDefault",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSwitchTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "enableFailureNeverDisablesExistingIcon",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSwitchTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "disableFailureStillLeavesLaunchableComponents",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSwitchTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "legacyAndDuplicateComponentsAreMadeExclusive",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSwitchTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "actualLaunchActivityIsNotAnAllowedComponentTarget",
+          "class": "org.telegram.messenger.tetogram.LauncherIconSwitchTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.LocalReplyPolicyTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "removedAnswerFallsBackToCanonicalQuote",
+          "class": "org.telegram.messenger.tetogram.LocalReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "surrogateBoundaryAndInvalidOffsetsFallBack",
+          "class": "org.telegram.messenger.tetogram.LocalReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "multipleRepliesHaveIndependentFingerprints",
+          "class": "org.telegram.messenger.tetogram.LocalReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "scheduledDeliveryChangesNamespaceOnlyAfterScheduledId",
+          "class": "org.telegram.messenger.tetogram.LocalReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "prefixChecksDoNotModifyWireOrUnicode",
+          "class": "org.telegram.messenger.tetogram.LocalReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "bodyEditKeepsOriginalLink",
+          "class": "org.telegram.messenger.tetogram.LocalReplyPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.LocalReplyProtocolTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "invalidOrCrossingRangesDoNotLeakIntoBody",
+          "class": "org.telegram.messenger.tetogram.LocalReplyProtocolTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "userBlockquoteInAnswerSurvives",
+          "class": "org.telegram.messenger.tetogram.LocalReplyProtocolTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "localBodyKeepsEmojiFormattingAndCanonicalQuote",
+          "class": "org.telegram.messenger.tetogram.LocalReplyProtocolTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "nativeOrderIsPreservedForOrdinaryIdsDespiteClockAnomalies",
+          "class": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "duplicateArchiveEventCannotDuplicateMessage",
+          "class": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "deletingAnotherMessageAndReloadingDoesNotChangeVisibilityOrOrder",
+          "class": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "delayedEphemeralUsesDateNotPackedIdForInsertion",
+          "class": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "ephemeralIdsNeverConsumeRegularPageSlotsOrBecomeCursors",
+          "class": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "fiveNewerMessagesStayAheadOfEphemeralAcrossRefreshes",
+          "class": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "multipleEphemeralsAndEqualDatesUseNativeTieBreakers",
+          "class": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "restoredStorageOrderingMatchesMixedTimeline",
+          "class": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "archivedMessagesMergeWithoutMovingEphemeralToNewest",
+          "class": "org.telegram.messenger.tetogram.MessageTimelinePolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.PermissionPolicyTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "partialAccessIsUsableOnAndroid14AndLater",
+          "class": "org.telegram.messenger.tetogram.PermissionPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "fullGrantSurvivesUpdateWithoutRequest",
+          "class": "org.telegram.messenger.tetogram.PermissionPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "revokeAndRegrantUsesCurrentState",
+          "class": "org.telegram.messenger.tetogram.PermissionPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "notificationsRecheckedImmediatelyBeforePrompt",
+          "class": "org.telegram.messenger.tetogram.PermissionPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "singleMediaTypeDoesNotBlockGallery",
+          "class": "org.telegram.messenger.tetogram.PermissionPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "legacyPermissionsAndSdkBoundaries",
+          "class": "org.telegram.messenger.tetogram.PermissionPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.SectionConfigTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "localFolderDeletionRemovesAllLinksButNoChats",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "emptySectionHasNoAutomaticChatsOrTabs",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "restartPreservesNamesUnicodeIdsOrderAndLastFolder",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "noArtificialSectionCapAndIndependentLocalTokens",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "mixedGeneralIsOptionalAndNeverInvented",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "futureSchemaIsNotSilentlyOverwritten",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "noSectionsOrFoldersAreCreatedImplicitly",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "oneFolderHasOnlyItsConfiguredTab",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "chatsOnlySectionHasNoFolderBar",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "automaticRulesAreOptInWithExplicitPrecedence",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "oneChatCanBelongToTwoIndependentSections",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "twoLocalPagesResolveIndependentScopes",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "folderSelectionUsesStableKeyAfterReorderRenameOrServerDeletion",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "emptyNameIsRejected",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "accountNamespacesAndConfigInstancesAreSeparate",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "foldersRemainInPerSectionOrder",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sharedFolderCanBeDetachedWithoutDeletingSource",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "deletingAllSectionsDoesNotResetToAnInventedSection",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "unreadAndMuteRulesReevaluateWithoutChangingSavedMembership",
+          "class": "org.telegram.messenger.tetogram.SectionConfigTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.SectionIconPolicyTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "accountImageDirectoriesAreDifferent",
+          "class": "org.telegram.messenger.tetogram.SectionIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "ownedFilesAreUuidNamesNotArbitraryPaths",
+          "class": "org.telegram.messenger.tetogram.SectionIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "damagedImageBoundsAreRejected",
+          "class": "org.telegram.messenger.tetogram.SectionIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "hugePortraitAndLandscapeDecodeIsBounded",
+          "class": "org.telegram.messenger.tetogram.SectionIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "cancellationAndNewSelectionRejectOldPhotoResults",
+          "class": "org.telegram.messenger.tetogram.SectionIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "composedEmojiIsKeptWithoutCodePointTruncation",
+          "class": "org.telegram.messenger.tetogram.SectionIconPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.SectionMenuStateTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "openingAndClosingOnlyFinishCurrentGeneration",
+          "class": "org.telegram.messenger.tetogram.SectionMenuStateTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "delaysStayWithinAnimationBudgetOnSmallAndLargeMenus",
+          "class": "org.telegram.messenger.tetogram.SectionMenuStateTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "rapidReversalCannotFinishOldClose",
+          "class": "org.telegram.messenger.tetogram.SectionMenuStateTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "smallScrollJitterDoesNotToggleVisibility",
+          "class": "org.telegram.messenger.tetogram.SectionMenuStateTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "systemEditorUsesOnlySameAccountAndEnabledSetting",
+          "class": "org.telegram.messenger.tetogram.SectionMenuStateTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "detachCancelFencesAllOldCallbacks",
+          "class": "org.telegram.messenger.tetogram.SectionMenuStateTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "editingUsesStableSectionIdAndOwnerAfterReorder",
+          "class": "org.telegram.messenger.tetogram.SectionMenuStateTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.SectionMigrationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "staleParentCannotResurrectReplacedImage",
+          "class": "org.telegram.messenger.tetogram.SectionMigrationTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "systemSectionIsNotSerializedAsUserSection",
+          "class": "org.telegram.messenger.tetogram.SectionMigrationTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "realV1PropertiesMigrateWithoutLosingIdsChatsFoldersOrOrder",
+          "class": "org.telegram.messenger.tetogram.SectionMigrationTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "imageAndCounterSettingsSurviveRestart",
+          "class": "org.telegram.messenger.tetogram.SectionMigrationTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "menuIsCenteredAndClampedToSafeHorizontalBounds",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "repeatedRequestsAndLateAnimationCallbacksRemainFenced",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "legacyMigrationPreservesStableIdsAndFolders",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "roundTripKeepsAllExistingData",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "longMenuEndsAboveNavigationAndStaysBelowHeader",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "unknownModeHasSafeFallback",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "onlyRepeatOnActiveChatsInModeTwoToggles",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "staleTabWritePreservesNewerOpeningChoice",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "absentModeKeepsFloatingDefault",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "inactiveDestroyedSearchArchiveSelectionOrOtherAccountDoNotToggle",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "accountNamespacesAndConfigsStaySeparate",
+          "class": "org.telegram.messenger.tetogram.SectionOpeningPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "nativeMuteSnapshotExpiryIsAppliedOnNextEvaluation",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "accountSnapshotsDoNotShareCounts",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sectionExclusionOverridesFolderMembership",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sameChatCountsInDifferentSectionsIndependently",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "readTransitionAndNewMessageUpdateSystemVisibility",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "directAndSeveralFoldersUseUnionNotSum",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "mutedMentionStillDoesNotCountInOrdinarySection",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "sampleCounts15Not20",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "temporaryIncludeMutedDoesNotChangeOrdinarySectionPolicy",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        },
+        {
+          "name": "compactFormattingAndZeroHaveNoSyntheticMessages",
+          "class": "org.telegram.messenger.tetogram.SectionUnreadPolicyTest",
+          "skipped": false,
+          "failed": false
+        }
+      ]
+    }
+  ]
+}

@@ -35,4 +35,4 @@ JVM: `EditHistoryPolicyTest` и `EditHistoryContentTest` — переходы/п
 7. Очистить сообщение/чат/всё: отметки исчезли, native сообщения и другой аккаунт остались.
 8. Светлая/тёмная тема, крупный шрифт, длинный текст, навигация/Insets; без изменений сообщений/Reply/сортировки.
 
-Фактические результаты сборки будут добавлены после CI. Личные аккаунты владельца агентом не используются.
+CI [43769585618](https://github.com/Rulax-s/Tetogram-/actions/runs/43769585618) успешно собрала APK209 из a33f15ba6cdc435a1dd11792be5228c5b144beeb. Фактический JUnit: 288 tests / 0 failures / 0 errors / 0 skipped; 25 edit + 6 profile tests, 32 SQLite (13 edit), 44 source contracts, 4 asset tests. В APK подтверждены package/постоянный сертификат/ARM64/371 EN-RU keys и новые классы DEX. [Артефакт](https://github.com/Rulax-s/Tetogram-/actions/runs/43769585618/artifacts/14184342288), [метаданные](APK-0.4.0-edit-history.json), [JUnit](TESTS-0.4.0-edit-history.json), [файлы](CHANGED-0.4.0-edit-history.txt). Android UI/живой MTProto NOT RUN. Личные аккаунты владельца агентом не используются.
