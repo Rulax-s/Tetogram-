@@ -45,6 +45,7 @@ jobs:
           python3 scripts/check-project.py
           python3 scripts/check-localization.py
           python3 scripts/check-settings-insets.py
+          python3 scripts/check-appearance-editor.py
 
   build:
     needs: source-checks

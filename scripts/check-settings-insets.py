@@ -39,7 +39,7 @@ class SettingsInsetsContracts(unittest.TestCase):
         self.assertRegex(navigation, r'fragment\.isSupportEdgeToEdge\(\) && fragment\.drawEdgeNavigationBar\(\)[\s\S]{0,150}fragment::onInsetsInternal')
 
     def test_all_custom_settings_inherit_shared_contract(self):
-        for name in ('LabsActivity', 'SectionsActivity', 'HistoryActivity', 'ExcludedChatsActivity', 'AppearanceActivity'):
+        for name in ('LabsActivity', 'SectionsActivity', 'HistoryActivity', 'ExcludedChatsActivity', 'AppearanceActivity', 'AppearanceLauncherActivity', 'AppearancePreviewPage'):
             with self.subTest(screen=name):
                 screen = source('ui/tetogram/' + name + '.java')
                 self.assertIn('extends LabsPage', screen)
@@ -56,10 +56,24 @@ class SettingsInsetsContracts(unittest.TestCase):
         self.assertLess(history.index('searchInput=input;'), history.index('return super.createView(context);'))
         self.assertLess(history.index('input.setText(query);'), history.index('input.addTextChangedListener('))
 
+    def test_pinned_preview_and_dock_use_shared_native_insets(self):
+        page=source('ui/tetogram/LabsPage.java')
+        self.assertIn('mSystemInsets.top+ActionBar.getCurrentActionBarHeight()',page)
+        self.assertIn('ActionBar.getCurrentActionBarHeight()+topContentHeight',page)
+        self.assertIn('lp.leftMargin=mSystemInsets.left',page)
+        self.assertIn('lp.rightMargin=mSystemInsets.right',page)
+        screen=source('ui/tetogram/AppearanceActivity.java')
+        self.assertIn('setTopContent(preview',screen)
+        self.assertIn('setBottomActions(editorDock)',screen)
+
     def test_no_manual_system_padding_in_common_page(self):
         page = source('ui/tetogram/LabsPage.java')
-        self.assertNotRegex(page, r'(?:setPadding|setMargins|onInsets|setDecorFitsSystemWindows)\(')
+        self.assertNotRegex(page, r'(?:setPadding|setMargins|setDecorFitsSystemWindows)\(')
         self.assertNotIn('statusBarHeight', page)
+        self.assertIn('super.onInsets(left,top,right,bottom)', page)
+        self.assertIn('bottomActions.getMeasuredHeight()', page)
+        self.assertIn('BaseFragmentSimpleGlass.setListViewParams(list,mSystemInsets.top,mSystemInsets.bottom', page)
+        self.assertIn('lp.bottomMargin=mSystemInsets.bottom', page)
         self.assertIn('extends RecyclerListView', source('ui/Components/UniversalRecyclerView.java'))
 
 

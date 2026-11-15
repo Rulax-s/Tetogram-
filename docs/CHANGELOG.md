@@ -1,5 +1,16 @@
 # История изменений
 
+## 0.4.0 — переработка редактора, code149 (проверяется)
+
+- Девять отдельных категорий вместо повторных входов в монолит; единая принадлежность ключей, прежние scopes/storage/presets, явные источники и влияние изменений.
+- Native header Undo/⋮, pinned Apply/Cancel, dirty/exit guard; сохранение пресета отдельно от применения. Общий LabsPage учитывает top preview/bottom dock через системные Insets.
+- SP/multiline title/value rows и native Switch; короткие Simple/Advanced labels, локализованные значения режима и fit/fill, поиск по RU labels и raw keys.
+- Переиспользуемый preview media вне RecyclerView, обновляемые сцены, видимые Expand/Hide, demo profile без реальных данных и сохранение позиции при lifecycle stop.
+- Прямой native color picker с HEX/RGB/HSV/HSL, alpha, recent/favorites, pipette, live sample и popup actions.
+- Transparent/Glass/Cards используют прежние поля; flat tint распространяется на пустой viewport, individual row/cards сохраняют собственную заливку.
+- Device-wide Tetogram/Mikugram seasonal aliases, safe-zone layers, calendar refresh, три preview masks/shortcut zoom; старый Premium selector убран из основного экрана. Teto summer artwork отсутствует и явно отмечен, не заменён случайным изображением.
+- Код сборки input14 / afat149, versionName0.4.0. Package/signature/Secrets не меняются. Реальные Android UI/One UI/video/sensors проверки NOT RUN. Подробности — APPEARANCE_EDITOR.md и ICON_ASSETS.md.
+
 ## 0.4.0 — разработка персонализации
 
 - Source 775abadd7549627905905a7740546e0176512382 успешно собран в CI 43675297320: реальный JUnit XML подтверждает 189 tests / 0 failures / 0 errors / 0 skipped (73 appearance), 19 SQLite tests и 6 source Insets contracts. APK 0.4.0/code139 скачана, CRC/manifest/4 ARM64 ELF/certificate/checksum/279 localization bindings проверены повторно; копия в Android Download. Данные — APK-0.4.0.json и TESTS-0.4.0.json. Это экспериментальная сборка, а не подтверждение полного ТЗ или Android UI/codec/gestures/sensors тестирования.
