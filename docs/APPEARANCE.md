@@ -133,3 +133,5 @@ CI сохраняет jvm-test-results.json из фактического JUnit 
 ### Встроенный узор
 
 Опциональный wallpaper.pattern использует штатные default_pattern.svg и MotionBackgroundDrawable, включая native pattern intensity. Один bounded bitmap SVG (360×640) подготавливается на themeQueue; UI/draw не читают ресурс и не декодируют его. Waiting drawables удерживаются слабо, после готовности получают pattern/invalidation. Узор работает на локальном solid/gradient фоне, отдельно для banner/list/chat и наследуемых scope; медиа остаётся отдельным верхним слоем. Property переносится пресетом без изображения, так как ресурс уже есть в Tetogram. Native Telegram Wallpapers/Themes также остаются доступны; серверная тема группы не меняется. Android rendering/pattern colors NOT RUN.
+
+Каталог фактически поддерживаемых параметров и границ реализации — [APPEARANCE_KEYS.md](APPEARANCE_KEYS.md); Android-матрица — [APPEARANCE_MANUAL_TESTING.md](APPEARANCE_MANUAL_TESTING.md). Приёмка полного исходного ТЗ не объявляется на основании JVM/компиляции.
