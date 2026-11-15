@@ -6,6 +6,7 @@
 - Native header Undo/⋮, pinned Apply/Cancel, dirty/exit guard; сохранение пресета отдельно от применения. Общий LabsPage учитывает top preview/bottom dock через системные Insets.
 - SP/multiline title/value rows и native Switch; короткие Simple/Advanced labels, локализованные значения режима и fit/fill, поиск по RU labels и raw keys.
 - Переиспользуемый preview media вне RecyclerView, обновляемые сцены, видимые Expand/Hide, demo profile без реальных данных и сохранение позиции при lifecycle stop.
+- Числовые fallback-значения берутся из общего определения параметра; высота баннера без override отображается как 280 dp, а не ошибочные 0 dp.
 - Прямой native color picker с HEX/RGB/HSV/HSL, alpha, recent/favorites, pipette, live sample и popup actions.
 - Transparent/Glass/Cards используют прежние поля; flat tint распространяется на пустой viewport, individual row/cards сохраняют собственную заливку.
 - Device-wide Tetogram/Mikugram seasonal aliases, safe-zone layers, calendar refresh, три preview masks/shortcut zoom; старый Premium selector убран из основного экрана. Teto summer artwork отсутствует и явно отмечен, не заменён случайным изображением.
