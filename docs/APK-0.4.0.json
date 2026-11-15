@@ -1,0 +1,34 @@
+{
+  "file_name": "Tetogram-debug.apk",
+  "version": "0.4.0",
+  "version_code": 139,
+  "application_id": "org.tetogram.messenger",
+  "size_bytes": 72475735,
+  "sha256": "7fa341f67197d589ed207cca3d32673bee0b94cf1b05406cf8e5956f6d965798",
+  "signature_certificate_sha256": "147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "partial_media_permission": true,
+  "update_compatible_with_verified_0_3_1_code99": true,
+  "run_id": 43675297320,
+  "source_commit": "775abadd7549627905905a7740546e0176512382",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43675297320/artifacts/14146850490",
+  "artifact_expires_at": "2026-11-29T04:26:56Z",
+  "file_on_phone": "/sdcard/Download/Tetogram-0.4.0-139-debug.apk",
+  "jvm_tests": {
+    "tests": 189,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "appearance_tests": 73
+  },
+  "sqlite_tests": 19,
+  "settings_insets_source_contracts": 6,
+  "localization_keys_in_apk": 279,
+  "android_ui_tests": "NOT RUN",
+  "implementation_status": "Experimental personalization build; supported parameters and limitations in APPEARANCE_KEYS.md"
+}

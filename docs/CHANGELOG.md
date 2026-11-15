@@ -2,6 +2,9 @@
 
 ## 0.4.0 — разработка персонализации
 
+- Source 775abadd7549627905905a7740546e0176512382 успешно собран в CI 43675297320: реальный JUnit XML подтверждает 189 tests / 0 failures / 0 errors / 0 skipped (73 appearance), 19 SQLite tests и 6 source Insets contracts. APK 0.4.0/code139 скачана, CRC/manifest/4 ARM64 ELF/certificate/checksum/279 localization bindings проверены повторно; копия в Android Download. Данные — APK-0.4.0.json и TESTS-0.4.0.json. Это экспериментальная сборка, а не подтверждение полного ТЗ или Android UI/codec/gestures/sensors тестирования.
+
+
 - Добавлена отдельная versioned appearance-модель, scopes по UID/dialog/topic/section/folder, происхождение наследуемых значений и optimistic atomic storage; данные 0.3.1 остаются в прежнем storage.
 - Добавлены семь dual-palette пресетов, CRUD/duplicate, draft/Apply/Cancel/Undo, native color picker и native-cell preview, общий и per-chat/topic редакторы.
 - Подключены native Theme colors и независимые ChatActivity Paint/MessageDrawable, отдельные in/out bubble radii и origin контекст открытия из раздела/папки; поиск/уведомления используют direct context.
