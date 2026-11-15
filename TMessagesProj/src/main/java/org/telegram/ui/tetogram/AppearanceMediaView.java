@@ -27,7 +27,7 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     private VideoPlayer player;
     private AppearanceConfig.Resolved style=new AppearanceConfig.Resolved();
     private File media;
-    private long owner;
+    private long owner,resumePosition;
     private float parallaxStrength,parallaxProgress,sensorX,sensorY,sensorZoom=1;
     private WallpaperParallaxEffect sensorParallax;
     private boolean sensorEnabled;
@@ -65,7 +65,7 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     public void configure(long owner,AppearanceConfig.Resolved value){
         if(owner<=0){stop();identity="";this.owner=0;style=new AppearanceConfig.Resolved();media=null;video=false;cover.setImageDrawable(new ColorDrawable(0));return;}
         String id=owner+":"+value.values.toString();if(identity.equals(id))return;identity=id;File next=AppearanceMedia.file(owner,value.get("wallpaper.file"));boolean nextVideo="video".equals(value.get("wallpaper.type"));boolean sameSource=this.owner==owner&&java.util.Objects.equals(media,next)&&video==nextVideo;
-        if(!sameSource){stop();videoWidth=videoHeight=0;failed=false;}this.owner=owner;style=value;media=next;video=nextVideo;
+        if(!sameSource){stop();resumePosition=0;videoWidth=videoHeight=0;failed=false;}this.owner=owner;style=value;media=next;video=nextVideo;
         File thumb=video?AppearanceMedia.file(owner,value.get("wallpaper.cover.file")):media;
         ColorDrawable fallback=new ColorDrawable(0x00000000);String filter="1080_1920";
         if(Build.VERSION.SDK_INT<31 && style.number("wallpaper.blur",0)>0)filter="640_640_b";
@@ -87,12 +87,12 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
                 public void onVideoSizeChanged(int w,int h,int rotation,float ratio){if(player!=instance)return;videoWidth=(rotation==90||rotation==270)?h:w;videoHeight=(rotation==90||rotation==270)?w:h;updateTransform();showFrame();}
                 public void onRenderedFirstFrame(){if(player==instance){firstFrame=true;showFrame();}}
             });
-            instance.setTextureView(texture);instance.setMute(true);instance.setLooping(!"false".equals(style.get("wallpaper.loop")));instance.preparePlayer(android.net.Uri.fromFile(media),"other");instance.setPlaybackSpeed(Math.max(.25f,Math.min(2,style.number("wallpaper.speed",1))));instance.play();
+            instance.setTextureView(texture);instance.setMute(true);instance.setLooping(!"false".equals(style.get("wallpaper.loop")));instance.preparePlayer(android.net.Uri.fromFile(media),"other");instance.setPlaybackSpeed(Math.max(.25f,Math.min(2,style.number("wallpaper.speed",1))));if(resumePosition>0)instance.seekTo(resumePosition);instance.play();
         }catch(Exception e){failed=true;stop();FileLog.e("Tetogram video background initialization failed");}
     }
     private void showFrame(){if(!AppearanceMediaPolicy.showFrame(firstFrame,videoWidth,videoHeight,texture.getWidth(),texture.getHeight())||texture.getAlpha()!=0)return;if(SectionMenu.animations(getContext()))texture.animate().alpha(1).setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(150)).start();else texture.setAlpha(1);}
     private void stop(){disableSensorParallax();stopVideo();}
-    private void stopVideo(){firstFrame=false;texture.animate().cancel();texture.setAlpha(0);if(player!=null){VideoPlayer previous=player;player=null;try{previous.pause();previous.releasePlayer(false);}catch(Exception ignored){}}}
+    private void stopVideo(){firstFrame=false;texture.animate().cancel();texture.setAlpha(0);if(player!=null){VideoPlayer previous=player;player=null;try{resumePosition=Math.max(0,previous.getCurrentPosition());previous.pause();previous.releasePlayer(false);}catch(Exception ignored){}}}
     public void retry(){failed=false;reconcile();}
     public long positionMs(){return player==null?0:Math.max(0,player.getCurrentPosition());}
     @Override protected void onAttachedToWindow(){super.onAttachedToWindow();attached=true;NotificationCenter.getGlobalInstance().addObserver(this,NotificationCenter.screenStateChanged);ContextCompat.registerReceiver(getContext().getApplicationContext(),powerReceiver,new IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED),ContextCompat.RECEIVER_NOT_EXPORTED);if(resumed)AndroidUtilities.runOnUIThread(tick);}

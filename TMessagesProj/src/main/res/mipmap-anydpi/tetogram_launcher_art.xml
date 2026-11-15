@@ -1,1 +1,1 @@
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android" android:src="@drawable/tetogram_artwork" android:gravity="fill" />
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item android:drawable="@android:color/black"/><item android:left="7dp" android:top="7dp" android:right="7dp" android:bottom="7dp"><bitmap android:src="@drawable/tetogram_artwork" android:gravity="fill" android:filter="true"/></item></layer-list>

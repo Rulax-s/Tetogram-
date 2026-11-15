@@ -667,6 +667,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private org.telegram.messenger.tetogram.AppearanceConfig.Resolved tetogramListStyle;
     private boolean tetogramListDark;
     private org.telegram.ui.tetogram.AppearanceMediaView tetogramListMedia;
+    private View tetogramListTint;
+    private void tetogramRefreshListTint(){
+        if(!(fragmentView instanceof ContentView)||tetogramListStyle==null)return;
+        ContentView root=(ContentView)fragmentView;
+        boolean flat=org.telegram.messenger.tetogram.AppearanceListStyle.uniform(tetogramListStyle);
+        if(flat){if(tetogramListTint==null){tetogramListTint=new View(root.getContext());int index=tetogramListMedia!=null?root.indexOfChild(tetogramListMedia)+1:root.backgroundView==null?0:root.indexOfChild(root.backgroundView)+1;root.addView(tetogramListTint,index,LayoutHelper.createFrame(-1,-1));}tetogramListTint.setBackgroundColor(org.telegram.messenger.tetogram.AppearanceListStyle.tint(tetogramListColors.getColor(Theme.key_windowBackgroundWhite),tetogramListStyle.number("list.rowOpacity",1)));}
+        else if(tetogramListTint!=null){root.removeView(tetogramListTint);tetogramListTint=null;}
+    }
     private final Theme.ResourcesProvider tetogramListProvider = new Theme.ResourcesProvider() {
         @Override public int getColor(int key) { if(key==Theme.key_telegram_color_dialogsLogo&&tetogramListStyle!=null&&tetogramListStyle.color(tetogramListDark,"telegram_color_dialogsLogo")==null&&tetogramListStyle.color(tetogramListDark,"actionBarDefaultTitle")!=null)return tetogramListColors.getColor(Theme.key_actionBarDefaultTitle);return tetogramListColors == null ? Theme.getColor(key, DialogsActivity.super.getResourceProvider()) : tetogramListColors.getColor(key); }
         @Override public boolean isDark() { return tetogramListColors == null ? Theme.isCurrentThemeDark() : tetogramListColors.isDark(); }
@@ -700,6 +708,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             tetogramListMedia.configure(getUserConfig().getClientUserId(),style);tetogramListMedia.setResumed(!isPaused);
         } else if (tetogramListMedia != null) {tetogramListMedia.setResumed(false);root.removeView(tetogramListMedia);tetogramListMedia=null;}
         if (viewPages != null) for (ViewPage page : viewPages) if (page != null && page.dialogsAdapter != null) page.dialogsAdapter.notifyDataSetChanged();
+        tetogramRefreshListTint();
         root.invalidate();ThemeBind.updateAll();onThemeColorsChanged();
         NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.needCheckSystemBarColors,true);
     }
@@ -4147,6 +4156,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         final PointF tmpPoint = new PointF();
         iBlur3Capture = (canvas, position) -> {
             if (tetogramListMedia != null) Blur3Utils.captureRelativeParent(tetogramListMedia, canvas, position, tetogramListMedia, contentView);
+            if(tetogramListTint!=null)Blur3Utils.captureRelativeParent((c,p)->tetogramListTint.draw(c),canvas,position,tetogramListTint,contentView);
             final int searchViewAlpha = searchViewPager != null ? (int) (searchViewPager.getAlpha() * 255) : 0;
 
             for (ViewPage viewPage : viewPages) {
@@ -14384,6 +14394,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
             super.onThemeColorsChanged();
             actionBarDefaultPaint.setColor(tetogramHeaderColor());
+            tetogramRefreshListTint();
             cellDelegateThemeColors();
             updateExtraThemeColors();
         } catch (Exception e) {
