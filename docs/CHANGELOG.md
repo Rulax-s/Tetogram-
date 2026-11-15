@@ -1,6 +1,8 @@
 # История изменений
 
-## 0.4.0 — жестовое позиционирование обоев, code199 (проверяется)
+## 0.4.0 — жестовое позиционирование обоев, code199 (APK собрана)
+
+- CI 43725347474 success, source eed4f88515b43fae2fb2af99ecdb240099c777a8. Фактический JUnit: 257 tests / 0 failures / 0 errors / 0 skipped, включая 16 AppearanceViewportEditorTest. Проверены 19 SQLite, 36 source contracts, 4 asset tests, APK package/постоянный сертификат/ARM64/357 EN-RU keys/новые классы DEX. Android UI NOT RUN. Подробные receipts — APK-0.4.0-wallpaper-positioning.json и TESTS-0.4.0-wallpaper-positioning.json.
 
 - Полноэкранный визуальный редактор фото/видео: перемещение одним пальцем, pinch относительно центра пальцев, двойное нажатие/reset, отмена/готово, демонстрационный интерфейс чата и пауза видео.
 - Жесты используют общий AppearanceViewport и прежние zoom/panX/panY; обновляют матрицу TextureView и координаты фото без пересоздания preview/плеера, перекодирования или ввода-вывода на каждом движении.
