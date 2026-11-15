@@ -6,7 +6,7 @@ public final class SeasonalIconCatalog {
  private SeasonalIconCatalog(){}
  public static int resource(String alias){switch(AppearanceIconPolicy.canonical(alias)){
    case "TetogramSpring":return R.drawable.tetogram_spring;
-   case "TetogramSummer":return 0; // Missing prepared artwork. Not selectable, no fake icon.
+   case "TetogramSummer":return R.drawable.tetogram_summer;
    case "TetogramAutumn":return R.drawable.tetogram_autumn;
    case "TetogramWinter":return R.drawable.tetogram_winter;
    case "MikugramSpring":return R.drawable.mikugram_spring;

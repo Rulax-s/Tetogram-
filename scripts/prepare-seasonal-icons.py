@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
 """Deterministic Android wrappers/catalog. Never generates or edits artwork, never fakes a missing season."""
 from pathlib import Path
-import json,struct,argparse,re
+import json,argparse,re
+from seasonal_image import image_size
 ROOT=Path(__file__).resolve().parents[1];RES=ROOT/'TMessagesProj/src/main/res';INPUT=ROOT/'assets/launcher/seasonal'
 p=argparse.ArgumentParser();p.add_argument('--check',action='store_true');args=p.parse_args()
 catalog=json.loads((INPUT/'catalog.json').read_text());outputs={};available=[];missing=[];aliases=[];drawables=[];cases=[]
 for key,legacy in catalog.items():
  brand='tetogram' if key.startswith('Tetogram') else 'mikugram';season=key.removeprefix('Tetogram').removeprefix('Mikugram').lower();name=f'{brand}_{season}'
- incoming=INPUT/(name+'.png');canonical=RES/'drawable-nodpi'/(name+'.png');fallback=RES/'drawable-nodpi'/(str(legacy)+'.png')
+ incoming_files=[INPUT/(name+suffix) for suffix in ('.png','.jpg','.jpeg') if (INPUT/(name+suffix)).is_file()]
+ assert len(incoming_files)<=1,f'{name}: keep only one prepared source format'
+ incoming=incoming_files[0] if incoming_files else INPUT/(name+'.png')
+ canonical_files=[RES/'drawable-nodpi'/(name+suffix) for suffix in ('.png','.jpg','.jpeg') if (RES/'drawable-nodpi'/(name+suffix)).is_file()]
+ assert len(canonical_files)<=1,f'{name}: duplicate Android resources'
+ canonical=RES/'drawable-nodpi'/(name+incoming.suffix) if incoming.is_file() else canonical_files[0] if canonical_files else RES/'drawable-nodpi'/(name+'.png')
+ if incoming.is_file() and canonical_files:assert canonical_files[0]==canonical,f'{name}: remove the previous generated format before changing it'
+ fallback=RES/'drawable-nodpi'/(str(legacy)+'.png')
  source=incoming if incoming.is_file() else canonical if canonical.is_file() else fallback if legacy and fallback.is_file() else None
  if source:
-  data=source.read_bytes();assert data[:8]==b'\x89PNG\r\n\x1a\n',f'{name}: PNG required'
-  w,h=struct.unpack('>II',data[16:24]);assert w==h and 256<=w<=8192,f'{name}: square prepared PNG (256..8192px) required'
+  data=source.read_bytes();w,h=image_size(data);assert w==h and 256<=w<=8192,f'{name}: square prepared PNG/JPEG (256..8192px) required'
   if source==incoming:outputs[canonical]=data
   reference=name if source in (incoming,canonical) else legacy
   if reference!=name:drawables.append(f'    <drawable name="{name}">@drawable/{reference}</drawable>')

@@ -51,6 +51,7 @@ jobs:
           python3 scripts/check-appearance-editor.py
           python3 scripts/check-section-opening.py
           python3 scripts/check-launcher-icons.py
+          python3 scripts/test-seasonal-assets.py
 
   build:
     needs: source-checks
