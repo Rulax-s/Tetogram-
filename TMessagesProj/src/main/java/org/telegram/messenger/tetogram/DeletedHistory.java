@@ -60,12 +60,15 @@ public final class DeletedHistory {
         return db;
     }
     public static boolean eligible(int a, TLRPC.Message m) {
+        return eligible(a,m,false);
+    }
+    static boolean eligible(int a, TLRPC.Message m,boolean includeOutgoing) {
         if(m==null) return false;
         long did=MessageObject.getDialogId(m);
         TLRPC.MessageMedia media=MessageObject.getMedia(m);
         TLRPC.Chat chat=did<0 && !DialogObject.isEncryptedDialog(did) ? org.telegram.messenger.MessagesController.getInstance(a).getChat(-did) : null;
         boolean restricted=m.noforwards || chat!=null && chat.noforwards;
-        return did!=0 && HistoryPolicy.maySave(true,m instanceof TLRPC.TL_message && !MessageObject.isEphemeral(m),DialogObject.isEncryptedDialog(did),m.out,restricted,LabsSettings.excluded(a,did),m.id,m.ttl,m.ttl_period,media==null?0:media.ttl_seconds,m.expire_date);
+        return did!=0 && HistoryPolicy.maySave(true,m instanceof TLRPC.TL_message && !MessageObject.isEphemeral(m),DialogObject.isEncryptedDialog(did),m.out&&!includeOutgoing,restricted,LabsSettings.excluded(a,did),m.id,m.ttl,m.ttl_period,media==null?0:media.ttl_seconds,m.expire_date);
 
     }
     /** Called before stock SQLite writes, never from UI, never uploads history. */
@@ -161,7 +164,7 @@ public final class DeletedHistory {
         Page(ArrayList<MessageObject> source) { super(source); serverSize=source.size(); }
     }
     public static void deliver(int a, long did, ArrayList<MessageObject> source, int count, int anchor, int loadType, boolean cache, boolean end, int mode, long thread, Callback<ArrayList<MessageObject>> callback) {
-        if (!LabsSettings.visible(a) || LabsSettings.excluded(a,did) || DialogObject.isEncryptedDialog(did) || mode != 0) { LocalReplies.hydrate(a,source,()->callback.run(source)); return; }
+        if (!LabsSettings.visible(a) || LabsSettings.excluded(a,did) || DialogObject.isEncryptedDialog(did) || mode != 0) { finishPage(a,source,callback); return; }
         long owner=uid(a);
         MessagesStorage.getInstance(a).getStorageQueue().postRunnable(() -> {
             Page page=new Page(source);
@@ -191,8 +194,11 @@ public final class DeletedHistory {
                 })) { page.hasMore=true; page.serverSize=count; }
 
             } catch(Exception e) { FileLog.e("Tetogram history page failed",e); }
-            AndroidUtilities.runOnUIThread(()-> { ArrayList<MessageObject> result=owner==uid(a) && LabsSettings.visible(a) && !LabsSettings.excluded(a,did) ? page : source; LocalReplies.hydrate(a,result,()->callback.run(result)); });
+            AndroidUtilities.runOnUIThread(()-> { ArrayList<MessageObject> result=owner==uid(a) && LabsSettings.visible(a) && !LabsSettings.excluded(a,did) ? page : source; finishPage(a,result,callback); });
         });
+    }
+    private static void finishPage(int a,ArrayList<MessageObject> result,Callback<ArrayList<MessageObject>> callback){
+        EditHistory.hydrate(a,result,()->LocalReplies.hydrate(a,result,()->callback.run(result)));
     }
     /** Resolve native draft/selected reply IDs after restart or deletion while composing. */
     public static void find(int a,long did,int mid,Callback<MessageObject> callback) {
@@ -235,6 +241,7 @@ public final class DeletedHistory {
     }
     public static void maintain(int a) {
         MessagesStorage.getInstance(a).getStorageQueue().postRunnable(()-> {try {db(a);}catch(Exception e){FileLog.e("Tetogram retention cleanup failed",e);}});
+        EditHistory.maintain(a);
     }
     public static void reconcile(int a,long did,ArrayList<Integer> ids,Callback<ArrayList<Integer>> callback) {
         long owner=uid(a);

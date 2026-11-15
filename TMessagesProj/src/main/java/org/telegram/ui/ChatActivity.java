@@ -2925,6 +2925,7 @@ public class ChatActivity extends BaseFragment implements
             .add(NotificationCenter.voiceTranscriptionUpdate)
             .add(NotificationCenter.animatedEmojiDocumentLoaded)
             .add(NotificationCenter.replaceMessagesObjects)
+            .add(NotificationCenter.tetogramEditHistoryChanged)
             .add(NotificationCenter.notificationsSettingsUpdated)
             .add(NotificationCenter.replyMessagesDidLoad)
             .add(NotificationCenter.didReceivedWebpages)
@@ -24203,6 +24204,16 @@ public class ChatActivity extends BaseFragment implements
                     }
                 }
             }
+        } else if (id == NotificationCenter.tetogramEditHistoryChanged) {
+            long did = (Long) args[0]; int mid = (Integer) args[1];
+            if (did == 0 || did == dialog_id || did == mergeDialogId) {
+                Runnable redraw = () -> {
+                    if(chatListView==null)return;
+                    for (MessageObject object : messages) if ((did == 0 || object.getDialogId() == did) && (mid == 0 || object.getId() == mid)) object.forceUpdate = true;
+                    updateVisibleRows();
+                };
+                if(mid==0)org.telegram.messenger.tetogram.EditHistory.hydrate(currentAccount,new ArrayList<>(messages),redraw);else redraw.run();
+            }
         } else if (id == NotificationCenter.replaceMessagesObjects) {
             long did = (long) args[0];
             final ArrayList<MessageObject> messageObjects = (ArrayList<MessageObject>) args[1];
@@ -34734,6 +34745,10 @@ public class ChatActivity extends BaseFragment implements
             }
             case 46002: {
                 if (selectedObject != null && selectedObject.tetogramLocalDeleted) org.telegram.ui.tetogram.HistoryActivity.showInfo(this, selectedObject);
+                break;
+            }
+            case 46003: {
+                if (org.telegram.messenger.tetogram.EditHistory.canOpen(selectedObject)) presentFragment(new org.telegram.ui.tetogram.EditHistoryActivity(currentAccount,selectedObject.getDialogId(),selectedObject.getId()));
                 break;
             }
             case OPTION_REPLY: {
@@ -46693,6 +46708,9 @@ public class ChatActivity extends BaseFragment implements
         final MessageObject message = selectedObject;
         final MessageObject.GroupedMessages groupedMessages = selectedObjectGroup;
         final int type = getMessageType(message);
+        if (chatMode == MODE_DEFAULT && org.telegram.messenger.tetogram.EditHistory.canOpen(message)) {
+            items.add(LocaleController.getString(R.string.TetogramEditHistory)); options.add(46003); icons.add(R.drawable.msg_info);
+        }
         if (message.tetogramLocalDeleted) {
             if (canReplyToTetogramDeleted(message)) {
                 items.add(LocaleController.getString(R.string.Reply));

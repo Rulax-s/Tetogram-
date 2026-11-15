@@ -9,6 +9,7 @@ import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.R;
 import org.telegram.messenger.tetogram.DeletedHistory;
 import org.telegram.messenger.tetogram.LabsSettings;
+import org.telegram.messenger.tetogram.EditHistory;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.DialogsActivity;
 import org.telegram.ui.Components.UItem;
@@ -30,7 +31,11 @@ public final class LabsActivity extends LabsPage {
         items.add(UItem.asButton(7,getString(R.string.TetogramClearHistory)).red());
         items.add(UItem.asShadow(getString(R.string.TetogramHistoryPrivacy)));
         items.add(UItem.asHeader(getString(R.string.TetogramEditHistory)));
-        items.add(UItem.asShadow(getString(R.string.TetogramEditUnavailable)));
+        items.add(UItem.asCheck(12,getString(R.string.TetogramEditsSave)).setChecked(LabsSettings.edits(currentAccount)));
+        items.add(UItem.asCheck(13,getString(R.string.TetogramEditsMark)).setChecked(LabsSettings.editMark(currentAccount)));
+        items.add(UItem.asButton(14,getString(R.string.TetogramEditsOpen)));
+        items.add(UItem.asButton(15,getString(R.string.TetogramEditsClear)).red());
+        items.add(UItem.asShadow(getString(R.string.TetogramEditsLocalInfo)));
         items.add(UItem.asHeader(getString(R.string.TetogramInterfaceSection)));
         items.add(UItem.asButton(11,getString(R.string.TetogramSections)));
         items.add(UItem.asHeader(getString(R.string.TetogramInformation)));
@@ -46,6 +51,14 @@ public final class LabsActivity extends LabsPage {
     private void refresh() { if(list!=null) list.adapter.update(true); }
     @Override protected void click(UItem item,View view,int position,float x,float y) {
         switch(item.id) {
+            case 12:
+                if(LabsSettings.edits(currentAccount)){LabsSettings.prefs(currentAccount).edit().putBoolean("save_edits",false).apply();refresh();}
+                else if(LabsSettings.prefs(currentAccount).getBoolean("edit_consent_v1",false))enableEdits();
+                else showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditHistory)).setMessage(getString(R.string.TetogramEditsConsent)).setPositiveButton(getString(R.string.Enable),(d,n)->enableEdits()).setNegativeButton(getString(R.string.Cancel),null).create());
+                break;
+            case 13: toggle("edit_history_mark",true);EditHistory.refresh(currentAccount);break;
+            case 14: selectChat(true);break;
+            case 15: showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditsClear)).setMessage(getString(R.string.TetogramEditsClearConfirm)).setPositiveButton(getString(R.string.Delete),(d,n)->EditHistory.erase(currentAccount,0,0,ok->{if(getParentActivity()!=null)showDialog(new AlertDialog.Builder(getContext()).setMessage(getString(ok?R.string.TetogramCleared:R.string.TetogramStorageError)).setPositiveButton(getString(R.string.OK),null).create());})).setNegativeButton(getString(R.string.Cancel),null).create());break;
             case 11: presentFragment(new SectionsActivity(currentAccount)); break;
             case 1:
                 if(LabsSettings.enabled(currentAccount)) { LabsSettings.prefs(currentAccount).edit().putBoolean("save_deleted",false).apply(); refresh(); }
@@ -77,13 +90,17 @@ public final class LabsActivity extends LabsPage {
         }
     }
     private void enable() { LabsSettings.prefs(currentAccount).edit().putBoolean("consent_v1",true).putBoolean("save_deleted",true).apply(); refresh(); }
+    private void enableEdits(){LabsSettings.prefs(currentAccount).edit().putBoolean("edit_consent_v1",true).putBoolean("save_edits",true).apply();refresh();}
     private void toggle(String key,boolean fallback) { LabsSettings.prefs(currentAccount).edit().putBoolean(key,!LabsSettings.prefs(currentAccount).getBoolean(key,fallback)).apply(); refresh(); }
     private void selectChat() {
+        selectChat(false);
+    }
+    private void selectChat(boolean edits) {
         Bundle args=new Bundle(); args.putBoolean("onlySelect",true); args.putInt("dialogsType",0);
         DialogsActivity picker=new DialogsActivity(args); picker.setCurrentAccount(currentAccount);
         picker.setDelegate((fragment,dids,message,param,notify,schedule,repeat,topics)-> {
             if(dids.isEmpty() || DialogObject.isEncryptedDialog(dids.get(0).dialogId)) return false;
-            fragment.finishFragment(); presentFragment(new HistoryActivity(currentAccount,dids.get(0).dialogId)); return true;
+            fragment.finishFragment(); presentFragment(edits?new EditHistoryActivity(currentAccount,dids.get(0).dialogId,0):new HistoryActivity(currentAccount,dids.get(0).dialogId)); return true;
         });
         presentFragment(picker);
     }

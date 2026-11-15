@@ -1,5 +1,12 @@
 # История изменений
 
+## 0.4.0 — история правок и локальные профили, code209 (проверяется)
+
+- Реализована история редактирования вместо прежнего «недоступно»: отдельное согласие/default off, capture до native SQLite overwrite, старые/новые TL snapshots, mark в чате, контекстное меню/список чата в Labs, UID/did/mid, очистка/retention/исключения. Секретные/TTL/одноразовые/ephemeral/protected не сохраняются.
+- Новая таблица в существующей базе, без копий версий в обычном списке messages и без изменения оригиналов на сервере. Повторы дедуплицируются по последнему состоянию; same-second A → B → A не теряется.
+- Доделаны локальные баннеры профилей пользователей/групп/каналов через существующий AppearanceActivity. Медиа принадлежат текущему UID, target имеет отдельный profile scope. Без настройки чужие профили не меняются. Штатный переход профиля учитывает существующие эффекты/скорость.
+- JVM/SQLite/source checks, EDIT_HISTORY.md и COMPLETION_AUDIT.md. APP_VERSION_CODE input20 / afat209, version0.4.0. Package/подпись/Secrets/старые данные сохранены. Android UI/MTProto/One UI/decoder NOT RUN.
+
 ## 0.4.0 — жестовое позиционирование обоев, code199 (APK собрана)
 
 - CI 43725347474 success, source eed4f88515b43fae2fb2af99ecdb240099c777a8. Фактический JUnit: 257 tests / 0 failures / 0 errors / 0 skipped, включая 16 AppearanceViewportEditorTest. Проверены 19 SQLite, 36 source contracts, 4 asset tests, APK package/постоянный сертификат/ARM64/357 EN-RU keys/новые классы DEX. Android UI NOT RUN. Подробные receipts — APK-0.4.0-wallpaper-positioning.json и TESTS-0.4.0-wallpaper-positioning.json.

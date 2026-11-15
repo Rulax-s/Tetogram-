@@ -18,6 +18,8 @@ public final class LabsSettings {
         return UserConfig.getInstance(account).getClientUserId() != 0 && prefs(account).getBoolean("save_deleted", false);
     }
     public static boolean visible(int account) { return enabled(account) && prefs(account).getBoolean("show_deleted", true); }
+    public static boolean edits(int account) { return UserConfig.getInstance(account).getClientUserId()!=0 && prefs(account).getBoolean("save_edits",false); }
+    public static boolean editMark(int account) { return prefs(account).getBoolean("edit_history_mark",true); }
     public static boolean mark(int account) { return prefs(account).getBoolean("deletion_mark", true); }
     public static int days(int account) {
         int value = prefs(account).getInt("retention_days", 30);
@@ -29,5 +31,6 @@ public final class LabsSettings {
         Set<String> values = exclusions(account);
         if (excluded) values.add(Long.toString(did)); else values.remove(Long.toString(did));
         prefs(account).edit().putStringSet("excluded_dialogs", values).apply();
+        if(excluded)EditHistory.erase(account,did,0,ok->EditHistory.refresh(account));
     }
 }

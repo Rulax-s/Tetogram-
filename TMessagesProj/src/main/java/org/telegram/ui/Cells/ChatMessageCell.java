@@ -5798,6 +5798,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     }
 
     private long tetogramLayoutRevision=Long.MIN_VALUE;
+    private int tetogramEditCount;
     private float tetogramBubbleRadius(){boolean outgoing=currentMessageObject!=null&&currentMessageObject.isOutOwner();return resourcesProvider==null?Math.max(0,Math.min(32,org.telegram.messenger.tetogram.AppearanceRuntime.globalNumber(outgoing?"bubble.outRadius":"bubble.inRadius",SharedConfig.bubbleRadius))):resourcesProvider.getBubbleRadius(outgoing);}
     public boolean needsTetogramAppearanceLayout(){return tetogramLayoutRevision!=(resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.generation():resourcesProvider.getAppearanceRevision());}
     private int tetogramPhotoCorner(String corner,int fallback){String key=(currentMessageObject.isOutOwner()?"bubble.out":"bubble.in")+corner;String value=resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalValue(key):resourcesProvider.getAppearanceValue(key);if(value==null)return fallback;try{float radius=Float.parseFloat(value);return Float.isNaN(radius)||Float.isInfinite(radius)?fallback:dp(Math.max(0,Math.min(32,radius)-2));}catch(NumberFormatException e){return fallback;}}
@@ -6262,7 +6263,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         mediaSpoilerRevealProgress = 0f;
         TLRPC.Message newReply = messageObject.hasDisplayReplyMessageObject() ? messageObject.getDisplayReplyMessageObject().messageOwner : null;
         boolean messageIdChanged = currentMessageObject == null || currentMessageObject.getId() != messageObject.getId();
-        boolean messageChanged = currentMessageObject != messageObject || messageObject.forceUpdate || (isRoundVideo && isPlayingRound != (MediaController.getInstance().isPlayingMessage(currentMessageObject) && delegate != null && !delegate.keyboardIsOpened()));
+        int editCount=org.telegram.messenger.tetogram.EditHistory.cachedCount(messageObject);
+        boolean messageChanged = tetogramEditCount!=editCount || currentMessageObject != messageObject || messageObject.forceUpdate || (isRoundVideo && isPlayingRound != (MediaController.getInstance().isPlayingMessage(currentMessageObject) && delegate != null && !delegate.keyboardIsOpened()));
+        tetogramEditCount=editCount;
         boolean appearanceChanged=needsTetogramAppearanceLayout();
         tetogramLayoutRevision=resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.generation():resourcesProvider.getAppearanceRevision();
         boolean dataChanged = appearanceChanged || currentMessageObject != null && currentMessageObject.getId() == messageObject.getId() && lastSendState == MessageObject.MESSAGE_SEND_STATE_EDITING && messageObject.isSent() ||
@@ -15725,6 +15728,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         if (messageObject.tetogramLocalDeleted && !org.telegram.messenger.tetogram.LabsSettings.mark(currentAccount)) {
             currentTimeString = TextUtils.concat(getString(R.string.TetogramDeleted), " · ", currentTimeString);
         }
+        if (org.telegram.messenger.tetogram.EditHistoryPolicy.visible(org.telegram.messenger.tetogram.EditHistory.cachedCount(messageObject),org.telegram.messenger.tetogram.LabsSettings.editMark(currentAccount),!messageObject.isEphemeral())) currentTimeString=TextUtils.concat(getString(R.string.TetogramEditBadge)," · ",currentTimeString);
         timeTextWidth = timeWidth = (int) Math.ceil(Theme.chat_timePaint.measureText(currentTimeString, 0, currentTimeString == null ? 0 : currentTimeString.length()));
         if (messageObject.tetogramLocalDeleted && org.telegram.messenger.tetogram.LabsSettings.mark(currentAccount)) { timeWidth += dp(6); timeTextWidth += dp(6); }
         if (currentMessageObject.scheduled && currentMessageObject.messageOwner.date == 0x7FFFFFFE || currentMessageObject.notime) {

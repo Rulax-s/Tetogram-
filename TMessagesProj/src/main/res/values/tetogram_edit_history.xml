@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramEditsSave">Save message edit history</string>
+    <string name="TetogramEditsMark">Mark messages with saved previous versions</string>
+    <string name="TetogramEditsOpen">Open a chat’s edit history</string>
+    <string name="TetogramEditsClear">Clear saved edit history</string>
+    <string name="TetogramEditsClearConfirm">Delete the saved versions in this view? Telegram messages will not be deleted. This cannot be undone.</string>
+    <string name="TetogramEditsConsent">Tetogram will keep message versions locally, including your own edits and a previous version still in the Telegram cache. Text removed by an edit can remain on this device. This may conflict with Telegram API rules. Secret chats, disappearing messages, one-time media and protected content are excluded. Nothing is uploaded elsewhere. Saving starts only after you enable it; disabling does not erase existing versions. Use Clear edit history to erase them. The retention period and excluded chats are shared with local message history.</string>
+    <string name="TetogramEditsLocalInfo">Local versions only. Long-press a message → Edit history. Missing versions cannot be restored; the latest saved text may differ from the server if saving was off or updates were missed. Attachments are not downloaded automatically. Retention and excluded chats follow the local history settings.</string>
+    <string name="TetogramEditsEmpty">No saved versions. Enable edit history before the next edit. Earlier text is unavailable if the client never saved or cached it.</string>
+    <string name="TetogramEditBadge">versions</string>
+    <string name="TetogramEditOld">Old text</string>
+    <string name="TetogramEditNew">New text · latest saved version</string>
+    <string name="TetogramEditOriginal">Original version</string>
+    <string name="TetogramEditsObserved">Saved locally</string>
+</resources>

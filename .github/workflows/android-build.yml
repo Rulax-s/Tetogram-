@@ -50,6 +50,7 @@ jobs:
           python3 scripts/check-settings-insets.py
           python3 scripts/check-appearance-editor.py
           python3 scripts/check-wallpaper-editor.py
+          python3 scripts/check-edit-history.py
           python3 scripts/check-section-opening.py
           python3 scripts/check-launcher-icons.py
           python3 scripts/test-seasonal-assets.py
@@ -121,6 +122,7 @@ jobs:
           set -o pipefail
           python3 scripts/test-history-storage.py 2>&1 | tee build-logs/history-storage-tests.log
           python3 scripts/test-local-replies.py 2>&1 | tee build-logs/local-reply-storage-tests.log
+          python3 scripts/test-edit-history.py 2>&1 | tee build-logs/edit-history-storage-tests.log
           ./gradlew --no-daemon --no-build-cache --console=plain \
             '-Dorg.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g' --max-workers=2 \
             :TMessagesProj:testDebugUnitTest --stacktrace 2>&1 | tee build-logs/history-policy-tests.log

@@ -11692,7 +11692,7 @@
     <string name="TetogramDays">days</string>
     <string name="TetogramUnlimited">Unlimited</string>
     <string name="TetogramOpenHistory">Open local chat history</string>
-    <string name="TetogramClearHistory">Clear saved messages</string>
+    <string name="TetogramClearHistory">Clear saved deleted messages</string>
     <string name="TetogramHistoryPrivacy">Only messages received while saving is enabled can be preserved. Secret chats, expiring content and outgoing messages are excluded. Turning saving off hides local copies in chats but does not erase the archive.</string>
     <string name="TetogramConsent">Enable local saving for this account? Copies may remain after another participant deletes a message. This affects privacy and may conflict with Telegram API rules. Secret chats, self-destructing messages and view-once media are excluded. History stays on this device; you can clear it in Labs.</string>
     <string name="TetogramClearConfirm">Permanently remove these local copies? This does not delete any messages from Telegram.</string>

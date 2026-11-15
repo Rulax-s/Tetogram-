@@ -12021,7 +12021,10 @@ public class MessagesStorage extends BaseController {
             }
         }
 
-        if (mode == 0) org.telegram.messenger.tetogram.DeletedHistory.capture(currentAccount, messages);
+        if (mode == 0) {
+            org.telegram.messenger.tetogram.EditHistory.capture(currentAccount, messages);
+            org.telegram.messenger.tetogram.DeletedHistory.capture(currentAccount, messages);
+        }
         boolean databaseInTransaction = false;
         SQLitePreparedStatement state_messages = null;
         SQLitePreparedStatement state_messages_topic = null;
@@ -16228,7 +16231,10 @@ public class MessagesStorage extends BaseController {
     // put messages in data base while load history
     public void putMessages(TLRPC.messages_Messages messages, long dialogId, int load_type, int max_id, boolean createDialog, int mode, long threadMessageId) {
         storageQueue.postRunnable(() -> {
-            if (mode == 0) org.telegram.messenger.tetogram.DeletedHistory.capture(currentAccount, messages.messages);
+            if (mode == 0) {
+                org.telegram.messenger.tetogram.EditHistory.capture(currentAccount, messages.messages);
+                org.telegram.messenger.tetogram.DeletedHistory.capture(currentAccount, messages.messages);
+            }
             SQLitePreparedStatement state_messages = null;
             SQLitePreparedStatement state_messages_topics = null;
             SQLitePreparedStatement state_media = null;
