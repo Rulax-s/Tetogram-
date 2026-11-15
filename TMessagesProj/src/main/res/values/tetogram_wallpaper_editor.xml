@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramWallpaperPosition">Move and zoom</string>
+    <string name="TetogramWallpaperGestures">Drag to move, pinch to zoom. Double-tap to reset.</string>
+    <string name="TetogramWallpaperOnly">Wallpaper only</string>
+    <string name="TetogramWallpaperWithChat">Wallpaper with chat interface</string>
+    <string name="TetogramWallpaperPause">Pause video</string>
+    <string name="TetogramWallpaperPlay">Play video</string>
+    <string name="TetogramWallpaperReset">Reset position</string>
+    <string name="TetogramWallpaperPrecise">Precise adjustment</string>
+</resources>

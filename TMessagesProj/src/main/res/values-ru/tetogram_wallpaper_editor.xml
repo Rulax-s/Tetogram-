@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramWallpaperPosition">Переместить и масштабировать</string>
+    <string name="TetogramWallpaperGestures">Перемещайте одним пальцем, масштабируйте двумя. Двойное нажатие сбрасывает положение.</string>
+    <string name="TetogramWallpaperOnly">Только обои</string>
+    <string name="TetogramWallpaperWithChat">Обои с интерфейсом чата</string>
+    <string name="TetogramWallpaperPause">Пауза видео</string>
+    <string name="TetogramWallpaperPlay">Воспроизвести видео</string>
+    <string name="TetogramWallpaperReset">Сбросить положение</string>
+    <string name="TetogramWallpaperPrecise">Точная настройка</string>
+</resources>

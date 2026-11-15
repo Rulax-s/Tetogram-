@@ -160,6 +160,7 @@ public final class AppearanceActivity extends LabsPage {
             button(items,getString(R.string.TetogramAppearanceReset),this::confirmReset);
             return;
         }
+        if(category==Category.WALLPAPERS&&!rowMedia()&&AppearanceConfig.isMediaName(resolved().get(mediaKey("file"))))button(items,getString(R.string.TetogramWallpaperPosition),getString(R.string.TetogramWallpaperGestures),this::positionWallpaper);
         items.add(UItem.asShadow(editingPresetId==null?scopeLabel(scope)+" · "+getString(scope.equals(AppearanceConfig.GLOBAL)?R.string.TetogramEditorGlobalImpact:R.string.TetogramEditorLocalImpact):getString(R.string.TetogramAppearancePresetDraft)+"\n"+(config.presets.get(editingPresetId)==null?"":config.presets.get(editingPresetId).name)));
         if(!hidePreview){updatePreview();setTopContent(previewHost,Math.max(200,Math.min(360,Math.round(200*getContext().getResources().getConfiguration().fontScale))));}else setTopContent(null,0);
         LinearLayout switches=new LinearLayout(getContext());switches.setOrientation(LinearLayout.HORIZONTAL);
@@ -330,6 +331,18 @@ case "section.badgeText":return getString(R.string.TetogramAppearanceCircleBadge
     private void input(CharSequence title,String initial,java.util.function.Consumer<String> done){EditTextBoldCursor field=new EditTextBoldCursor(getContext());field.setTextSize(18);field.setText(initial);field.setSingleLine(true);field.setPadding(AndroidUtilities.dp(24),AndroidUtilities.dp(8),AndroidUtilities.dp(24),AndroidUtilities.dp(8));ThemeBind.textColor(field,Theme.key_dialogTextBlack);showDialog(new AlertDialog.Builder(getContext()).setTitle(title).setView(field).setPositiveButton(getString(R.string.OK),(d,n)->{String value=field.getText().toString().trim();if(value.length()<=256&&!value.isEmpty())done.accept(value);else error(getString(R.string.TetogramAppearanceInvalidValue));}).setNegativeButton(getString(R.string.Cancel),null).create());}
     private void error(CharSequence text){if(getContext()!=null)showDialog(new AlertDialog.Builder(getContext()).setMessage(text).setPositiveButton(getString(R.string.OK),null).create());}
     private String wallpaperSource(){AppearanceConfig.Resolved r=resolved();String key=mediaKey("file");if(r.get(key)==null||r.get(key).isEmpty())key=(previewDark?"dark.":"light.")+wallpaperColorName("");return getString(draft.values.containsKey(key)?R.string.TetogramAppearanceExplicit:R.string.TetogramAppearanceInherited)+" · "+scopeLabel(r.origins.getOrDefault(key,"Telegram"));}
+    private void positionWallpaper(){
+        if(!valid()||saving||mediaBusy||draft==null)return;
+        final String prefix=mediaPrefix();final AppearanceConfig.Style openedDraft=draft;
+        AppearanceConfig.Resolved source=resolved();
+        if("list.wallpaper".equals(prefix))source=AppearanceSurfaces.list(source);
+        else if("banner.wallpaper".equals(prefix))source=AppearanceSurfaces.banner(source);
+        if(!AppearanceConfig.isMediaName(source.get("wallpaper.file")))return;
+        presentFragment(new AppearanceWallpaperActivity(currentAccount,source,previewDark,"banner.wallpaper".equals(prefix),(zoom,panX,panY)->{
+            if(!valid()||draft!=openedDraft||saving||mediaBusy)return;
+            checkpoint();draft.set(prefix+".zoom",Float.toString(zoom));draft.set(prefix+".panX",Float.toString(panX));draft.set(prefix+".panY",Float.toString(panY));refresh();
+        }));
+    }
     private void mediaControls(ArrayList<UItem> items){
         items.add(UItem.asHeader(getString(R.string.TetogramAppearanceWallpapers)));
         button(items,getString(R.string.TetogramAppearanceChooseImage),()->pickMedia(false));
@@ -351,9 +364,11 @@ case "section.badgeText":return getString(R.string.TetogramAppearanceCircleBadge
         number(items,mediaKey("blur"),getString(Build.VERSION.SDK_INT>=31&&!rowMedia()?R.string.TetogramAppearanceBlur:R.string.TetogramAppearanceStaticBlur),0,Build.VERSION.SDK_INT>=31&&!rowMedia()?32:1);
         if(!rowMedia()&&AppearanceConfig.isMediaName(r.get(mediaKey("file")))){
             if(getContext().getPackageManager().hasSystemFeature(android.content.pm.PackageManager.FEATURE_SENSOR_ACCELEROMETER))toggle(items,mediaKey("parallax"),getString(R.string.TetogramAppearanceWallpaperParallax),false);
-            number(items,mediaKey("zoom"),getString(R.string.TetogramAppearanceZoom),1,4);
-            number(items,mediaKey("panX"),getString(R.string.TetogramAppearancePanX),-1,1);
-            number(items,mediaKey("panY"),getString(R.string.TetogramAppearancePanY),-1,1);
+            if(advanced){items.add(UItem.asHeader(getString(R.string.TetogramWallpaperPrecise)));
+                number(items,mediaKey("zoom"),getString(R.string.TetogramAppearanceZoom),1,4);
+                number(items,mediaKey("panX"),getString(R.string.TetogramAppearancePanX),-1,1);
+                number(items,mediaKey("panY"),getString(R.string.TetogramAppearancePanY),-1,1);
+            }
             button(items,getString(R.string.TetogramAppearanceFit),getString("fit".equals(r.get(mediaKey("fit")))?R.string.TetogramEditorFit:R.string.TetogramEditorFill),()->{checkpoint();draft.set(mediaKey("fit"),"fit".equals(r.get(mediaKey("fit")))?"fill":"fit");refresh();});
         }
         if(!rowMedia()&&"video".equals(r.get(mediaKey("type")))){

@@ -1,5 +1,12 @@
 # История изменений
 
+## 0.4.0 — жестовое позиционирование обоев, code199 (проверяется)
+
+- Полноэкранный визуальный редактор фото/видео: перемещение одним пальцем, pinch относительно центра пальцев, двойное нажатие/reset, отмена/готово, демонстрационный интерфейс чата и пауза видео.
+- Жесты используют общий AppearanceViewport и прежние zoom/panX/panY; обновляют матрицу TextureView и координаты фото без пересоздания preview/плеера, перекодирования или ввода-вывода на каждом движении.
+- «Готово» возвращает значения в исходный черновик; прежние Apply/Cancel, наследование и аккаунты сохранены. Числовые параметры перенесены в расширенную «Точную настройку». Добавлены EN/RU строки, JVM-тесты и CI source contracts.
+- APP_VERSION_CODE input19 / afat199, версия0.4.0; package/постоянная подпись/Secrets не меняются. Android UI/One UI/реальные декодеры NOT RUN. Подробности — WALLPAPER_POSITIONING.md.
+
 ## 0.4.0 — летняя Тето, code189 (APK собрана, 8/8)
 
 - CI 43716941404 success; source 45eea988a47e26e8b12e756a9da06dce9009383e. APK проверена и скопирована в Download. Реальный JUnit: 241 tests / 0 failures / 0 errors / 0 skipped; 19 SQLite, 31 source contracts, 4 подготовленных-image tests. Все восемь canonical launcher components имеют icon/roundIcon и intent-filter, JPEG внутри APK побайтово совпадает с входным файлом. Package/сертификат/ARM64/349 locale keys проверены. Android UI NOT RUN. Данные — APK-0.4.0-eight-icons.json и TESTS-0.4.0-eight-icons.json.

@@ -20,6 +20,7 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     private static WeakReference<AppearanceMediaView> active=new WeakReference<>(null);
     private final BackupImageView cover;
     private final AppearanceViewport videoViewport=new AppearanceViewport();
+    private final Matrix videoMatrix=new Matrix();
     private final TextureView texture;
     private final View dim;
     private final PowerManager power;
@@ -31,9 +32,11 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     private float parallaxStrength,parallaxProgress,sensorX,sensorY,sensorZoom=1;
     private WallpaperParallaxEffect sensorParallax;
     private boolean sensorEnabled;
+    private boolean editingViewport,playbackPaused;
+    private float editZoom=1,editPanX,editPanY;
     private void disableSensorParallax(){if(sensorParallax!=null)sensorParallax.setEnabled(false);if(sensorEnabled||sensorX!=0||sensorY!=0){sensorEnabled=false;sensorX=sensorY=0;sensorZoom=1;updateTransform();}}
     private void updateSensorParallax(boolean canRun){
-        boolean enabled=canRun&&media!=null&&"true".equals(style.get("wallpaper.parallax"))&&getContext().getPackageManager().hasSystemFeature(android.content.pm.PackageManager.FEATURE_SENSOR_ACCELEROMETER);
+        boolean enabled=!editingViewport&&canRun&&media!=null&&"true".equals(style.get("wallpaper.parallax"))&&getContext().getPackageManager().hasSystemFeature(android.content.pm.PackageManager.FEATURE_SENSOR_ACCELEROMETER);
         if(!enabled){disableSensorParallax();return;}
         try{
             if(sensorParallax==null){sensorParallax=new WallpaperParallaxEffect(getContext());sensorParallax.setCallback((x,y,angle)->{if(!sensorEnabled)return;float bound=Math.max(1,AndroidUtilities.dp(16));sensorX=Math.max(-1,Math.min(1,x/bound));sensorY=Math.max(-1,Math.min(1,y/bound));updateTransform();});}
@@ -41,8 +44,14 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
             sensorEnabled=true;sensorParallax.setEnabled(true);
         }catch(Exception e){disableSensorParallax();}
     }
-    private float mediaZoom(){return Math.max(1,Math.min(4,style.number("wallpaper.zoom",1)))*Math.max(1+.1f*parallaxStrength,sensorZoom);}
-    private float mediaPanY(){return style.number("wallpaper.panY",0)+parallaxStrength*(parallaxProgress*2-1)+sensorY;}
+    private float mediaZoom(){return editingViewport?editZoom:Math.max(1,Math.min(4,style.number("wallpaper.zoom",1)))*Math.max(1+.1f*parallaxStrength,sensorZoom);}
+    private float mediaPanX(){return editingViewport?editPanX:style.number("wallpaper.panX",0)+sensorX;}
+    private float mediaPanY(){return editingViewport?editPanY:style.number("wallpaper.panY",0)+parallaxStrength*(parallaxProgress*2-1)+sensorY;}
+    /** Gesture hot path: no configure(), image request, player creation, resource rebuild or file access. */
+    public void setViewport(float zoom,float panX,float panY){editingViewport=true;editZoom=Math.max(1,Math.min(4,zoom));editPanX=Math.max(-1,Math.min(1,panX));editPanY=Math.max(-1,Math.min(1,panY));disableSensorParallax();updateTransform();}
+    public float sourceWidth(){return video&&videoWidth>0?videoWidth:cover.getImageReceiver().getBitmapWidth();}
+    public float sourceHeight(){return video&&videoHeight>0?videoHeight:cover.getImageReceiver().getBitmapHeight();}
+    public void setPlaybackPaused(boolean value){playbackPaused=value;if(player!=null){if(value)player.pause();else if(allowed())player.play();}}
     public void setScrollParallax(float strength,float progress){strength=Math.max(0,Math.min(1,strength));progress=Math.max(0,Math.min(1,progress));if(strength==parallaxStrength&&progress==parallaxProgress)return;parallaxStrength=strength;parallaxProgress=progress;updateTransform();}
     private boolean attached,resumed,failed,video,firstFrame;
     private int stableWidth,stableHeight,videoWidth,videoHeight;
@@ -54,7 +63,7 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
         cover=new BackupImageView(context){
             private final AppearanceViewport viewport=new AppearanceViewport();
             @Override protected void onDraw(Canvas canvas){
-                if(viewport.set(getWidth(),getHeight(),imageReceiver.getBitmapWidth(),imageReceiver.getBitmapHeight(),"fit".equals(style.get("wallpaper.fit")),mediaZoom(),style.number("wallpaper.panX",0)+sensorX,mediaPanY())){
+                if(viewport.set(getWidth(),getHeight(),imageReceiver.getBitmapWidth(),imageReceiver.getBitmapHeight(),"fit".equals(style.get("wallpaper.fit")),mediaZoom(),mediaPanX(),mediaPanY())){
                     imageReceiver.setImageCoords(viewport.x,viewport.y,viewport.width,viewport.height);imageReceiver.draw(canvas);
                 }
             }
@@ -87,7 +96,7 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
                 public void onVideoSizeChanged(int w,int h,int rotation,float ratio){if(player!=instance)return;videoWidth=(rotation==90||rotation==270)?h:w;videoHeight=(rotation==90||rotation==270)?w:h;updateTransform();showFrame();}
                 public void onRenderedFirstFrame(){if(player==instance){firstFrame=true;showFrame();}}
             });
-            instance.setTextureView(texture);instance.setMute(true);instance.setLooping(!"false".equals(style.get("wallpaper.loop")));instance.preparePlayer(android.net.Uri.fromFile(media),"other");instance.setPlaybackSpeed(Math.max(.25f,Math.min(2,style.number("wallpaper.speed",1))));if(resumePosition>0)instance.seekTo(resumePosition);instance.play();
+            instance.setTextureView(texture);instance.setMute(true);instance.setLooping(!"false".equals(style.get("wallpaper.loop")));instance.preparePlayer(android.net.Uri.fromFile(media),"other");instance.setPlaybackSpeed(Math.max(.25f,Math.min(2,style.number("wallpaper.speed",1))));if(resumePosition>0)instance.seekTo(resumePosition);if(!playbackPaused)instance.play();else instance.pause();
         }catch(Exception e){failed=true;stop();FileLog.e("Tetogram video background initialization failed");}
     }
     private void showFrame(){if(!AppearanceMediaPolicy.showFrame(firstFrame,videoWidth,videoHeight,texture.getWidth(),texture.getHeight())||texture.getAlpha()!=0)return;if(SectionMenu.animations(getContext()))texture.animate().alpha(1).setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(150)).start();else texture.setAlpha(1);}
@@ -104,8 +113,8 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){super.onSizeChanged(w,h,oldw,oldh);if(stableWidth!=w||!imeVisible()){stableWidth=w;stableHeight=h;}else stableHeight=Math.max(stableHeight,h);for(View child:new View[]{cover,texture,dim})if(child!=null){FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)child.getLayoutParams();if(lp.height!=stableHeight){lp.height=stableHeight;child.setLayoutParams(lp);}}updateTransform();}
     private void updateTransform(){
         if(cover!=null)cover.invalidate();
-        if(texture==null||!videoViewport.set(texture.getWidth(),texture.getHeight(),videoWidth,videoHeight,"fit".equals(style.get("wallpaper.fit")),mediaZoom(),style.number("wallpaper.panX",0)+sensorX,mediaPanY()))return;
-        Matrix matrix=new Matrix();matrix.setScale(videoViewport.width/texture.getWidth(),videoViewport.height/texture.getHeight());matrix.postTranslate(videoViewport.x,videoViewport.y);texture.setTransform(matrix);
+        if(texture==null||!videoViewport.set(texture.getWidth(),texture.getHeight(),videoWidth,videoHeight,"fit".equals(style.get("wallpaper.fit")),mediaZoom(),mediaPanX(),mediaPanY()))return;
+        videoMatrix.setScale(videoViewport.width/texture.getWidth(),videoViewport.height/texture.getHeight());videoMatrix.postTranslate(videoViewport.x,videoViewport.y);texture.setTransform(videoMatrix);
     }
     @Override public void capture(Canvas canvas,RectF position){int save=canvas.save();canvas.clipRect(position);if(getAlpha()<1)canvas.saveLayerAlpha(position,Math.round(getAlpha()*255));cover.draw(canvas);dim.draw(canvas);canvas.restoreToCount(save);}
     @Override protected void dispatchDraw(Canvas canvas){if(SizeNotifierFrameLayout.drawingBlur)capture(canvas,new RectF(0,0,getWidth(),getHeight()));else super.dispatchDraw(canvas);}

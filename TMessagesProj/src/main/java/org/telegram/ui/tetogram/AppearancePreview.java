@@ -35,6 +35,14 @@ public final class AppearancePreview extends FrameLayout {
     @Override protected void onSizeChanged(int w,int h,int ow,int oh){super.onSizeChanged(w,h,ow,oh);if(profileAvatar!=null)profileAvatar.setTranslationX(AppearanceProfileGeometry.horizontal(w,AndroidUtilities.dp(64),AndroidUtilities.dp(16),profileAlignment,1));}
     @Override public boolean onInterceptTouchEvent(android.view.MotionEvent event){return true;}
     public long positionMs(){return media==null?0:media.positionMs();}
+    public void setViewport(float zoom,float panX,float panY){media.setViewport(zoom,panX,panY);}
+    public float sourceWidth(){return media.sourceWidth();}
+    public float sourceHeight(){return media.sourceHeight();}
+    public void setPlaybackPaused(boolean paused){media.setPlaybackPaused(paused);}
+    public void showScene(boolean visible){scene.setVisibility(visible?VISIBLE:GONE);listTint.setVisibility(visible?VISIBLE:GONE);}
+    public void sceneInsets(int top,int bottom){scene.setPadding(0,top,0,bottom);}
+    /** SimpleGlass samples the static cover, never reads back TextureView or opens another decoder. */
+    public void captureForGlass(android.graphics.Canvas canvas,android.graphics.RectF position){int save=canvas.save();canvas.clipRect(position);if(getBackground()!=null)getBackground().draw(canvas);media.capture(canvas,position);if(scene.getVisibility()==VISIBLE){listTint.draw(canvas);scene.draw(canvas);}canvas.restoreToCount(save);}
     public void setResumed(boolean value){if(resumed==value)return;resumed=value;if(media!=null)media.setResumed(value);}
     public AppearancePreview(Context context,int account,AppearanceConfig.Resolved style,boolean dark,boolean dialogs){
         this(context,account,style,dark,dialogs?1:0);
