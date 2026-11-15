@@ -1,6 +1,8 @@
 # История изменений
 
-## 0.4.0 — Tetogram/Mikugram seasonal launcher, code179 (проверяется)
+## 0.4.0 — Tetogram/Mikugram seasonal launcher, code179 (APK собрана; 7/8 изображений)
+
+- CI 43711390552 success, source 45cde4ae473c1dadf989be5851dc93cbfef668ea. Реальный JUnit report: 241 tests / 0 failures / 0 errors / 0 skipped (24 launcher-focused). 19 SQLite, 31 source contracts; APK identity/signature/ARM64/8 canonical components/349 locale keys проверены. APK code179 скопирована в Download. Из восьми компонентов лишь семь имеют реальные изображения; Tetogram Summer без launcher intent-filter до предоставления PNG. Android/Samsung/notifications/deep links NOT RUN. Метаданные — APK-0.4.0-seasonal-launcher.json.
 
 
 - CI реагирует на assets/launcher/seasonal/** в push/PR; загрузка подготовленного summer PNG запускает существующую сборку.

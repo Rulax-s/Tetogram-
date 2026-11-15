@@ -1,0 +1,75 @@
+{
+  "file_name": "Tetogram-debug.apk",
+  "version": "0.4.0",
+  "version_code": 179,
+  "application_id": "org.tetogram.messenger",
+  "size_bytes": 82864121,
+  "sha256": "ffc8768027dcf51a142e0d6f923bb084f4274a60ea18cd1660f194e43768088f",
+  "signature_certificate_sha256": "147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "fresh_manifest_enabled_launcher_aliases": [
+    "org.telegram.messenger.DefaultIcon"
+  ],
+  "canonical_aliases_declared": [
+    "MikugramAutumn",
+    "MikugramSpring",
+    "MikugramSummer",
+    "MikugramWinter",
+    "TetogramAutumn",
+    "TetogramSpring",
+    "TetogramSummer",
+    "TetogramWinter"
+  ],
+  "available_seasonal_images": [
+    "MikugramAutumn",
+    "MikugramSpring",
+    "MikugramSummer",
+    "MikugramWinter",
+    "TetogramAutumn",
+    "TetogramSpring",
+    "TetogramWinter"
+  ],
+  "missing_artwork": [
+    "assets/launcher/seasonal/tetogram_summer.png"
+  ],
+  "legacy_seasonal_aliases_retained": [
+    "MikuAutumnIcon",
+    "MikuSpringIcon",
+    "MikuSummerIcon",
+    "MikuWinterIcon",
+    "TetoAutumnIcon",
+    "TetoSpringIcon",
+    "TetoWinterIcon"
+  ],
+  "partial_media_permission": true,
+  "update_compatible_with_verified_0_3_1_code99": true,
+  "run_id": 43711390552,
+  "source_commit": "45cde4ae473c1dadf989be5851dc93cbfef668ea",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43711390552/artifacts/14161670900",
+  "artifact_expires_at": "2026-11-29T12:13:48Z",
+  "file_on_phone": "/sdcard/Download/Tetogram-0.4.0-179-debug.apk",
+  "jvm_tests": {
+    "tests": 241,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "launcher_tests": 24
+  },
+  "sqlite_tests": 19,
+  "launcher_source_contracts": 9,
+  "other_source_contracts": 22,
+  "localization_keys_in_apk": 349,
+  "update_parameters_match_code159": true,
+  "update_parameters_match_code169": true,
+  "android_ui_tests": "NOT RUN",
+  "samsung_one_ui_test": "NOT RUN",
+  "notifications_and_deep_links_test": "NOT RUN",
+  "installation_update_test": "NOT RUN",
+  "manual_checklist": "SEASONAL_LAUNCHER.md",
+  "completion": "Architecture for 8 variants; only 7 supplied seasonal images. Tetogram Summer unavailable until prepared PNG is supplied."
+}

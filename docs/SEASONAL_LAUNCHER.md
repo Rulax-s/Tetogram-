@@ -51,4 +51,4 @@ Python source/resource contracts: воспроизводимая генерац�
 7. Открытие из launcher, уведомления, tg/t.me deep links, звонки, восстановление Activity/процесса; Telegram-сессии и пользовательские данные сохранены.
 8. Повреждение только launcher preferences на тестовой установке, либо отказ PackageManager: безопасное восстановление/ошибка без удаления app data. Не выполнять на основном аккаунте без разрешения владельца.
 
-Итоговые APK/подпись/реальные JUnit результаты будут зафиксированы после CI. APP_VERSION_CODE input17 / afat179, versionName0.4.0.
+CI 43711390552 успешно собрала APK из 45cde4ae473c1dadf989be5851dc93cbfef668ea. Реальные результаты — TESTS-0.4.0-seasonal-launcher.json, метаданные/семь доступных изображений/отсутствующий файл — APK-0.4.0-seasonal-launcher.json. Android UI/Samsung/уведомления/deep links NOT RUN. APP_VERSION_CODE input17 / afat179, versionName0.4.0.
