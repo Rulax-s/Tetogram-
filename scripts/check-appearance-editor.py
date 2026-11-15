@@ -29,6 +29,8 @@ class EditorContracts(unittest.TestCase):
   android='{http://schemas.android.com/apk/res/android}'
   manifest=ET.parse(ROOT/'TMessagesProj/src/main/AndroidManifest.xml').getroot()
   aliases=[a for a in manifest.iter('activity-alias') if a.get(android+'name','').split('.')[-1].startswith(('Teto','Miku'))]
+  renderer=source('ui/tetogram/AppearanceIconPreview.java');self.assertIn('backdrop.draw(canvas)',renderer)
+  self.assertIn('shape,iconBackground(custom)',source('ui/tetogram/AppearanceLauncherActivity.java'))
   self.assertEqual(7,len(aliases))
   controller=source('ui/LauncherIconController.java')
   for alias in aliases:
