@@ -134,6 +134,14 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     private float tetogramChatsVisibility(){return viewPager==null?1:Math.max(0,Math.min(1,viewPager.getPositionVisibility(POSITION_CHATS)));}
     private void tetogramRefreshNavGlobal(){tetogramNavGlobalStyle=org.telegram.messenger.tetogram.AppearanceSurfaces.list(org.telegram.messenger.tetogram.AppearanceStore.resolve(currentAccount,org.telegram.messenger.tetogram.AppearanceConfig.Context.direct(0,0)));tetogramNavGlobal=new org.telegram.ui.tetogram.AppearanceResources(tetogramNavGlobalStyle,Theme.isCurrentThemeDark(),resourceProvider);}
     private void tetogramNavOpacity(){if(tabsViewBackground==null)return;float global=Math.max(0,Math.min(1,tetogramNavGlobalStyle==null?1:tetogramNavGlobalStyle.number("list.navigationOpacity",1))),local=Math.max(0,Math.min(1,tetogramNavLocalStyle==null?global:tetogramNavLocalStyle.number("list.navigationOpacity",global)));tabsViewBackground.setAlpha(Math.round(255*Math.max(0,Math.min(1,global+(local-global)*tetogramChatsVisibility()))));}
+    private boolean tetogramSectionsAvailable,tetogramSectionsOpen;
+    private void tetogramCloseSections(){if(dialogsActivity!=null&&!dialogsActivity.isFinished&&dialogsActivity.getCurrentAccount()==currentAccount)dialogsActivity.closeTetogramSectionsFromTabs();}
+    private void tetogramSectionsIndicator(boolean animated){
+        if(tabs==null||tabs[INDEX_CHATS]==null)return;
+        boolean visible=tetogramSectionsAvailable&&!isPaused&&!isFinished&&viewPager!=null&&viewPager.getCurrentPosition()==POSITION_CHATS&&tabs[INDEX_CHATS].isTabSelected()&&getCurrentVisibleFragment()==dialogsActivity&&dialogsActivity!=null&&!dialogsActivity.isFinished&&dialogsActivity.getCurrentAccount()==currentAccount&&!dialogsActivity.isPaused();
+        tabs[INDEX_CHATS].setSectionsIndicator(visible,tetogramSectionsOpen,animated);
+    }
+    private void tetogramRefreshSectionsMode(){if(dialogsActivity!=null&&!dialogsActivity.isFinished&&dialogsActivity.getCurrentAccount()==currentAccount)dialogsActivity.refreshTetogramSectionsOpeningMode();tetogramSectionsIndicator(false);}
     private MainTabsLayout tabsView;
     private BlurredBackgroundDrawable tabsViewBackground;
     private View fadeView;
@@ -305,6 +313,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         checkUnreadCount(true);
 
         showAccountChangeHint();
+        tetogramRefreshSectionsMode();
     }
 
     private void checkContactsTabBadge() {
@@ -323,7 +332,9 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
     @Override
     public void onPause() {
+        tetogramCloseSections();
         super.onPause();
+        tetogramSectionsIndicator(false);
         if (accountSwitchHint != null) {
             accountSwitchHint.hide();
         }
@@ -367,12 +378,14 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
                 if (viewPager.getCurrentPosition() == position) {
                     final BaseFragment fragment = getCurrentVisibleFragment();
+                    if(position==POSITION_CHATS&&!isPaused&&!isFinished&&fragment==dialogsActivity&&fragment!=null&&!fragment.isFinished&&fragment.getCurrentAccount()==currentAccount&&dialogsActivity.toggleTetogramSectionsFromChats())return;
                     if (fragment instanceof MainTabsActivity.TabFragmentDelegate) {
                         ((MainTabsActivity.TabFragmentDelegate) fragment).onParentScrollToTop();
                     }
                     return;
                 }
 
+                tetogramCloseSections();
                 selectTab(position, true);
                 viewPager.scrollToPosition(position);
             });
@@ -783,6 +796,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
     @Override
     protected void onViewPagerTabAnimationUpdate(boolean manual) {
+        if(viewPager!=null&&Math.abs(viewPager.getPositionAnimated()-POSITION_CHATS)>.001f)tetogramCloseSections();
         final boolean isDragByGesture = !manual;
 
         if (tabsView != null) {
@@ -876,10 +890,12 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     public GlassTabView[] tabs;
 
     public void selectTab(int position, boolean animated) {
+        if(position!=POSITION_CHATS)tetogramCloseSections();
         for (int a = 0; a < tabs.length; a++) {
             GlassTabView tab = tabs[a];
             tab.setSelected(indexToPosition(a) == position, animated);
         }
+        tetogramSectionsIndicator(false);
     }
 
     public void setGestureSelectedOverride(float animatedPosition, boolean allow) {
@@ -989,6 +1005,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
     @Override
     public void didReceivedNotification(int id, int account, Object... args) {
+        if(id==NotificationCenter.tetogramSectionOpeningChanged){if(account==currentAccount)tetogramRefreshSectionsMode();return;}
         if (id == NotificationCenter.notificationsCountUpdated || id == NotificationCenter.updateInterfaces) {
             checkUnreadCount(fragmentView != null && fragmentView.isAttachedToWindow());
         } else if (id == NotificationCenter.appUpdateLoading) {
@@ -1047,6 +1064,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
             .add(NotificationCenter.callTabsVisibleToggled)
             .add(NotificationCenter.mainUserInfoChanged)
             .add(NotificationCenter.contactsPermissionBadgeCheck)
+            .add(NotificationCenter.tetogramSectionOpeningChanged)
             .addGlobal(NotificationCenter.appUpdateAvailable)
             .addGlobal(NotificationCenter.appUpdateLoading)
             .addGlobal(NotificationCenter.needSetDayNightTheme);
@@ -1056,6 +1074,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
     @Override
     public void onFragmentDestroy() {
+        tetogramCloseSections();
         Bulletin.removeDelegate(this);
         Bulletin.removeDelegate(contentView);
 
@@ -1108,6 +1127,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
         tabsView.setAlpha(factor);
         tabsView.setVisibility(factor > 0 ? View.VISIBLE : View.GONE);
         tetogramNavOpacity();
+        if(dialogsActivity!=null&&!dialogsActivity.isPaused()&&getCurrentVisibleFragment()==dialogsActivity)dialogsActivity.updateTetogramSectionsAnchor();
     }
 
     private void checkUi_callTabVisible(boolean callTabsVisible, boolean animated) {
@@ -1130,10 +1150,16 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     /* * */
 
     private class MainTabsActivityControllerImpl implements MainTabsActivityController {
+        @Override public boolean getSectionsAnchor(DialogsActivity source,android.graphics.Rect anchor){
+            if(isPaused||isFinished||source==null||source!=dialogsActivity||source.isFinished||source.isPaused()||source.getCurrentAccount()!=currentAccount||getCurrentVisibleFragment()!=source||viewPager==null||viewPager.getCurrentPosition()!=POSITION_CHATS||tabs==null||tabs[INDEX_CHATS]==null||tabsView==null||!tabsView.isAttachedToWindow()||!tabsView.isShown()||tabsView.getAlpha()<=0)return false;
+            GlassTabView tab=tabs[INDEX_CHATS];if(tab.getWidth()==0)return false;int[] point=new int[2],bar=new int[2];tab.getLocationInWindow(point);tabsView.getLocationInWindow(bar);int center=Math.round(point[0]+tab.sectionsAnchorCenterX());anchor.set(center-1,bar[1],center+1,bar[1]+tabsView.getHeight());return true;
+        }
+        @Override public void setSectionsMenuState(DialogsActivity source,boolean available,boolean open,boolean animated){if(source==null||source!=dialogsActivity||source.isFinished||source.getCurrentAccount()!=currentAccount)return;tetogramSectionsAvailable=available;tetogramSectionsOpen=open;tetogramSectionsIndicator(animated);}
         @Override public void setAppearance(long owner,org.telegram.messenger.tetogram.AppearanceConfig.Resolved style,boolean dark){if(owner<=0||owner!=getUserConfig().getClientUserId())return;tetogramRefreshNavGlobal();tetogramNavLocalStyle=style;tetogramNavLocal=new org.telegram.ui.tetogram.AppearanceResources(style,dark,resourceProvider);tetogramNavOpacity();if(tabsViewBackground!=null)tabsViewBackground.updateColors();if(tabs!=null)for(GlassTabView tab:tabs)if(tab!=null)tab.updateColors();if(tabsView!=null)tabsView.invalidate();}
 
         @Override
         public void setTabsVisible(boolean visible) {
+            if(!visible)tetogramCloseSections();
             animatorTabsVisible.setValue(visible, true);
         }
     }

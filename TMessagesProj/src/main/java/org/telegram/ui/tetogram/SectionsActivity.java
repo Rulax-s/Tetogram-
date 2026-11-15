@@ -43,6 +43,8 @@ public final class SectionsActivity extends LabsPage {
   actions.clear();if(!valid())return;
   try{config=SectionsStore.load(currentAccount);}catch(Exception e){items.add(UItem.asShadow(getString(R.string.TetogramStorageError)));return;}
   if(sectionId==null && folderId==null){
+   items.add(UItem.asCustom(new AppearanceSettingRow(getContext(),getString(R.string.TetogramSectionsOpening),getString(SectionOpeningPolicy.CHATS.equals(config.openingMode)?R.string.TetogramSectionsOpeningChats:R.string.TetogramSectionsOpeningFloating),true,()->showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramSectionsOpening)).setItems(new CharSequence[]{getString(R.string.TetogramSectionsOpeningFloating),getString(R.string.TetogramSectionsOpeningChats)},(d,n)->{if(!valid())return;if(SectionsStore.updateOpeningMode(currentAccount,owner,n==0?SectionOpeningPolicy.FLOATING:SectionOpeningPolicy.CHATS))refresh();else showDialog(new AlertDialog.Builder(getContext()).setMessage(getString(R.string.TetogramStorageError)).setPositiveButton(getString(R.string.OK),null).create());}).create())), -2));
+   items.add(UItem.asShadow(getString(R.string.TetogramSectionsOpeningInfo)));
    button(items,getString(R.string.TetogramSectionAdd),()->input(getString(R.string.TetogramSectionName),"",name->{config.add(name);save();}));
    items.add(UItem.asShadow(getString(R.string.TetogramSectionInfo)));
    check(items,getString(R.string.TetogramShowBadges),config.showBadges,()->{config.showBadges=!config.showBadges;save();});

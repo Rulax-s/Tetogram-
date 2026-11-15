@@ -1,5 +1,12 @@
 # История изменений
 
+## 0.4.0 — два способа открытия разделов, code159 (проверяется)
+
+- Одно меню SectionMenu: прежняя floating-стрелка по умолчанию или повторное нажатие активной нижней вкладки «Чаты». Первый переход с другой вкладки и long press выбора папок сохраняются.
+- Привязка к действующей кнопке «Чаты», Insets/viewport bounds, декоративная анимированная стрелка без пересечения с unread-бейджем; закрытие при уходе/поиске/жесте переключения. FAB выключена только в section-toggle роли.
+- Account UID storage openingMode/revision с backward-compatible default и защитой от stale config write; изменение применяется через account notification/resume, без перезапуска.
+- JVM и source regression tests; Android UI NOT RUN. Package, подпись, Secrets и пользовательские данные не меняются. Подробности — SECTION_OPENING.md.
+
 ## 0.4.0 — переработка редактора, code149 (APK собрана)
 
 - Source 05765744c07817fee114a41095c23b7be9ac3c82; CI 43698098220 success. Реальный JUnit report: 210 tests / 0 failures / 0 errors / 0 skipped (94 appearance). 19 SQLite, 7 Insets + 7 editor source contracts, 331 localization keys; APK/сертификат/ARM64 проверены, копия в Download. APK-0.4.0-editor.json и TESTS-0.4.0-editor.json. Android UI/One UI NOT RUN.

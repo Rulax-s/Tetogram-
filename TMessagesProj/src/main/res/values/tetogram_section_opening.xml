@@ -1,0 +1,6 @@
+<resources>
+  <string name="TetogramSectionsOpening">Open sections using</string>
+  <string name="TetogramSectionsOpeningFloating">Separate button</string>
+  <string name="TetogramSectionsOpeningChats">Chats button</string>
+  <string name="TetogramSectionsOpeningInfo">Separate button: the floating arrow opens sections. Chats button: tap the active Chats tab again to open or close the same menu.</string>
+</resources>

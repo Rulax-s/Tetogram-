@@ -6,6 +6,8 @@ import java.io.*;
 public final class SectionConfig {
  public static final String OWN="own";
  public boolean configured;
+ public String openingMode=SectionOpeningPolicy.FLOATING;
+ public long openingModeRevision;
  public boolean showBadges=true,compactBadges=true,unreadEnabled=true,unreadIncludeMuted=false;
  public String defaultId="",selectedId="";
  public int nextToken=1000000;
@@ -28,6 +30,7 @@ public final class SectionConfig {
  public static final class Folder extends Scope {public String id,name;public int token;}
  public Section section(String id){for(Section s:sections)if(s.id.equals(id))return s;return null;}
  public void preserveNewerIcons(SectionConfig latest){for(Section section:sections){Section previous=latest.section(section.id);if(previous!=null && previous.iconRevision>section.iconRevision){section.iconType=previous.iconType;section.icon=previous.icon;section.iconImage=previous.iconImage;section.iconRevision=previous.iconRevision;}}}
+ public void preserveNewerOpeningMode(SectionConfig latest){if(latest.openingModeRevision>openingModeRevision){openingMode=latest.openingMode;openingModeRevision=latest.openingModeRevision;}}
  public Scope scope(String sectionId,String tabKey){return OWN.equals(tabKey)?section(sectionId):folders.get(tabKey);}
  public Section add(String name){Section s=new Section();s.id=UUID.randomUUID().toString();s.name=title(name);sections.add(s);configured=true;selectedId=s.id;return s;}
  public Folder addFolder(String name){if(nextToken==Integer.MAX_VALUE)throw new IllegalStateException("UI token space exhausted");Folder f=new Folder();f.id="local:"+UUID.randomUUID();f.name=title(name);f.token=nextToken++;folders.put(f.id,f);return f;}
@@ -48,7 +51,7 @@ public final class SectionConfig {
  private static void writeScope(Properties p,String k,Scope s){p.setProperty(k+"flags",Integer.toString(s.flags));p.setProperty(k+"chats",join(s.chats));p.setProperty(k+"excluded",join(s.excluded));}
  private static void readScope(Properties p,String k,Scope s){s.flags=Integer.parseInt(p.getProperty(k+"flags","0"));for(String v:split(p.getProperty(k+"chats","")))s.chats.add(Long.parseLong(v));for(String v:split(p.getProperty(k+"excluded","")))s.excluded.add(Long.parseLong(v));}
  public String encode(){
-  Properties p=new Properties();p.setProperty("schema","2");p.setProperty("badges",Boolean.toString(showBadges));p.setProperty("compactBadges",Boolean.toString(compactBadges));p.setProperty("unreadEnabled",Boolean.toString(unreadEnabled));p.setProperty("unreadMuted",Boolean.toString(unreadIncludeMuted));p.setProperty("configured",Boolean.toString(configured));p.setProperty("default",defaultId);p.setProperty("selected",selectedId);p.setProperty("token",Integer.toString(nextToken));
+  Properties p=new Properties();p.setProperty("openingMode",SectionOpeningPolicy.normalize(openingMode));p.setProperty("openingModeRevision",Long.toString(openingModeRevision));p.setProperty("schema","2");p.setProperty("badges",Boolean.toString(showBadges));p.setProperty("compactBadges",Boolean.toString(compactBadges));p.setProperty("unreadEnabled",Boolean.toString(unreadEnabled));p.setProperty("unreadMuted",Boolean.toString(unreadIncludeMuted));p.setProperty("configured",Boolean.toString(configured));p.setProperty("default",defaultId);p.setProperty("selected",selectedId);p.setProperty("token",Integer.toString(nextToken));
   ArrayList<String> ids=new ArrayList<>();for(Section s:sections){ids.add(s.id);String k="s."+s.id+".";p.setProperty(k+"name",s.name);p.setProperty(k+"icon",s.icon);p.setProperty(k+"iconType",s.iconType);p.setProperty(k+"iconImage",s.iconImage);p.setProperty(k+"iconRevision",Long.toString(s.iconRevision));p.setProperty(k+"general",Boolean.toString(s.general));p.setProperty(k+"last",s.lastFolder);p.setProperty(k+"tabs",join(s.tabs));writeScope(p,k,s);}p.setProperty("sections",join(ids));p.setProperty("folders",join(folders.keySet()));
   for(Folder f:folders.values()){String k="f."+f.id+".";p.setProperty(k+"name",f.name);p.setProperty(k+"token",Integer.toString(f.token));writeScope(p,k,f);}
   try{StringWriter w=new StringWriter();p.store(w,"Tetogram local sections v1");return w.toString();}catch(IOException e){throw new IllegalStateException(e);}
@@ -57,6 +60,7 @@ public final class SectionConfig {
   SectionConfig c=new SectionConfig();if(value==null || value.isEmpty())return c;
   Properties p=new Properties();try{p.load(new StringReader(value));}catch(IOException e){throw new IllegalArgumentException(e);}
   if(!"1".equals(p.getProperty("schema")) && !"2".equals(p.getProperty("schema")))throw new IllegalArgumentException("Unsupported section schema");
+  c.openingMode=SectionOpeningPolicy.normalize(p.getProperty("openingMode"));c.openingModeRevision=Long.parseLong(p.getProperty("openingModeRevision","0"));
   c.showBadges=Boolean.parseBoolean(p.getProperty("badges","true"));c.compactBadges=Boolean.parseBoolean(p.getProperty("compactBadges","true"));c.unreadEnabled=Boolean.parseBoolean(p.getProperty("unreadEnabled","true"));c.unreadIncludeMuted=Boolean.parseBoolean(p.getProperty("unreadMuted","false"));
   c.configured=Boolean.parseBoolean(p.getProperty("configured","false"));c.defaultId=p.getProperty("default","");c.selectedId=p.getProperty("selected","");c.nextToken=Integer.parseInt(p.getProperty("token","1000000"));
   for(String id:split(p.getProperty("folders",""))){if(!id.startsWith("local:") || c.folders.containsKey(id))throw new IllegalArgumentException("Invalid folder ID");Folder f=new Folder();f.id=id;String k="f."+id+".";f.name=title(p.getProperty(k+"name"));f.token=Integer.parseInt(p.getProperty(k+"token"));readScope(p,k,f);c.folders.put(id,f);}

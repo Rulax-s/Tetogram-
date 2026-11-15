@@ -10,6 +10,7 @@ package org.telegram.ui;
 
 import org.telegram.messenger.tetogram.SectionConfig;
 import org.telegram.messenger.tetogram.SectionMenuState;
+import org.telegram.messenger.tetogram.SectionOpeningPolicy;
 import org.telegram.messenger.tetogram.SectionUnread;
 import org.telegram.messenger.tetogram.SectionUnreadPolicy;
 import org.telegram.messenger.tetogram.SectionsStore;
@@ -567,7 +568,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             id->{if(owner==getUserConfig().getClientUserId())tetogramChooseSection(id);},
             id->{if(owner!=getUserConfig().getClientUserId())return;tetogramReadSections();if(!SectionMenuState.canEdit(owner,getUserConfig().getClientUserId(),tetogramSections,id))return;if(SectionUnreadPolicy.SYSTEM_ID.equals(id))presentFragment(new SectionsActivity(currentAccount));else if(tetogramSections!=null && tetogramSections.section(id)!=null)presentFragment(new SectionsActivity(currentAccount,id));});
         FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)tetogramSectionMenu.getLayoutParams();int available=fragmentView==null?AndroidUtilities.displaySize.y:fragmentView.getHeight();
-        int height=Math.min(dp(56*tetogramSectionMenu.entries()+8),Math.max(dp(56),Math.min((int)(AndroidUtilities.displaySize.y*.55f),available-dp(160)-navigationBarHeight-additionFloatingButtonOffset)));if(lp.height!=height){lp.height=height;tetogramSectionMenu.setLayoutParams(lp);}
+        int height=Math.min(dp(56*tetogramSectionMenu.entries()+8),Math.max(dp(56),Math.min((int)(AndroidUtilities.displaySize.y*.55f),available-dp(160)-navigationBarHeight-additionFloatingButtonOffset)));if(!tetogramUseChatsButton()&&lp.height!=height){lp.height=height;tetogramSectionMenu.setLayoutParams(lp);}if(tetogramUseChatsButton())tetogramPositionSectionMenu();
         if(tetogramSectionMenu.entries()==0)tetogramSectionMenu.collapse();
     }
     private void tetogramRefreshBadgesNow(){
@@ -601,11 +602,44 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }else{if(tetogramSections.section(id)==null)return;tetogramSectionId=id;tetogramSections.selectedId=id;tetogramPersistSections();}
         updateFilterTabs(true,true);hideFloatingButton(false);tetogramScrollGate.reset();tetogramRefreshBadgesNow();
     }
+    private boolean tetogramUseChatsButton(){return isTetogramSectionList()&&hasMainTabs&&mainTabsActivityController!=null&&tetogramSections!=null&&SectionOpeningPolicy.CHATS.equals(tetogramSections.openingMode);}
+    private void tetogramPublishSectionsState(boolean animated){if(mainTabsActivityController!=null)mainTabsActivityController.setSectionsMenuState(this,tetogramUseChatsButton()&&!searching,tetogramSectionMenu!=null&&tetogramSectionMenu.expanded(),animated);}
+    public void refreshTetogramSectionsOpeningMode(){
+        if(isFinished||!isTetogramSectionList())return;
+        closeTetogramSectionsFromTabs();tetogramReadSections();
+        if(floatingButton3!=null)updateFloatingButtonVisibility(false);
+        tetogramPositionSectionMenu();tetogramPublishSectionsState(false);
+    }
+    /** The parent must pass its currently visible, account-matching chat fragment. */
+    public boolean toggleTetogramSectionsFromChats(){
+        if(isFinished||isPaused||fragmentView==null||!fragmentView.isAttachedToWindow()||!isTetogramSectionList()||searching||!hasMainTabs)return false;
+        tetogramReadSections();
+        if(!SectionOpeningPolicy.repeatToggles(tetogramSections==null?null:tetogramSections.openingMode,true,tetogramUseChatsButton(),!isPaused,tetogramSectionsOwner==getUserConfig().getClientUserId()))return false;
+        tetogramToggleSections();return true;
+    }
+    public void closeTetogramSectionsFromTabs(){if(tetogramSectionMenu!=null&&tetogramSectionMenu.getVisibility()!=View.GONE)tetogramSectionMenu.cancelAndHide();}
+    public void updateTetogramSectionsAnchor(){if(tetogramSectionMenu!=null&&tetogramSectionMenu.getVisibility()==View.VISIBLE&&tetogramUseChatsButton()&&!tetogramPositionSectionMenu())closeTetogramSectionsFromTabs();}
+    private boolean tetogramPositionSectionMenu(){
+        if(tetogramSectionMenu==null||fragmentView==null)return false;
+        FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)tetogramSectionMenu.getLayoutParams();
+        if(!tetogramUseChatsButton()){
+            if(lp.width!=dp(64)||lp.gravity!=(Gravity.RIGHT|Gravity.BOTTOM)||lp.leftMargin!=0||lp.topMargin!=0||lp.rightMargin!=dp(12)||lp.bottomMargin!=dp(72)){lp.width=dp(64);lp.gravity=Gravity.RIGHT|Gravity.BOTTOM;lp.leftMargin=lp.topMargin=0;lp.rightMargin=dp(12);lp.bottomMargin=dp(72);tetogramSectionMenu.setLayoutParams(lp);}tetogramSectionMenu.setTranslationY(floatingButton3==null?0:floatingButton3.getTranslationY());return true;
+        }
+        android.graphics.Rect anchor=new android.graphics.Rect();if(!mainTabsActivityController.getSectionsAnchor(this,anchor))return false;
+        int[] root=new int[2];fragmentView.getLocationInWindow(root);int anchorTop=anchor.top-root[1],gap=dp(8);
+        androidx.core.view.WindowInsetsCompat wi=androidx.core.view.ViewCompat.getRootWindowInsets(fragmentView);androidx.core.graphics.Insets safe=wi==null?mSystemInsets:AndroidUtilities.getDefaultWindowInsets(wi,false);
+        int desired=Math.min(dp(56*tetogramSectionMenu.entries()+8),(int)(AndroidUtilities.displaySize.y*.55f));
+        int height=SectionOpeningPolicy.height(desired,anchorTop,safe.top+ActionBar.getCurrentActionBarHeight()+gap,gap);if(height<dp(56))return false;
+        int width=Math.min(dp(64),Math.max(0,fragmentView.getWidth()-safe.left-safe.right));
+        int left=SectionOpeningPolicy.left(anchor.centerX()-root[0],width,fragmentView.getWidth(),safe.left,safe.right),top=anchorTop-gap-height;
+        if(lp.width!=width||lp.height!=height||lp.gravity!=(Gravity.LEFT|Gravity.TOP)||lp.leftMargin!=left||lp.topMargin!=top||lp.rightMargin!=0||lp.bottomMargin!=0){lp.width=width;lp.height=height;lp.gravity=Gravity.LEFT|Gravity.TOP;lp.leftMargin=left;lp.topMargin=top;lp.rightMargin=lp.bottomMargin=0;tetogramSectionMenu.setLayoutParams(lp);}
+        tetogramSectionMenu.setTranslationY(0);return true;
+    }
     private void tetogramToggleSections() {
         if(tetogramSectionMenu==null)return;
         if(tetogramSectionMenu.expanded()){tetogramSectionMenu.collapse();return;}
         tetogramReadSections();tetogramRefreshBadgesNow();if(tetogramSections==null)return;
-        tetogramMenuContent();if(tetogramSectionMenu.entries()==0){tetogramSectionMenu.cancelAndHide();presentFragment(new SectionsActivity(currentAccount));return;}tetogramSectionMenu.expand();
+        tetogramMenuContent();if(tetogramSectionMenu.entries()==0){tetogramSectionMenu.cancelAndHide();presentFragment(new SectionsActivity(currentAccount));return;}if(!tetogramPositionSectionMenu())return;tetogramSectionMenu.expand();
     }
     private ArrayList<MessagesController.DialogFilter> tetogramPageFilters() {
         if(!isTetogramSectionList())return getMessagesController().getDialogFilters();
@@ -4876,12 +4910,13 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         if(isTetogramSectionList()) {
             FrameLayout.LayoutParams buttonParams=(FrameLayout.LayoutParams)floatingButton3.getLayoutParams();buttonParams.gravity=Gravity.RIGHT|Gravity.BOTTOM;floatingButton3.setLayoutParams(buttonParams);
             tetogramSectionMenu=new SectionMenu(context,getResourceProvider());
-            tetogramSectionMenu.setStateListener((open,animated)->{if(floatingButton3==null)return;floatingButton3.imageView.animate().cancel();if(animated)floatingButton3.imageView.animate().rotation(open?180:0).setDuration(210).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start();else floatingButton3.imageView.setRotation(open?180:0);});
+            tetogramSectionMenu.setStateListener((open,animated)->{tetogramPublishSectionsState(animated);if(floatingButton3==null)return;floatingButton3.imageView.animate().cancel();if(animated)floatingButton3.imageView.animate().rotation(open?180:0).setDuration(210).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start();else floatingButton3.imageView.setRotation(open?180:0);});
             contentView.addView(tetogramSectionMenu,LayoutHelper.createFrame(64,56,Gravity.RIGHT|Gravity.BOTTOM,0,0,12,72));
+            contentView.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->updateTetogramSectionsAnchor());
             floatingButton3.setOnLongClickListener(v->{if(tetogramSectionMenu!=null)tetogramSectionMenu.cancelAndHide();presentFragment(new SectionsActivity(currentAccount));return true;});
         }
         floatingButton3.setOnClickListener(v -> {
-            if(isTetogramSectionList()){tetogramToggleSections();return;}
+            if(isTetogramSectionList()){if(!tetogramUseChatsButton())tetogramToggleSections();return;}
             if (parentLayout != null && parentLayout.isInPreviewMode()) {
                 finishPreviewFragment();
                 return;
@@ -7176,6 +7211,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onResume() {
         super.onResume();
+        refreshTetogramSectionsOpeningMode();
         org.telegram.messenger.tetogram.AppearanceStore.load(currentAccount,(ok,c)->{if(ok&&!isPaused)tetogramRefreshAppearance();});
         if(isTetogramSectionList() && filterTabsView!=null)updateFilterTabs(true,false);
         AndroidUtilities.cancelRunOnUIThread(tetogramBadgeTick);if(isTetogramSectionList())AndroidUtilities.runOnUIThread(tetogramBadgeTick);
@@ -9047,7 +9083,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
         if(!isVisible && tetogramSectionMenu!=null)tetogramSectionMenu.collapse();
         if (floatingButton3 != null) {
-            floatingButton3.setButtonVisible(isVisible, animated);
+            boolean tabMode=tetogramUseChatsButton();
+            floatingButton3.setButtonVisible(isVisible&&!tabMode,tabMode?false:animated);
+            if(isTetogramSectionList()){floatingButton3.setClickable(!tabMode);floatingButton3.setEnabled(!tabMode);}
         }
         if (floatingButtonStories != null) {
             floatingButtonStories.setButtonVisible(isVisible && !isTetogramSectionList(), animated);
@@ -9061,7 +9099,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
         if (floatingButton3 != null) {
             floatingButton3.setTranslationY(baseTranslationY);
-            if(tetogramSectionMenu!=null)tetogramSectionMenu.setTranslationY(baseTranslationY);
+            if(tetogramSectionMenu!=null){if(tetogramUseChatsButton())updateTetogramSectionsAnchor();else tetogramSectionMenu.setTranslationY(baseTranslationY);}
         }
         if (floatingButtonStories != null) {
             floatingButtonStories.setTranslationY(baseTranslationY - dp(52));
@@ -13989,6 +14027,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         final boolean mainTabsVisible = !searching && (blurredView == null || blurredView.getBackground() == null || blurredView.getAlpha() < 0.01f || blurredView.getVisibility() == View.GONE);
         if (mainTabsActivityController != null) {
             mainTabsActivityController.setTabsVisible(mainTabsVisible);
+            tetogramPublishSectionsState(false);
         }
     }
 

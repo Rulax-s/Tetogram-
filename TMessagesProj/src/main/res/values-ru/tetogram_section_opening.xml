@@ -1,0 +1,6 @@
+<resources>
+  <string name="TetogramSectionsOpening">Способ открытия разделов</string>
+  <string name="TetogramSectionsOpeningFloating">Отдельная кнопка</string>
+  <string name="TetogramSectionsOpeningChats">Кнопка «Чаты»</string>
+  <string name="TetogramSectionsOpeningInfo">Отдельная кнопка: разделы открываются плавающей стрелкой. Кнопка «Чаты»: повторное нажатие активной вкладки открывает или закрывает то же меню.</string>
+</resources>

@@ -56,6 +56,8 @@ public class GlassTabView extends FrameLayout implements MainTabsLayout.Tab, Fac
     private final TextView textView;
     private final RLottieImageView imageView;
     private BackupImageView backupImageView;
+    private android.widget.ImageView sectionsArrow;
+    private boolean sectionsIndicatorVisible,sectionsIndicatorOpen;
     private Theme.ResourcesProvider resourcesProvider;
     private final Paint paintCounterBackground = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final AnimatedTextView.AnimatedTextDrawable counter;
@@ -103,6 +105,17 @@ public class GlassTabView extends FrameLayout implements MainTabsLayout.Tab, Fac
         counter.setTextSize(dp(10));
     }
 
+    public float sectionsAnchorCenterX(){return getMeasuredWidth()/2f+imageView.getTranslationX();}
+    public void setSectionsIndicator(boolean visible,boolean open,boolean animated){
+        if(sectionsArrow==null&&!visible)return;
+        if(sectionsArrow!=null&&sectionsIndicatorVisible==visible&&sectionsIndicatorOpen==open)return;
+        sectionsIndicatorVisible=visible;sectionsIndicatorOpen=open;
+        if(sectionsArrow==null){sectionsArrow=new android.widget.ImageView(getContext());sectionsArrow.setImageResource(R.drawable.tetogram_sections_arrow);sectionsArrow.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);sectionsArrow.setClickable(false);sectionsArrow.setFocusable(false);addView(sectionsArrow,LayoutHelper.createFrame(12,8,Gravity.TOP|Gravity.CENTER_HORIZONTAL,0,20,0,0));}
+        sectionsArrow.animate().cancel();sectionsArrow.setVisibility(visible?VISIBLE:GONE);sectionsArrow.setTranslationX(imageView.getTranslationX()-dp(25));
+        if(visible&&animated&&org.telegram.ui.tetogram.SectionMenu.animations(getContext()))sectionsArrow.animate().rotation(open?180:0).setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(210)).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start();else sectionsArrow.setRotation(open?180:0);
+        applyColors();
+    }
+
     private boolean hasVisualWidth;
     private float visualWidth;
     public void setVisualWidth(float width) {
@@ -124,6 +137,7 @@ public class GlassTabView extends FrameLayout implements MainTabsLayout.Tab, Fac
         if (hasVisualWidth) {
             final float offset = (visualWidth - getMeasuredWidth()) / 2f;
             imageView.setTranslationX(offset);
+            if(sectionsArrow!=null)sectionsArrow.setTranslationX(offset-dp(25));
             textView.setTranslationX(offset);
         }
     }
@@ -261,6 +275,7 @@ public class GlassTabView extends FrameLayout implements MainTabsLayout.Tab, Fac
             backupImageView.invalidate();
         }
         imageView.setColorFilter(filter);
+        if(sectionsArrow!=null)sectionsArrow.setColorFilter(filter);
         textView.setTextColor(colorText);
     }
 
