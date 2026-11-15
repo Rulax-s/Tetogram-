@@ -161,3 +161,4 @@ Splash Android 12+ использует собственный анимиров�
 - В native own-profile layout добавлено горизонтальное выравнивание аватарки по recomputed endpoint, без повторного добавления translation; collapsed/full-photo endpoints и snapshots остаются штатными. Добавлены pure geometry tests; Android transitions NOT RUN.
 - Добавлен opt-in media parallax через штатный WallpaperParallaxEffect с feature/lifecycle/Lite/battery gates; скрытый native background при локальном media не запускает второй motion effect. Android sensor checks NOT RUN.
 - Добавлены локальный native default-pattern и интенсивность для solid/gradient обоев: shared bounded SVG bitmap готовится вне UI, данные Telegram/серверные темы не меняются.
+- При сверке с native MediaController исправлены выходные размеры видео с rotation 90/270 перед MediaCodecVideoConvertor: оси кодирования меняются как в штатном pipeline, crop metadata не переписываются. Добавлена JVM-регрессия; реальные rotated codecs NOT RUN.

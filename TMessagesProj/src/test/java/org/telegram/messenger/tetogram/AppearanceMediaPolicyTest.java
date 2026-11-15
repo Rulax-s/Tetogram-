@@ -14,4 +14,12 @@ public class AppearanceMediaPolicyTest {
  @org.junit.Test public void firstFrameRequiresMetadataAndLaidOutSurface(){org.junit.Assert.assertFalse(AppearanceMediaPolicy.showFrame(false,1920,1080,400,800));org.junit.Assert.assertFalse(AppearanceMediaPolicy.showFrame(true,0,0,400,800));org.junit.Assert.assertFalse(AppearanceMediaPolicy.showFrame(true,1920,1080,0,0));org.junit.Assert.assertTrue(AppearanceMediaPolicy.showFrame(true,1920,1080,400,800));}
  @org.junit.Test public void encodingCapsDoNotTrustImportedStyleRanges(){org.junit.Assert.assertEquals(30,AppearanceMediaPolicy.fps(0,60));org.junit.Assert.assertEquals(24,AppearanceMediaPolicy.fps(0,24));org.junit.Assert.assertEquals(60,AppearanceMediaPolicy.fps(240,Integer.MAX_VALUE));org.junit.Assert.assertEquals(5,AppearanceMediaPolicy.fps(5,30));org.junit.Assert.assertEquals(12,AppearanceMediaPolicy.fps(30,-99));org.junit.Assert.assertEquals(1920,AppearanceMediaPolicy.quality(Integer.MAX_VALUE));org.junit.Assert.assertEquals(360,AppearanceMediaPolicy.quality(-1));}
  @org.junit.Test public void abandonedImportCleanupNeverTargetsForeignDirectories(){org.junit.Assert.assertTrue(AppearanceMediaPolicy.importDirectory("import-"+java.util.UUID.randomUUID()));for(String dir:new String[]{"sessions","media","tetogram_sections_v1_u1","import-../sessions","import-invalid","import-000000000000000000000000000000000000"})org.junit.Assert.assertFalse(AppearanceMediaPolicy.importDirectory(dir));}
+    @org.junit.Test public void rotatedEncoderAxesMatchNativeMediaController(){
+        for(int rotation:new int[]{90,270,-90,450})org.junit.Assert.assertTrue(AppearanceMediaPolicy.swapEncoderAxes(rotation));
+        for(int rotation:new int[]{0,180,360,-180})org.junit.Assert.assertFalse(AppearanceMediaPolicy.swapEncoderAxes(rotation));
+        int width=AppearanceMediaPolicy.evenDimension(1920,1280,1920),height=AppearanceMediaPolicy.evenDimension(1080,1280,1920);
+        org.junit.Assert.assertEquals(1280,width);org.junit.Assert.assertEquals(720,height);
+        org.junit.Assert.assertEquals(720,AppearanceMediaPolicy.swapEncoderAxes(90)?height:width);
+        org.junit.Assert.assertEquals(1280,AppearanceMediaPolicy.swapEncoderAxes(90)?width:height);
+    }
 }
