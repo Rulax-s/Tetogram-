@@ -1,0 +1,47 @@
+{
+  "file_name": "Tetogram-debug.apk",
+  "version": "0.4.0",
+  "version_code": 159,
+  "application_id": "org.tetogram.messenger",
+  "size_bytes": 82838988,
+  "sha256": "3c8584ca719633fee835de412d9a226e47c59d1d2935b2c93c010c06fe8dc1c3",
+  "signature_certificate_sha256": "147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "seasonal_aliases_verified": [
+    "MikuAutumnIcon",
+    "MikuSpringIcon",
+    "MikuSummerIcon",
+    "MikuWinterIcon",
+    "TetoAutumnIcon",
+    "TetoSpringIcon",
+    "TetoWinterIcon"
+  ],
+  "partial_media_permission": true,
+  "update_compatible_with_verified_0_3_1_code99": true,
+  "run_id": 43701619455,
+  "source_commit": "5811d6b8caa9389f9345e8c34a0f38b5144e14cd",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43701619455/artifacts/14157183821",
+  "artifact_expires_at": "2026-11-29T10:17:01Z",
+  "file_on_phone": "/sdcard/Download/Tetogram-0.4.0-159-debug.apk",
+  "jvm_tests": {
+    "tests": 221,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "section_opening_tests": 11
+  },
+  "sqlite_tests": 19,
+  "section_opening_source_contracts": 8,
+  "settings_insets_source_contracts": 7,
+  "appearance_editor_source_contracts": 7,
+  "localization_keys_in_apk": 335,
+  "update_parameters_match_code149": true,
+  "android_ui_tests": "NOT RUN",
+  "installation_update_test": "NOT RUN",
+  "manual_checklist": "SECTION_OPENING.md"
+}

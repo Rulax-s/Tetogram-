@@ -21,7 +21,7 @@ MainTabsActivity обрабатывает повторное нажатие то
 
 SectionsStore.updateOpeningMode под LOCK читает актуальную конфигурацию, изменяет только режим и revision, проверяет владельца и сохраняет проверенным commit. Старый snapshot при сохранении выбранной папки не перезаписывает более новую настройку режима. Account-scoped NotificationCenter сообщает MainTabsActivity об изменении; экран также перечитывает настройку при resume. Перезапуск не требуется.
 
-ApplicationId org.tetogram.messenger, подпись и Secrets не меняются. APP_VERSION_CODE input15 / afat APK159; versionName0.4.0. Итоговые результаты сборки и APK записываются отдельно после завершения CI.
+ApplicationId org.tetogram.messenger, подпись и Secrets не меняются. APP_VERSION_CODE input15 / afat APK159; versionName0.4.0. CI 43701619455 успешно собрала APK из source 5811d6b8caa9389f9345e8c34a0f38b5144e14cd; фактические тесты и метаданные — TESTS-0.4.0-sections-opening.json и APK-0.4.0-sections-opening.json. Это не подтверждение Android UI/установки.
 
 ## Проверки
 

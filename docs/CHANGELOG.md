@@ -1,6 +1,8 @@
 # История изменений
 
-## 0.4.0 — два способа открытия разделов, code159 (проверяется)
+## 0.4.0 — два способа открытия разделов, code159 (APK собрана)
+
+- CI 43701619455 success, source 5811d6b8caa9389f9345e8c34a0f38b5144e14cd. Реальный JUnit report: 221 tests / 0 failures / 0 errors / 0 skipped, в том числе 11 opening-mode tests. 19 SQLite, 22 source contracts; APK identity/signature/ARM64/335 localization keys проверены. Копия code159 в Download; Android UI NOT RUN. Данные — APK-0.4.0-sections-opening.json и TESTS-0.4.0-sections-opening.json.
 
 - Одно меню SectionMenu: прежняя floating-стрелка по умолчанию или повторное нажатие активной нижней вкладки «Чаты». Первый переход с другой вкладки и long press выбора папок сохраняются.
 - Привязка к действующей кнопке «Чаты», Insets/viewport bounds, декоративная анимированная стрелка без пересечения с unread-бейджем; закрытие при уходе/поиске/жесте переключения. FAB выключена только в section-toggle роли.
