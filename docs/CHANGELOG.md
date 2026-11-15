@@ -19,7 +19,7 @@
 - Добавлены проверка контраста основных solid-поверхностей перед Apply, независимый active icon color, native boolean cells с per-field Inherit и имена источников оформления вместо UUID.
 - Добавлены native pipette из выбранного изображения, корректная передача scoped radius в media/text layout и остановка wallpaper под полноэкранными media/story viewers.
 - Этапы полного оформления списков/профилей/launcher и portable media пока в работе; это не выпуск готовой 0.4.0. Android UI NOT RUN.
-- APP_VERSION_NAME 0.4.0, APP_VERSION_CODE input 12 (afat 129). Подпись, applicationId, Secrets, реклама и локальная история не меняются.
+- APP_VERSION_NAME 0.4.0, APP_VERSION_CODE input 13 (afat 139). Подпись, applicationId, Secrets, реклама и локальная история не меняются.
 
 
 ## 0.3.1 — исправление системных отступов (versionCode 109)
@@ -158,3 +158,6 @@ Splash Android 12+ использует собственный анимиров�
 - Исправлены переключение локальных палитр при native day/night, оформление фактического заголовка списка и Glass-навигации, приоритет штатных animated colors и duration нижних вкладок.
 - Изображения и видеобложки теперь получают тот же fill/fit/zoom/pan, что видео; добавлены независимые JVM geometry tests.
 - Добавлены цвета имени/статуса локального баннера с native collapsed fallback и предпросмотром на действующем AvatarImageView; изменение публичной аватарки не производится.
+- В native own-profile layout добавлено горизонтальное выравнивание аватарки по recomputed endpoint, без повторного добавления translation; collapsed/full-photo endpoints и snapshots остаются штатными. Добавлены pure geometry tests; Android transitions NOT RUN.
+- Добавлен opt-in media parallax через штатный WallpaperParallaxEffect с feature/lifecycle/Lite/battery gates; скрытый native background при локальном media не запускает второй motion effect. Android sensor checks NOT RUN.
+- Добавлены локальный native default-pattern и интенсивность для solid/gradient обоев: shared bounded SVG bitmap готовится вне UI, данные Telegram/серверные темы не меняются.
