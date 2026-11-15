@@ -5,7 +5,9 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];JAVA=ROOT/'TMessagesProj/src/main/java/org/telegram';RES=ROOT/'TMessagesProj/src/main/res';A='{http://schemas.android.com/apk/res/android}'
 def src(path):return (JAVA/path).read_text()
 class LauncherContracts(unittest.TestCase):
- def test_generated_catalog_and_manifest_are_reproducible(self):subprocess.run([sys.executable,str(ROOT/'scripts/prepare-seasonal-icons.py'),'--check'],check=True,stdout=subprocess.PIPE)
+ def test_generated_catalog_and_manifest_are_reproducible(self):
+  subprocess.run([sys.executable,str(ROOT/'scripts/prepare-seasonal-icons.py'),'--check'],check=True,stdout=subprocess.PIPE)
+  workflow=(ROOT/'.github/workflows/android-build.yml').read_text();self.assertEqual(2,workflow.count("'assets/launcher/seasonal/**'"));self.assertEqual(2,workflow.count('python3 scripts/prepare-seasonal-icons.py'))
  def test_all_eight_canonical_components_exist_and_target_original_activity(self):
   expected=set(json.loads((ROOT/'assets/launcher/seasonal/catalog.json').read_text()));self.assertEqual(8,len(expected))
   root=E.parse(RES.parent/'AndroidManifest.xml').getroot();aliases={e.get(A+'name').split('.')[-1]:e for e in root.iter('activity-alias')}

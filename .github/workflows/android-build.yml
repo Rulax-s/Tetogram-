@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/android-build.yml'
       - 'scripts/**'
+      - 'assets/launcher/seasonal/**'
       - 'gradle/**'
       - 'gradlew*'
       - '**/*.gradle'
@@ -19,6 +20,7 @@ on:
     paths:
       - '.github/workflows/android-build.yml'
       - 'scripts/**'
+      - 'assets/launcher/seasonal/**'
       - 'gradle/**'
       - '**/*.gradle*'
       - 'gradle.properties'

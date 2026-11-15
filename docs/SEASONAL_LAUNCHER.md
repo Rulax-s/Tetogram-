@@ -1,4 +1,4 @@
-# Tetogram / Mikugram — системное оформление, code169
+# Tetogram / Mikugram — системное оформление, code179
 
 Одна APK org.tetogram.messenger. Название Android application остаётся Tetogram; label активного launcher alias — Tetogram или Mikugram. Не меняются package, подпись, Firebase, аккаунты, разрешения, уведомления и deep-link Activity.
 
@@ -51,4 +51,4 @@ Python source/resource contracts: воспроизводимая генерац�
 7. Открытие из launcher, уведомления, tg/t.me deep links, звонки, восстановление Activity/процесса; Telegram-сессии и пользовательские данные сохранены.
 8. Повреждение только launcher preferences на тестовой установке, либо отказ PackageManager: безопасное восстановление/ошибка без удаления app data. Не выполнять на основном аккаунте без разрешения владельца.
 
-Итоговые APK/подпись/реальные JUnit результаты будут зафиксированы после CI. APP_VERSION_CODE input16 / afat169, versionName0.4.0.
+Итоговые APK/подпись/реальные JUnit результаты будут зафиксированы после CI. APP_VERSION_CODE input17 / afat179, versionName0.4.0.

@@ -1,6 +1,6 @@
 # Подготовленные сезонные значки
 
-## Новая система code169
+## Новая система code179
 
 Canonical Tetogram/Mikugram aliases, общие настройки APK и safe-circle wrappers описаны в [SEASONAL_LAUNCHER.md](SEASONAL_LAUNCHER.md). Источники и автоматическое подключение восьмого рисунка — [папка assets/launcher/seasonal](../assets/launcher/seasonal/README.md). Реальных иллюстраций пока 7/8; отсутствует tetogram_summer.png. Новые wrappers имеют inset28.5%, старые компоненты ниже сохранены ради миграции.
 

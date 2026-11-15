@@ -1,7 +1,9 @@
 # История изменений
 
-## 0.4.0 — Tetogram/Mikugram seasonal launcher, code169 (проверяется)
+## 0.4.0 — Tetogram/Mikugram seasonal launcher, code179 (проверяется)
 
+
+- CI реагирует на assets/launcher/seasonal/** в push/PR; загрузка подготовленного summer PNG запускает существующую сборку.
 - Общие device preferences schema2: бренд, auto/manual, сохранённый manualSeason, последний alias/revision; legacy migration без принудительной замены действующего эквивалентного значка.
 - Восемь canonical components, семь реальных иллюстраций; Tetogram Summer явно недоступна до assets/launcher/seasonal/tetogram_summer.png. Детерминированный generator автоматически подключит подготовленный файл в CI; заглушки не создаются.
 - Сегменты бренда/сезона, крупный preview/label, галерея 4 сезонов, три маски, Apply/standard reset; личный shortcut вынесен отдельно и больше не переустанавливает системную иконку.
