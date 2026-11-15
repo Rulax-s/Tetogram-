@@ -1,0 +1,73 @@
+{
+  "file_name": "Tetogram-debug.apk",
+  "version": "0.4.0",
+  "version_code": 189,
+  "application_id": "org.tetogram.messenger",
+  "size_bytes": 83266133,
+  "sha256": "51d947f657b9ed7285621b324be545fc66b70b1dd5edbe3e96db5df7300f3d86",
+  "signature_certificate_sha256": "147ade1b03cc3875cea9ac46f4fd86bd6ee374f48afdcd674bd619de5d3e621d",
+  "libraries": [
+    "lib/arm64-v8a/libdatastore_shared_counter.so",
+    "lib/arm64-v8a/liblanguage_id_l2c_jni.so",
+    "lib/arm64-v8a/libtmessages.49.so",
+    "lib/arm64-v8a/libtwidget.so"
+  ],
+  "fresh_manifest_enabled_launcher_aliases": [
+    "org.telegram.messenger.DefaultIcon"
+  ],
+  "canonical_aliases_declared": [
+    "MikugramAutumn",
+    "MikugramSpring",
+    "MikugramSummer",
+    "MikugramWinter",
+    "TetogramAutumn",
+    "TetogramSpring",
+    "TetogramSummer",
+    "TetogramWinter"
+  ],
+  "available_seasonal_images": [
+    "MikugramAutumn",
+    "MikugramSpring",
+    "MikugramSummer",
+    "MikugramWinter",
+    "TetogramAutumn",
+    "TetogramSpring",
+    "TetogramSummer",
+    "TetogramWinter"
+  ],
+  "summer_source_sha256": "e10efeeffd7875002bfad7c456053f2d5a774a581fdaf3a303e95c6bfceb74f2",
+  "summer_source_unchanged_in_apk": true,
+  "missing_artwork": [],
+  "legacy_seasonal_aliases_retained": [
+    "MikuAutumnIcon",
+    "MikuSpringIcon",
+    "MikuSummerIcon",
+    "MikuWinterIcon",
+    "TetoAutumnIcon",
+    "TetoSpringIcon",
+    "TetoWinterIcon"
+  ],
+  "partial_media_permission": true,
+  "update_compatible_with_verified_0_3_1_code99": true,
+  "run_id": 43716941404,
+  "source_commit": "45eea988a47e26e8b12e756a9da06dce9009383e",
+  "artifact_url": "https://github.com/Rulax-s/Tetogram-/actions/runs/43716941404/artifacts/14163223260",
+  "artifact_expires_at": "2026-11-29T13:23:24Z",
+  "file_on_phone": "/sdcard/Download/Tetogram-0.4.0-189-debug.apk",
+  "jvm_tests": {
+    "tests": 241,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sqlite_tests": 19,
+  "source_contracts": 31,
+  "prepared_asset_tests": 4,
+  "localization_keys_in_apk": 349,
+  "update_parameters_match_code179": true,
+  "android_ui_tests": "NOT RUN",
+  "samsung_one_ui_test": "NOT RUN",
+  "installation_update_test": "NOT RUN",
+  "manual_checklist": "SEASONAL_LAUNCHER.md",
+  "summer_artwork_assignment": "Resaved user-supplied JPEG assigned to Tetogram Summer as requested; no pixel edits or re-encoding."
+}

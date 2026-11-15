@@ -51,4 +51,4 @@ Python source/resource contracts: воспроизводимая генерац�
 7. Открытие из launcher, уведомления, tg/t.me deep links, звонки, восстановление Activity/процесса; Telegram-сессии и пользовательские данные сохранены.
 8. Повреждение только launcher preferences на тестовой установке, либо отказ PackageManager: безопасное восстановление/ошибка без удаления app data. Не выполнять на основном аккаунте без разрешения владельца.
 
-Сборка восьми изображений проверяется отдельно в новом CI. APP_VERSION_CODE input18 / afat189, versionName0.4.0. Историческая code179 имела 7/8 изображений; её receipt APK-0.4.0-seasonal-launcher.json не переписывается.
+CI 43716941404 успешно собрала APK из 45eea988a47e26e8b12e756a9da06dce9009383e; JPEG и все восемь компонентов проверены в реальном APK. Фактические результаты — APK-0.4.0-eight-icons.json и TESTS-0.4.0-eight-icons.json. Android UI/One UI NOT RUN. APP_VERSION_CODE input18 / afat189, versionName0.4.0. Историческая code179 имела 7/8 изображений; её receipt APK-0.4.0-seasonal-launcher.json не переписывается.

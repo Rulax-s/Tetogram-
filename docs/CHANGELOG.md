@@ -1,6 +1,8 @@
 # История изменений
 
-## 0.4.0 — летняя Тето, code189 (проверяется)
+## 0.4.0 — летняя Тето, code189 (APK собрана, 8/8)
+
+- CI 43716941404 success; source 45eea988a47e26e8b12e756a9da06dce9009383e. APK проверена и скопирована в Download. Реальный JUnit: 241 tests / 0 failures / 0 errors / 0 skipped; 19 SQLite, 31 source contracts, 4 подготовленных-image tests. Все восемь canonical launcher components имеют icon/roundIcon и intent-filter, JPEG внутри APK побайтово совпадает с входным файлом. Package/сертификат/ARM64/349 locale keys проверены. Android UI NOT RUN. Данные — APK-0.4.0-eight-icons.json и TESTS-0.4.0-eight-icons.json.
 
 - Найден повторно сохранённый владельцем JPEG, назначен Tetogram Summer по его указанию и подключён без изменения пикселей/кадрирования/перекодирования. Теперь все 8/8 seasonal variants имеют реальные изображения.
 - Генератор принимает подготовленные PNG/JPEG, проверяет размеры/ориентацию и сохраняет оригинальные байты; добавлены проверки JPEG/PNG, некорректных заголовков и совпадения файла ресурса.
