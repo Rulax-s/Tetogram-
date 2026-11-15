@@ -31,15 +31,17 @@ class EditorContracts(unittest.TestCase):
   manifest=ET.parse(ROOT/'TMessagesProj/src/main/AndroidManifest.xml').getroot()
   aliases=[a for a in manifest.iter('activity-alias') if a.get(android+'name','').split('.')[-1].startswith(('Teto','Miku'))]
   renderer=source('ui/tetogram/AppearanceIconPreview.java');self.assertIn('backdrop.draw(canvas)',renderer)
-  self.assertIn('shape,iconBackground(custom)',source('ui/tetogram/AppearanceLauncherActivity.java'))
-  self.assertEqual(7,len(aliases))
+  self.assertIn('shape,icon.background',source('ui/tetogram/AppearanceLauncherActivity.java'));self.assertIn('iconBackground(true)',source('ui/tetogram/AppearanceShortcutActivity.java'))
+  self.assertEqual(15,len(aliases))
   controller=source('ui/LauncherIconController.java')
   for alias in aliases:
    self.assertIn('"'+alias.get(android+'name').split('.')[-1]+'"',controller)
+   if alias.find('intent-filter') is None:
+    self.assertIsNone(alias.get(android+'icon'));self.assertEqual('false',alias.get(android+'exported'));continue
    icon=alias.get(android+'icon').split('/')[-1]
    drawable=ET.parse(ROOT/'TMessagesProj/src/main/res/mipmap-anydpi-v26'/str(icon+'.xml')).getroot()
    inset=drawable.find('foreground/inset');self.assertIsNotNone(inset)
-   for edge in ('Left','Top','Right','Bottom'):self.assertEqual('24%',inset.get(android+'inset'+edge))
+   for edge in ('Left','Top','Right','Bottom'):self.assertEqual('24%' if alias.get(android+'name').endswith('Icon') else '28.5%',inset.get(android+'inset'+edge))
    self.assertEqual('false',alias.get(android+'enabled'))
    self.assertEqual('org.telegram.ui.LaunchActivity',alias.get(android+'targetActivity'))
 

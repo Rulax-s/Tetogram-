@@ -50,7 +50,7 @@ def main():
             for name in ('icon', 'roundIcon'):
                 icon = node.get(ANDROID + name)
                 if icon:
-                    require(icon in ({'@mipmap/tetogram_launcher', '@mipmap/tetogram_launcher_art', '@mipmap/tetogram_launcher_aqua'} | {'@mipmap/tetogram_miku_winter', '@mipmap/tetogram_miku_autumn', '@mipmap/tetogram_miku_summer', '@mipmap/tetogram_miku_spring', '@mipmap/tetogram_teto_spring', '@mipmap/tetogram_teto_winter', '@mipmap/tetogram_teto_autumn'}), f'Unexpected launcher icon in {path.name}')
+                    require(icon in ({'@mipmap/tetogram_launcher', '@mipmap/tetogram_launcher_art', '@mipmap/tetogram_launcher_aqua'} | {'@mipmap/'+brand+'_'+season for brand in ('tetogram','mikugram') for season in ('spring','summer','autumn','winter')} | {'@mipmap/tetogram_miku_winter', '@mipmap/tetogram_miku_autumn', '@mipmap/tetogram_miku_summer', '@mipmap/tetogram_miku_spring', '@mipmap/tetogram_teto_spring', '@mipmap/tetogram_teto_winter', '@mipmap/tetogram_teto_autumn'}), f'Unexpected launcher icon in {path.name}')
     for name in ('auth.xml', 'sync_contacts.xml'):
         root = ET.parse(ROOT / 'TMessagesProj/src/main/res/xml' / name).getroot()
         require(root.get(ANDROID + 'accountType') == 'org.tetogram.messenger', 'Account type conflict')

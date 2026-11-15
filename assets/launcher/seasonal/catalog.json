@@ -1,0 +1,10 @@
+{
+  "TetogramSpring": "tetogram_teto_spring_art",
+  "TetogramSummer": null,
+  "TetogramAutumn": "tetogram_artwork",
+  "TetogramWinter": "tetogram_teto_winter_art",
+  "MikugramSpring": "tetogram_miku_spring_art",
+  "MikugramSummer": "tetogram_miku_summer_art",
+  "MikugramAutumn": "tetogram_miku_autumn_art",
+  "MikugramWinter": "tetogram_miku_winter_art"
+}

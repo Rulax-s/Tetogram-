@@ -1,0 +1,88 @@
+/* Tetogram, 2026. GNU GPL v2 or later. Explicit pinned shortcuts, native avatar crop, no server upload. */
+package org.telegram.ui.tetogram;
+import static org.telegram.messenger.LocaleController.getString;
+import android.app.Activity;
+import android.content.*;
+import android.graphics.*;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.provider.MediaStore;
+import android.view.*;
+import android.widget.*;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
+import java.io.File;
+import java.util.*;
+import org.telegram.messenger.*;
+import org.telegram.messenger.tetogram.*;
+import org.telegram.ui.LaunchActivity;
+import org.telegram.ui.LauncherIconController;
+import org.telegram.ui.ActionBar.*;
+import org.telegram.ui.Components.*;
+public final class AppearanceShortcutActivity extends LabsPage {
+    private static final int PICK=61044;
+    private static final String SHORTCUT="tetogram.personalized";
+    private final long owner;
+    private AppearanceConfig config;
+    private AppearanceConfig.Style draft;
+    private long revision;
+    private AppearanceConfig.Style baseline;
+    private final String brand;
+    private boolean leaving;
+    private Bitmap nativeBitmap,customBitmap;
+    private String nativeIdentity="",customIdentity="";
+    private int nativeLoad,customLoad;
+    private LinearLayout dock;
+    private TextView apply;
+
+    private boolean destroyed,busy,failed;
+    private int generation;
+    private ImageUpdater cropper;
+    private AppearanceMedia.Job job;
+    private final ArrayList<File> pending=new ArrayList<>();
+    private final ArrayList<Runnable> actions=new ArrayList<>();
+    public AppearanceShortcutActivity(int account){super(account);owner=getUserConfig().getClientUserId();brand=LauncherIconController.seasonalBrand();}
+    private boolean valid(){return !destroyed&&owner>0&&owner==getUserConfig().getClientUserId();}
+    @Override protected CharSequence title(){return getString(R.string.TetogramLauncherCustomShortcut);}
+    @Override public void onResume(){super.onResume();if(cropper!=null)cropper.onResume();AppearanceStore.load(currentAccount,(ok,c)->{if(!valid())return;failed=!ok;if(draft==null){config=c;revision=c.revision;draft=c.edit("global").copy();baseline=draft.copy();}refresh();});}
+    @Override public void onPause(){if(cropper!=null)cropper.onPause();super.onPause();}
+    @Override public void onFragmentDestroy(){destroyed=true;generation++;if(job!=null)job.cancel();if(cropper!=null){cropper.setDelegate(null);cropper.parentFragment=null;cropper.clear();}for(File f:pending)AppearanceMedia.discard(f);pending.clear();super.onFragmentDestroy();}
+    private boolean dirty(){return AppearanceEditorPolicy.dirty(baseline,draft);}
+    private void refresh(){if(apply!=null){apply.setEnabled(!busy&&dirty());apply.setAlpha(apply.isEnabled()?1:.45f);}if(list!=null)list.adapter.update(false);}
+    private LauncherIconController.LauncherIcon selectedIcon(){return LauncherIconController.currentIcon();}
+    private float scale(){if(draft==null)return AppearanceIconPolicy.SAFE_CONTENT_SCALE;try{return AppearanceIconPolicy.scale(Float.parseFloat(draft.values.getOrDefault("launcher.iconScale",Float.toString(AppearanceIconPolicy.SAFE_CONTENT_SCALE))));}catch(Exception e){return AppearanceIconPolicy.SAFE_CONTENT_SCALE;}}
+    private void loadPreview(int resource,boolean custom){File file=custom?AppearanceMedia.file(owner,draft.values.get("launcher.icon.file")):null;String identity=custom?file==null?"":file.getAbsolutePath():Integer.toString(resource);if(identity.equals(custom?customIdentity:nativeIdentity))return;if(custom)customIdentity=identity;else nativeIdentity=identity;if(!custom&&resource==R.drawable.tetogram_mark){nativeBitmap=null;return;}int token=custom?++customLoad:++nativeLoad;Utilities.globalQueue.postRunnable(()->{Bitmap bitmap=null;try{bitmap=file!=null?ImageLoader.loadBitmap(file.getAbsolutePath(),null,256,256,true):resource!=0?ImageLoader.loadBitmap(null,android.net.Uri.parse("android.resource://"+ApplicationLoader.applicationContext.getPackageName()+"/"+resource),256,256,true):null;}catch(Exception|OutOfMemoryError ignored){}final Bitmap ready=bitmap;AndroidUtilities.runOnUIThread(()->{if(!valid()||token!=(custom?customLoad:nativeLoad)){if(ready!=null)ready.recycle();return;}if(custom)customBitmap=ready;else nativeBitmap=ready;refresh();});});}
+    private int iconBackground(boolean custom){return custom&&(customBitmap!=null||draft.values.get("launcher.emoji")!=null&&!draft.values.get("launcher.emoji").isEmpty())?android.R.color.black:selectedIcon().background;}
+    private View masks(){LinearLayout group=new LinearLayout(getContext());group.setOrientation(LinearLayout.VERTICAL);LinearLayout icons=new LinearLayout(getContext());String emoji=draft.values.get("launcher.emoji");Bitmap bitmap=customBitmap!=null?customBitmap:emoji==null||emoji.isEmpty()?nativeBitmap:null;for(int shape=0;shape<3;shape++){LinearLayout cell=new LinearLayout(getContext());cell.setOrientation(LinearLayout.VERTICAL);cell.setGravity(Gravity.CENTER);cell.setPadding(0,AndroidUtilities.dp(8),0,AndroidUtilities.dp(8));cell.addView(new AppearanceIconPreview(getContext(),bitmap,emoji,scale(),shape,iconBackground(true)),new LinearLayout.LayoutParams(AndroidUtilities.dp(64),AndroidUtilities.dp(64)));TextView label=new TextView(getContext());label.setTextSize(12);label.setGravity(Gravity.CENTER);label.setText(getString(shape==0?R.string.TetogramEditorRound:shape==1?R.string.TetogramEditorSquare:R.string.TetogramEditorSquircle));ThemeBind.textColor(label,Theme.key_windowBackgroundWhiteGrayText);cell.addView(label,new LinearLayout.LayoutParams(-1,-2));icons.addView(cell,new LinearLayout.LayoutParams(0,-2,1));}group.addView(icons);TextView name=new TextView(getContext());name.setTextSize(16);name.setGravity(Gravity.CENTER);name.setText(draft.values.getOrDefault("launcher.label",brand));ThemeBind.textColor(name,Theme.key_windowBackgroundWhiteBlackText);group.addView(name,new LinearLayout.LayoutParams(-1,-2));return group;}
+    private TextView dockText(CharSequence text){TextView button=new TextView(getContext());button.setTextSize(16);button.setText(text);button.setGravity(Gravity.CENTER);button.setPadding(AndroidUtilities.dp(12),AndroidUtilities.dp(16),AndroidUtilities.dp(12),AndroidUtilities.dp(16));ThemeBind.textColor(button,Theme.key_windowBackgroundWhiteBlueText);return button;}
+    @Override public View createView(Context context){FrameLayout root=(FrameLayout)super.createView(context);dock=new LinearLayout(context);ThemeBind.backgroundColor(dock,Theme.key_windowBackgroundWhite);TextView cancel=dockText(getString(R.string.Cancel));cancel.setOnClickListener(v->finishFragment());dock.addView(cancel,new LinearLayout.LayoutParams(0,-2,1));apply=dockText(getString(R.string.TetogramAppearanceApply));apply.setOnClickListener(v->{if(valid()&&!busy&&dirty())save();});dock.addView(apply,new LinearLayout.LayoutParams(0,-2,1));setBottomActions(dock);refresh();return root;}
+    @Override public boolean canBeginSlide(){return !dirty()&&!busy&&super.canBeginSlide();}
+    @Override public boolean onBackPressed(boolean invoked){if(!leaving&&valid()&&(busy||dirty())){if(invoked)requestExit();return false;}return super.onBackPressed(invoked);}
+    @Override public void finishFragment(){if(!leaving&&valid()&&(busy||dirty())){requestExit();return;}super.finishFragment();}
+    private void requestExit(){if(busy){message(getString(R.string.TetogramAppearancePreparingMedia));return;}showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditorUnsaved)).setMessage(getString(R.string.TetogramEditorUnsavedInfo)).setPositiveButton(getString(R.string.TetogramAppearanceApply),(d,n)->save()).setNeutralButton(getString(R.string.TetogramEditorDiscard),(d,n)->{leaving=true;finishFragment();}).setNegativeButton(getString(R.string.Cancel),null).create());}
+    private void row(ArrayList<UItem> items,CharSequence label,Runnable run){items.add(UItem.asCustom(new AppearanceSettingRow(getContext(),label,null,!busy,()->{if(valid()&&!busy)run.run();}),-2));}
+    @Override protected void fill(ArrayList<UItem> items,UniversalAdapter adapter){actions.clear();if(!valid())return;if(failed){items.add(UItem.asShadow(getString(R.string.TetogramAppearanceStorageError)));return;}if(draft==null){items.add(UItem.asShadow(getString(R.string.Loading)));return;}
+        loadPreview(selectedIcon().foreground,false);
+        items.add(UItem.asHeader(getString(R.string.TetogramEditorCustomShortcut)));items.add(UItem.asShadow(getString(R.string.TetogramEditorShortcutAccountScope)+"\n"+getString(R.string.TetogramAppearanceLauncherLimits)));
+        File custom=AppearanceMedia.file(owner,draft.values.get("launcher.icon.file"));if(custom!=null)loadPreview(0,true);else{customIdentity="";customBitmap=null;}
+        items.add(UItem.asCustom(masks(),-2));
+        row(items,getString(R.string.TetogramAppearanceLauncherName),()->input(getString(R.string.TetogramAppearanceLauncherName),draft.values.getOrDefault("launcher.label","Tetogram"),text->{draft.set("launcher.label",text);refresh();}));
+
+        row(items,getString(R.string.TetogramAppearanceChooseImage),this::pick);
+        row(items,getString(R.string.TetogramSectionIcon),()->input(getString(R.string.TetogramSectionIcon),draft.values.getOrDefault("launcher.emoji","🎨"),text->{draft.set("launcher.emoji",text);draft.values.remove("launcher.icon.file");refresh();}));
+        row(items,getString(R.string.TetogramAppearanceReset),()->{draft.values.remove("launcher.icon.file");draft.values.remove("launcher.emoji");draft.values.remove("launcher.label");refresh();});
+        row(items,getString(R.string.TetogramEditorIconScale),()->input(getString(R.string.TetogramEditorIconScale),Float.toString(scale()),text->{try{float number=Float.parseFloat(text.replace(',','.'));if(Float.isNaN(number)||Float.isInfinite(number)||number<.45f||number>1.1f)throw new IllegalArgumentException();draft.set("launcher.iconScale",Float.toString(number));refresh();}catch(Exception e){message(getString(R.string.TetogramAppearanceInvalidValue));}}));
+        row(items,getString(R.string.TetogramAppearancePinShortcut),()->showDialog(new AlertDialog.Builder(getContext()).setMessage(getString(R.string.TetogramAppearanceLauncherLimits)).setPositiveButton(getString(R.string.OK),(d,n)->save(this::pin)).setNegativeButton(getString(R.string.Cancel),null).create()));
+        row(items,getString(R.string.TetogramAppearanceRemoveShortcut),()->{try{ShortcutManagerCompat.disableShortcuts(getContext(),Collections.singletonList(SHORTCUT),getString(R.string.TetogramAppearanceShortcutRemoved));}catch(Exception ignored){}message(getString(R.string.TetogramAppearanceShortcutRemoved));});
+        if(busy)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePreparingMedia)));
+    }
+    private void save(){save(()->{leaving=true;finishFragment();});}
+    private void save(Runnable done){if(busy||!valid())return;busy=true;config.scopes.put("global",draft.copy());AppearanceStore.save(currentAccount,owner,config,revision,(ok,c)->{if(!valid())return;busy=false;if(ok){config=c;revision=c.revision;baseline=draft.copy();done.run();}else message(getString(R.string.TetogramAppearanceConflict));refresh();});refresh();}
+    private void input(CharSequence title,String initial,java.util.function.Consumer<String> result){EditTextBoldCursor edit=new EditTextBoldCursor(getContext());edit.setSingleLine(true);edit.setText(initial);edit.setTextSize(18);edit.setPadding(AndroidUtilities.dp(24),AndroidUtilities.dp(8),AndroidUtilities.dp(24),AndroidUtilities.dp(8));ThemeBind.textColor(edit,Theme.key_dialogTextBlack);showDialog(new AlertDialog.Builder(getContext()).setTitle(title).setView(edit).setPositiveButton(getString(R.string.OK),(d,n)->{String value=edit.getText().toString().trim();if(value.codePointCount(0,value.length())>40||value.isEmpty())message(getString(R.string.TetogramAppearanceInvalidValue));else result.accept(value);}).setNegativeButton(getString(R.string.Cancel),null).create());}
+    private void message(CharSequence text){if(valid()&&getContext()!=null)showDialog(new AlertDialog.Builder(getContext()).setMessage(text).setPositiveButton(getString(R.string.OK),null).create());}
+    private void pick(){try{startActivityForResult(new Intent(Build.VERSION.SDK_INT>=33?MediaStore.ACTION_PICK_IMAGES:Intent.ACTION_OPEN_DOCUMENT).setType("image/*").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),PICK);}catch(Exception e){try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),PICK);}catch(Exception ignored){message(getString(R.string.TetogramAppearanceMediaError));}}}
+    @Override public void onActivityResultFragment(int request,int result,Intent data){super.onActivityResultFragment(request,result,data);if(request!=PICK||result!=Activity.RESULT_OK||data==null||data.getData()==null||!valid())return;int token=++generation;busy=true;refresh();job=AppearanceMedia.importUri(currentAccount,owner,data.getData(),false,asset->{busy=false;if(!valid()||token!=generation){if(asset!=null)AppearanceMedia.discard(asset.file);return;}if(asset==null){message(getString(R.string.TetogramAppearanceMediaError));refresh();return;}pending.add(asset.file);if(cropper!=null)cropper.clear();cropper=new ImageUpdater(currentAccount,false,ImageUpdater.FOR_TYPE_USER,false);cropper.parentFragment=this;cropper.setUploadAfterSelect(false);cropper.setDelegate((photo,video,time,path,big,small,isVideo,markup)->{if(!valid()||token!=generation||big==null)return;busy=true;refresh();File cropped=FileLoader.getInstance(currentAccount).getPathToAttach(big,true);job=AppearanceMedia.importUri(currentAccount,owner,android.net.Uri.fromFile(cropped),false,ready->{busy=false;if(!valid()||token!=generation){if(ready!=null)AppearanceMedia.discard(ready.file);return;}if(ready==null)message(getString(R.string.TetogramAppearanceMediaError));else{pending.add(ready.file);draft.set("launcher.icon.file",ready.file.getName());draft.values.remove("launcher.emoji");}refresh();});});try{cropper.openPhotoForEdit(asset.file.getAbsolutePath(),null,AndroidUtilities.getImageOrientation(asset.file.getAbsolutePath()),false);}catch(Exception e){message(getString(R.string.TetogramAppearanceMediaError));}refresh();});}
+    private void pin(){if(!valid()||busy)return;Context context=getContext();if(!ShortcutManagerCompat.isRequestPinShortcutSupported(context)){message(getString(R.string.TetogramAppearanceShortcutUnsupported));return;}busy=true;refresh();int token=++generation;File f=AppearanceMedia.file(owner,draft.values.get("launcher.icon.file"));String emoji=draft.values.get("launcher.emoji"),label=draft.values.getOrDefault("launcher.label","Tetogram");Utilities.globalQueue.postRunnable(()->{Bitmap loaded=null;try{if(f!=null)loaded=ImageLoader.loadBitmap(f.getAbsolutePath(),null,256,256,true);else if((emoji==null||emoji.isEmpty())&&selectedIcon().foreground!=R.drawable.tetogram_mark)loaded=ImageLoader.loadBitmap(null,android.net.Uri.parse("android.resource://"+context.getPackageName()+"/"+selectedIcon().foreground),256,256,true);}catch(Exception ignored){}final Bitmap image=loaded;AndroidUtilities.runOnUIThread(()->{if(!valid()||generation!=token){if(image!=null)image.recycle();return;}try{Bitmap icon=Bitmap.createBitmap(256,256,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(icon);AppearanceIconPreview rendered=new AppearanceIconPreview(context,image,image==null?emoji:null,scale(),1,image!=null||emoji!=null&&!emoji.isEmpty()?android.R.color.black:selectedIcon().background);rendered.measure(View.MeasureSpec.makeMeasureSpec(256,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(256,View.MeasureSpec.EXACTLY));rendered.layout(0,0,256,256);rendered.draw(canvas);Intent intent=new Intent(context,LaunchActivity.class).setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);ShortcutInfoCompat info=new ShortcutInfoCompat.Builder(context,SHORTCUT).setShortLabel(label).setLongLabel(label).setIntent(intent).setIcon(IconCompat.createWithAdaptiveBitmap(icon)).build();ShortcutManagerCompat.enableShortcuts(context,Collections.singletonList(info));if(!ShortcutManagerCompat.requestPinShortcut(context,info,null))message(getString(R.string.TetogramAppearanceShortcutUnsupported));}catch(Exception e){message(getString(R.string.TetogramAppearanceShortcutUnsupported));}finally{if(image!=null)image.recycle();busy=false;refresh();}});});}
+    @Override protected void click(UItem item,View v,int p,float x,float y){if(valid()&&!busy&&item.id>0&&item.id<=actions.size())actions.get(item.id-1).run();}
+}

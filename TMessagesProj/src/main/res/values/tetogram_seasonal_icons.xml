@@ -1,0 +1,9 @@
+<resources>
+    <drawable name="tetogram_spring">@drawable/tetogram_teto_spring_art</drawable>
+    <drawable name="tetogram_autumn">@drawable/tetogram_artwork</drawable>
+    <drawable name="tetogram_winter">@drawable/tetogram_teto_winter_art</drawable>
+    <drawable name="mikugram_spring">@drawable/tetogram_miku_spring_art</drawable>
+    <drawable name="mikugram_summer">@drawable/tetogram_miku_summer_art</drawable>
+    <drawable name="mikugram_autumn">@drawable/tetogram_miku_autumn_art</drawable>
+    <drawable name="mikugram_winter">@drawable/tetogram_miku_winter_art</drawable>
+</resources>

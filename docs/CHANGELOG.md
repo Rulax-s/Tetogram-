@@ -1,5 +1,13 @@
 # История изменений
 
+## 0.4.0 — Tetogram/Mikugram seasonal launcher, code169 (проверяется)
+
+- Общие device preferences schema2: бренд, auto/manual, сохранённый manualSeason, последний alias/revision; legacy migration без принудительной замены действующего эквивалентного значка.
+- Восемь canonical components, семь реальных иллюстраций; Tetogram Summer явно недоступна до assets/launcher/seasonal/tetogram_summer.png. Детерминированный generator автоматически подключит подготовленный файл в CI; заглушки не создаются.
+- Сегменты бренда/сезона, крупный preview/label, галерея 4 сезонов, три маски, Apply/standard reset; личный shortcut вынесен отдельно и больше не переустанавливает системную иконку.
+- Whole-art safe circle, один background без новой рамки/повторного crop, enable-first/exclusive transaction, corruption recovery, startup/foreground/date/timezone hooks без service/polling.
+- JVM/source checks добавлены; настоящие Android/Samsung/notifications/deep links ещё NOT RUN. Package, подпись, Secrets и данные аккаунтов не меняются. Подробности — SEASONAL_LAUNCHER.md.
+
 ## 0.4.0 — два способа открытия разделов, code159 (APK собрана)
 
 - CI 43701619455 success, source 5811d6b8caa9389f9345e8c34a0f38b5144e14cd. Реальный JUnit report: 221 tests / 0 failures / 0 errors / 0 skipped, в том числе 11 opening-mode tests. 19 SQLite, 22 source contracts; APK identity/signature/ARM64/335 localization keys проверены. Копия code159 в Download; Android UI NOT RUN. Данные — APK-0.4.0-sections-opening.json и TESTS-0.4.0-sections-opening.json.

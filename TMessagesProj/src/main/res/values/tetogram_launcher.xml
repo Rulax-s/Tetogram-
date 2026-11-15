@@ -1,0 +1,16 @@
+<resources>
+  <string name="TetogramLauncherBrand">App appearance</string>
+  <string name="TetogramLauncherTeto">Tetogram — Kasane Teto</string>
+  <string name="TetogramLauncherMiku">Mikugram — Hatsune Miku</string>
+  <string name="TetogramLauncherAutoShort">Auto</string>
+  <string name="TetogramLauncherCustomShortcut">Personalized shortcut</string>
+  <string name="TetogramLauncherGallery">Seasonal icons</string>
+  <string name="TetogramLauncherRestore">Restore standard appearance</string>
+  <string name="TetogramLauncherNoArtwork">Image missing</string>
+  <string name="TetogramLauncherMissingArtwork">The prepared seasonal image is missing. Copy it to the path below and rebuild. The existing system icon is retained.</string>
+  <string name="TetogramLauncherPreviewError">Preview could not be decoded</string>
+  <string name="TetogramLauncherApplyError">The launcher could not apply the icon. App accounts and data are unchanged.</string>
+  <string name="TetogramLauncherConflict">App icon settings changed on another screen. Reopen this editor before applying.</string>
+  <string name="TetogramLauncherLegacyInfo">Compatibility icons; never selected automatically</string>
+  <string name="TetogramLauncherCalendarInfo">Auto follows the local calendar at startup, foreground and date/time events. Android may delay a change while the app is stopped. No background service or date polling is used.</string>
+</resources>

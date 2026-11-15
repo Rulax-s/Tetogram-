@@ -42,11 +42,13 @@ jobs:
           persist-credentials: false
       - name: Check Tetogram source invariants
         run: |
+          python3 scripts/prepare-seasonal-icons.py
           python3 scripts/check-project.py
           python3 scripts/check-localization.py
           python3 scripts/check-settings-insets.py
           python3 scripts/check-appearance-editor.py
           python3 scripts/check-section-opening.py
+          python3 scripts/check-launcher-icons.py
 
   build:
     needs: source-checks
@@ -73,6 +75,7 @@ jobs:
         run: |
           mkdir -p build-logs
           set -o pipefail
+          python3 scripts/prepare-seasonal-icons.py 2>&1 | tee build-logs/launcher-assets.log
           python3 scripts/prepare-ci.py 2>&1 | tee build-logs/configuration.log
       - name: Checkout pinned submodules recursively
         run: |

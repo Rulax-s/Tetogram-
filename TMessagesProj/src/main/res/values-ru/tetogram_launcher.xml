@@ -1,0 +1,16 @@
+<resources>
+  <string name="TetogramLauncherBrand">Оформление приложения</string>
+  <string name="TetogramLauncherTeto">Tetogram — Касане Тето</string>
+  <string name="TetogramLauncherMiku">Mikugram — Хацунэ Мику</string>
+  <string name="TetogramLauncherAutoShort">Авто</string>
+  <string name="TetogramLauncherCustomShortcut">Персональный ярлык</string>
+  <string name="TetogramLauncherGallery">Сезонные иконки</string>
+  <string name="TetogramLauncherRestore">Вернуться к стандартному оформлению</string>
+  <string name="TetogramLauncherNoArtwork">Нет изображения</string>
+  <string name="TetogramLauncherMissingArtwork">Подготовленное сезонное изображение отсутствует. Скопируйте файл по указанному пути и пересоберите APK. Текущий системный значок сохраняется.</string>
+  <string name="TetogramLauncherPreviewError">Не удалось загрузить предпросмотр</string>
+  <string name="TetogramLauncherApplyError">Лаунчер не смог применить значок. Аккаунты и данные приложения не изменены.</string>
+  <string name="TetogramLauncherConflict">Настройки значка изменились на другом экране. Откройте редактор заново перед применением.</string>
+  <string name="TetogramLauncherLegacyInfo">Совместимые прежние значки; не выбираются автоматически</string>
+  <string name="TetogramLauncherCalendarInfo">Авто следует местному календарю при запуске, возвращении и изменении даты или времени. Android может отложить смену, пока приложение остановлено. Фоновый сервис и опрос даты не используются.</string>
+</resources>
