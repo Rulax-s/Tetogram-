@@ -2095,9 +2095,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         return color==null?null:ColorUtils.blendARGB(color,getThemedColor(key.equals("banner.text")?Theme.key_windowBackgroundWhiteBlackText:Theme.key_windowBackgroundWhiteGrayText),headerBlurFactor);
     }
     private void tetogramUpdateBanner(){
-        if(tetogramBannerDestroyed||!(fragmentView instanceof FrameLayout)||topView==null||userId!=getUserConfig().getClientUserId())return;
-        org.telegram.messenger.tetogram.AppearanceConfig.Resolved style=org.telegram.messenger.tetogram.AppearanceStore.snapshot(currentAccount).resolveProfile(userId);
-        boolean enabled=false;for(String key:style.values.keySet())if(key.startsWith("banner.")||key.startsWith("light.banner.")||key.startsWith("dark.banner.")){enabled=true;break;}
+        long target=org.telegram.messenger.tetogram.AppearanceProfilePolicy.target(userId,chatId);
+        if(tetogramBannerDestroyed||!(fragmentView instanceof FrameLayout)||topView==null||target==0)return;
+        org.telegram.messenger.tetogram.AppearanceConfig config=org.telegram.messenger.tetogram.AppearanceStore.snapshot(currentAccount);
+        org.telegram.messenger.tetogram.AppearanceConfig.Style explicit=config.scopes.get("profile:"+target);
+        org.telegram.messenger.tetogram.AppearanceConfig.Resolved style=config.resolveProfile(target);
+        boolean active=org.telegram.messenger.tetogram.AppearanceProfilePolicy.active(getUserConfig().getClientUserId(),target,explicit!=null&&!explicit.values.isEmpty());
+        boolean enabled=false;if(active)for(String key:style.values.keySet())if(key.startsWith("banner.")||key.startsWith("light.banner.")||key.startsWith("dark.banner.")){enabled=true;break;}
         FrameLayout parent=(FrameLayout)fragmentView;
         if(!enabled){tetogramBannerStyle=null;if(tetogramBanner!=null){tetogramBanner.setResumed(false);parent.removeView(tetogramBanner);tetogramBanner=null;if(avatarContainer!=null&&listView!=null)fixAvatarImageInCenter();}if(nameTextView!=null)nameTextView.invalidate();if(onlineTextView!=null)onlineTextView.invalidate();return;}
         if(tetogramBanner==null){tetogramBanner=new org.telegram.ui.tetogram.AppearanceBanner(parent.getContext());parent.addView(tetogramBanner,parent.indexOfChild(topView)+1,LayoutHelper.createFrame(-1,280));}
@@ -2105,7 +2109,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         tetogramBannerStyle=style;
         if(nameTextView!=null)nameTextView.invalidate();if(onlineTextView!=null)onlineTextView.invalidate();
         if(avatarContainer!=null&&listView!=null)fixAvatarImageInCenter();
-        tetogramBanner.configure(userId,style);tetogramBanner.setResumed(!isPaused);parent.invalidate();
+        tetogramBanner.configure(getUserConfig().getClientUserId(),style);tetogramBanner.setResumed(!isPaused);parent.invalidate();
     }
 
     @Override
@@ -6598,7 +6602,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private void fixAvatarImageInCenter() {
         if (listView == null) return;
         final FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) avatarContainer.getLayoutParams();
-        float alignment=tetogramBanner!=null&&tetogramBannerStyle!=null&&userId==getUserConfig().getClientUserId()?tetogramBannerStyle.number("banner.avatarAlignment",0):0;
+        float alignment=tetogramBanner!=null&&tetogramBannerStyle!=null?tetogramBannerStyle.number("banner.avatarAlignment",0):0;
         avatarX = org.telegram.messenger.tetogram.AppearanceProfileGeometry.horizontal(listView.getMeasuredWidth(),params.width*avatarScale,dp(16),alignment,calculateHeaderExtraDiff());
         if (openAnimationInProgress) {
             avatarX = lerp(prevAvatarTranslation, avatarX, avatarAnimationProgress);
@@ -8009,6 +8013,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         simpleActionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
+                if(id==46020){long target=org.telegram.messenger.tetogram.AppearanceProfilePolicy.target(userId,chatId);if(target!=0)presentFragment(new org.telegram.ui.tetogram.AppearanceActivity(currentAccount,"profile:"+target,null,null,0,0));return;}
                 if (id != -1) {
                     // the profile's buttons and the items of its menu are in this header, the old bar keeps their handling
                     final ActionBar.ActionBarMenuOnItemClick profileClick = actionBar != null ? actionBar.getActionBarMenuOnItemClick() : null;
@@ -9847,7 +9852,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onResume() {
         super.onResume();
-        if(userId==getUserConfig().getClientUserId())org.telegram.messenger.tetogram.AppearanceStore.load(currentAccount,(ok,c)->{if(ok&&fragmentView!=null&&getParentActivity()!=null)tetogramUpdateBanner();});
+        org.telegram.messenger.tetogram.AppearanceStore.load(currentAccount,(ok,c)->{if(ok&&fragmentView!=null&&getParentActivity()!=null)tetogramUpdateBanner();});
         if(tetogramBanner!=null)tetogramBanner.setResumed(true);
         if (sharedMediaLayout != null) {
             sharedMediaLayout.onResume();
@@ -10270,7 +10275,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             updateStar();
         }
         final AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.setDuration(playProfileAnimation == 2 ? 250 : 180);
+        animatorSet.setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(playProfileAnimation == 2 ? 250 : 180));
         listView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         // no stand-in for the chat's menu in the old action bar: the glass header comes in with the transition
 
@@ -12345,6 +12350,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         }
         Context context = actionBar.getContext();
         otherItem.removeAllSubItems();
+        if(org.telegram.messenger.tetogram.AppearanceProfilePolicy.target(userId,chatId)!=0)otherItem.addSubItem(46020,R.drawable.menu_profile_colors,getString(R.string.TetogramLocalProfileAppearance));
         animatingItem = null;
 
         editItemVisible = false;
