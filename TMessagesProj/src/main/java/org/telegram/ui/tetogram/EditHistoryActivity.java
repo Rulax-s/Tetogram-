@@ -38,7 +38,7 @@ public final class EditHistoryActivity extends LabsPage implements NotificationC
         for(EditHistory.Version version:versions){
             MessageObject m=version.message;
             String label=getString(version.latest?R.string.TetogramEditNew:R.string.TetogramEditOld);
-            if(m.messageOwner.edit_date==0)label+=" · "+getString(R.string.TetogramEditOriginal);
+            if(m.messageOwner.edit_date==0)label=version.latest?getString(R.string.TetogramEditOriginal):label+" · "+getString(R.string.TetogramEditOriginal);
             String details=author(m)+" · ID "+m.getId()+"\n"+date.format(new Date((m.messageOwner.edit_date>0?m.messageOwner.edit_date:m.messageOwner.date)*1000L))+"\n"+getString(R.string.TetogramEditsObserved)+": "+date.format(new Date(version.observed*1000L));
             items.add(UItem.asHeader(label));
             items.add(UItem.asCustom(new AppearanceSettingRow(getContext(),body(m),details,true,()->showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditHistory)).setMessage(body(m)).setPositiveButton(getString(R.string.OK),null).create())),-2));
