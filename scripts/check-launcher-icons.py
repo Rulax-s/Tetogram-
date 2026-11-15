@@ -24,7 +24,7 @@ class LauncherContracts(unittest.TestCase):
   for node in manifest.iter('activity-alias'):
    key=node.get(A+'name','').split('.')[-1]
    if not key.startswith(('Tetogram','Mikugram')) or node.find('intent-filter') is None:continue
-   name=node.get(A+'icon').split('/')[-1];root=E.parse(RES/'mipmap-anydpi-v26'/(name+'.xml')).getroot();self.assertEqual(1,len(root.findall('.//inset')))
+   name=node.get(A+'icon').split('/')[-1];root=E.parse(RES/'mipmap-anydpi-v26'/(name+'.xml')).getroot();self.assertEqual(1,len(root.findall('.//inset')));self.assertIsNone(root.find('monochrome'))
    inset=root.find('foreground/inset')
    for edge in ('Left','Top','Right','Bottom'):self.assertEqual('28.5%',inset.get(A+'inset'+edge))
    self.assertNotIn('stroke',E.tostring(root,encoding='unicode'));legacy=E.parse(RES/'mipmap-anydpi'/(name+'.xml')).getroot();self.assertIsNone(legacy.find('.//corners'));self.assertEqual('46.44dp',legacy.findall('item')[1].get(A+'width'))
