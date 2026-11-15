@@ -28,9 +28,21 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     private AppearanceConfig.Resolved style=new AppearanceConfig.Resolved();
     private File media;
     private long owner;
-    private float parallaxStrength,parallaxProgress;
-    private float mediaZoom(){return Math.max(1,Math.min(4,style.number("wallpaper.zoom",1)))*(1+.1f*parallaxStrength);}
-    private float mediaPanY(){return style.number("wallpaper.panY",0)+parallaxStrength*(parallaxProgress*2-1);}
+    private float parallaxStrength,parallaxProgress,sensorX,sensorY,sensorZoom=1;
+    private WallpaperParallaxEffect sensorParallax;
+    private boolean sensorEnabled;
+    private void disableSensorParallax(){if(sensorParallax!=null)sensorParallax.setEnabled(false);if(sensorEnabled||sensorX!=0||sensorY!=0){sensorEnabled=false;sensorX=sensorY=0;sensorZoom=1;updateTransform();}}
+    private void updateSensorParallax(boolean canRun){
+        boolean enabled=canRun&&media!=null&&"true".equals(style.get("wallpaper.parallax"))&&getContext().getPackageManager().hasSystemFeature(android.content.pm.PackageManager.FEATURE_SENSOR_ACCELEROMETER);
+        if(!enabled){disableSensorParallax();return;}
+        try{
+            if(sensorParallax==null){sensorParallax=new WallpaperParallaxEffect(getContext());sensorParallax.setCallback((x,y,angle)->{if(!sensorEnabled)return;float bound=Math.max(1,AndroidUtilities.dp(16));sensorX=Math.max(-1,Math.min(1,x/bound));sensorY=Math.max(-1,Math.min(1,y/bound));updateTransform();});}
+            if(stableWidth>0&&stableHeight>0)sensorZoom=sensorParallax.getScale(stableWidth,stableHeight);
+            sensorEnabled=true;sensorParallax.setEnabled(true);
+        }catch(Exception e){disableSensorParallax();}
+    }
+    private float mediaZoom(){return Math.max(1,Math.min(4,style.number("wallpaper.zoom",1)))*Math.max(1+.1f*parallaxStrength,sensorZoom);}
+    private float mediaPanY(){return style.number("wallpaper.panY",0)+parallaxStrength*(parallaxProgress*2-1)+sensorY;}
     public void setScrollParallax(float strength,float progress){strength=Math.max(0,Math.min(1,strength));progress=Math.max(0,Math.min(1,progress));if(strength==parallaxStrength&&progress==parallaxProgress)return;parallaxStrength=strength;parallaxProgress=progress;updateTransform();}
     private boolean attached,resumed,failed,video,firstFrame;
     private int stableWidth,stableHeight,videoWidth,videoHeight;
@@ -42,7 +54,7 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
         cover=new BackupImageView(context){
             private final AppearanceViewport viewport=new AppearanceViewport();
             @Override protected void onDraw(Canvas canvas){
-                if(viewport.set(getWidth(),getHeight(),imageReceiver.getBitmapWidth(),imageReceiver.getBitmapHeight(),"fit".equals(style.get("wallpaper.fit")),mediaZoom(),style.number("wallpaper.panX",0),mediaPanY())){
+                if(viewport.set(getWidth(),getHeight(),imageReceiver.getBitmapWidth(),imageReceiver.getBitmapHeight(),"fit".equals(style.get("wallpaper.fit")),mediaZoom(),style.number("wallpaper.panX",0)+sensorX,mediaPanY())){
                     imageReceiver.setImageCoords(viewport.x,viewport.y,viewport.width,viewport.height);imageReceiver.draw(canvas);
                 }
             }
@@ -66,7 +78,7 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     public void setResumed(boolean value){if(value&&!resumed)failed=false;resumed=value;AndroidUtilities.cancelRunOnUIThread(tick);if(value){AppearanceMediaView previous=active.get();if(previous!=null&&previous!=this)previous.stop();active=new WeakReference<>(this);if(attached)AndroidUtilities.runOnUIThread(tick);}else stop();}
     private boolean surfaceVisible(){if(!isShown()||getWindowVisibility()!=VISIBLE||getAlpha()<=0||!getGlobalVisibleRect(visibleRect)||visibleRect.isEmpty())return false;if(org.telegram.ui.PhotoViewer.hasInstance()&&org.telegram.ui.PhotoViewer.getInstance().isVisible())return false;if(org.telegram.ui.SecretMediaViewer.hasInstance()&&org.telegram.ui.SecretMediaViewer.getInstance().isVisible())return false;for(org.telegram.ui.Stories.StoryViewer viewer:org.telegram.ui.Stories.StoryViewer.globalInstances)if(viewer.isShown())return false;return true;}
     private boolean allowed(){boolean battery=power!=null&&power.isPowerSaveMode()||LiteMode.isPowerSaverApplied();boolean animations=!"false".equals(style.get("effects.enabled"))&&!"false".equals(style.get("wallpaper.animate")) && SectionMenu.animations(getContext());return active.get()==this&&AppearanceMediaPolicy.play(attached,resumed,surfaceVisible(),ApplicationLoader.isScreenOn,!ApplicationLoader.mainInterfacePaused,LiteMode.isEnabled(LiteMode.FLAG_CHAT_BACKGROUND),battery,animations) && !(Build.VERSION.SDK_INT<31&&style.number("wallpaper.blur",0)>0);}
-    private void reconcile(){if(!video||failed||media==null||!allowed()){stop();return;}if(player!=null)return;
+    private void reconcile(){boolean canRun=allowed();updateSensorParallax(canRun);if(!video||failed||media==null||!canRun){stopVideo();return;}if(player!=null)return;
         try{
             VideoPlayer instance=new VideoPlayer(false,true);player=instance;
             instance.setDelegate(new VideoPlayer.VideoPlayerDelegate(){
@@ -79,7 +91,8 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
         }catch(Exception e){failed=true;stop();FileLog.e("Tetogram video background initialization failed");}
     }
     private void showFrame(){if(!AppearanceMediaPolicy.showFrame(firstFrame,videoWidth,videoHeight,texture.getWidth(),texture.getHeight())||texture.getAlpha()!=0)return;if(SectionMenu.animations(getContext()))texture.animate().alpha(1).setDuration(org.telegram.messenger.tetogram.AppearanceRuntime.effectDuration(150)).start();else texture.setAlpha(1);}
-    private void stop(){firstFrame=false;texture.animate().cancel();texture.setAlpha(0);if(player!=null){VideoPlayer previous=player;player=null;try{previous.pause();previous.releasePlayer(false);}catch(Exception ignored){}}}
+    private void stop(){disableSensorParallax();stopVideo();}
+    private void stopVideo(){firstFrame=false;texture.animate().cancel();texture.setAlpha(0);if(player!=null){VideoPlayer previous=player;player=null;try{previous.pause();previous.releasePlayer(false);}catch(Exception ignored){}}}
     public void retry(){failed=false;reconcile();}
     public long positionMs(){return player==null?0:Math.max(0,player.getCurrentPosition());}
     @Override protected void onAttachedToWindow(){super.onAttachedToWindow();attached=true;NotificationCenter.getGlobalInstance().addObserver(this,NotificationCenter.screenStateChanged);ContextCompat.registerReceiver(getContext().getApplicationContext(),powerReceiver,new IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED),ContextCompat.RECEIVER_NOT_EXPORTED);if(resumed)AndroidUtilities.runOnUIThread(tick);}
@@ -91,7 +104,7 @@ public final class AppearanceMediaView extends FrameLayout implements Notificati
     @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){super.onSizeChanged(w,h,oldw,oldh);if(stableWidth!=w||!imeVisible()){stableWidth=w;stableHeight=h;}else stableHeight=Math.max(stableHeight,h);for(View child:new View[]{cover,texture,dim})if(child!=null){FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)child.getLayoutParams();if(lp.height!=stableHeight){lp.height=stableHeight;child.setLayoutParams(lp);}}updateTransform();}
     private void updateTransform(){
         if(cover!=null)cover.invalidate();
-        if(texture==null||!videoViewport.set(texture.getWidth(),texture.getHeight(),videoWidth,videoHeight,"fit".equals(style.get("wallpaper.fit")),mediaZoom(),style.number("wallpaper.panX",0),mediaPanY()))return;
+        if(texture==null||!videoViewport.set(texture.getWidth(),texture.getHeight(),videoWidth,videoHeight,"fit".equals(style.get("wallpaper.fit")),mediaZoom(),style.number("wallpaper.panX",0)+sensorX,mediaPanY()))return;
         Matrix matrix=new Matrix();matrix.setScale(videoViewport.width/texture.getWidth(),videoViewport.height/texture.getHeight());matrix.postTranslate(videoViewport.x,videoViewport.y);texture.setTransform(matrix);
     }
     @Override public void capture(Canvas canvas,RectF position){int save=canvas.save();canvas.clipRect(position);if(getAlpha()<1)canvas.saveLayerAlpha(position,Math.round(getAlpha()*255));cover.draw(canvas);dim.draw(canvas);canvas.restoreToCount(save);}

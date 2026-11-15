@@ -166,4 +166,9 @@
     <string name="TetogramAppearanceInterfaceColors">Цвета интерфейса</string>
     <string name="TetogramAppearanceBannerParallax">Параллакс баннера при прокрутке</string>
     <string name="TetogramAppearanceAvatarAlignment">Положение аватарки (слева −1, по центру 0, справа 1)</string>
+    <string name="TetogramAppearanceWallpaperParallax">Параллакс обоев при движении устройства</string>
+    <string name="TetogramAppearanceDefaultPattern">Стандартный узор Telegram</string>
+    <string name="TetogramAppearancePatternIntensity">Интенсивность узора</string>
+    <string name="TetogramAppearancePatternEnabled">Включён</string>
+    <string name="TetogramAppearancePatternDisabled">Выключен</string>
 </resources>

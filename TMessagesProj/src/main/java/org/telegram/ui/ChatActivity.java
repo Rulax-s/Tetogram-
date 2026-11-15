@@ -44447,7 +44447,7 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public boolean isWallpaperMotion() {
-            if (tetogramWallpaper != null) return false;
+            if (tetogramWallpaper != null || org.telegram.messenger.tetogram.AppearanceConfig.isMediaName(tetogramStyle.get("wallpaper.file"))) return false;
             return chatTheme != null ? false : Theme.isWallpaperMotion();
         }
 

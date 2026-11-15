@@ -166,4 +166,9 @@
     <string name="TetogramAppearanceInterfaceColors">Interface colors</string>
     <string name="TetogramAppearanceBannerParallax">Banner parallax while scrolling</string>
     <string name="TetogramAppearanceAvatarAlignment">Avatar horizontal position (left −1, center 0, right 1)</string>
+    <string name="TetogramAppearanceWallpaperParallax">Wallpaper parallax with device movement</string>
+    <string name="TetogramAppearanceDefaultPattern">Built-in Telegram pattern</string>
+    <string name="TetogramAppearancePatternIntensity">Pattern intensity</string>
+    <string name="TetogramAppearancePatternEnabled">Enabled</string>
+    <string name="TetogramAppearancePatternDisabled">Disabled</string>
 </resources>
