@@ -4832,10 +4832,76 @@ public class ChatActivityEnterView extends FrameLayout implements
         return false;
     }
 
+    /** Tetogram experimental local TTS; native send flow and original long-press are preserved. */
+    private void tetogramOpenLocalVoice() {
+        if (parentActivity == null || parentFragment == null || messageEditText == null) return;
+        final long targetDialog = dialog_id;
+        final int targetAccount = currentAccount;
+        final long targetOwner = UserConfig.getInstance(currentAccount).getClientUserId();
+        final String draftText = messageEditText.getTextToUse().toString();
+        org.telegram.ui.tetogram.VoiceComposer.show(parentActivity, draftText, (file, duration, spokenText) -> {
+            if (parentFragment == null || parentFragment.getDialogId() != targetDialog
+                    || targetAccount != currentAccount
+                    || UserConfig.getInstance(currentAccount).getClientUserId() != targetOwner) {
+                throw new IllegalStateException("Чат или аккаунт изменился. Голосовое не отправлено.");
+            }
+            if (!sendVoiceEnabled || !sendPlainEnabled) {
+                throw new IllegalStateException("Отправка голосовых здесь недоступна.");
+            }
+            TLRPC.TL_document voice = new TLRPC.TL_document();
+            voice.file_reference = new byte[0];
+            voice.dc_id = Integer.MIN_VALUE;
+            voice.id = SharedConfig.getLastLocalId();
+            voice.user_id = targetOwner;
+            voice.mime_type = "audio/ogg";
+            voice.date = ConnectionsManager.getInstance(currentAccount).getCurrentTime();
+            voice.size = (int) file.length();
+            SharedConfig.saveConfig();
+            TLRPC.TL_documentAttributeAudio attr = new TLRPC.TL_documentAttributeAudio();
+            attr.voice = true;
+            attr.duration = duration;
+            try {
+                attr.waveform = MediaController.getWaveform(file.getAbsolutePath());
+                if (attr.waveform != null) attr.flags |= 4;
+            } catch (Exception ignored) {}
+            voice.attributes.add(attr);
+            SendMessagesHelper.SendMessageParams params = SendMessagesHelper.SendMessageParams.of(
+                    voice, null, file.getAbsolutePath(), targetDialog,
+                    replyingMessageObject, getThreadMessage(), null, null, null, null,
+                    true, 0, 0, 0, null, null, false);
+            params.sendMessageChatArguments = parentFragment.getMessageChatSendParams();
+            params.monoForumPeer = getSendMonoForumPeerId();
+            params.suggestionParams = getSendMessageSuggestionParams();
+            SendMessagesHelper.getInstance(currentAccount).sendMessage(params);
+            if (messageEditText != null && draftText.equals(messageEditText.getTextToUse().toString())) {
+                messageEditText.setText("");
+            }
+            if (delegate != null) delegate.onMessageSend(null, true, 0, 0, 0);
+        });
+    }
+
+    private boolean tetogramVoicePreviewBypass;
     private ActionBarMenuSubItem actionScheduleButton;
     private boolean onSendLongClick(View view) {
         if (isInScheduleMode() || parentFragment != null && parentFragment.getChatMode() == ChatActivity.MODE_QUICK_REPLIES || animatorEphemeralMessageVisibility.getValue()) {
             return false;
+        }
+
+        if (!tetogramVoicePreviewBypass && !isStories && !isEditingMessage() && !richDraftActive
+                && !isInScheduleMode() && parentActivity != null && parentFragment != null
+                && messageEditText != null && !TextUtils.isEmpty(messageEditText.getText())
+                && audioToSend == null && sendVoiceEnabled) {
+            new AlertDialog.Builder(parentActivity)
+                    .setTitle("Отправка сообщения")
+                    .setItems(new CharSequence[]{"Обычный предпросмотр", "🎙 Озвучить голосом (локально)"}, (d, index) -> {
+                        if (index == 0) {
+                            tetogramVoicePreviewBypass = true;
+                            try { onSendLongClick(view); } finally { tetogramVoicePreviewBypass = false; }
+                        } else if (index == 1) {
+                            tetogramOpenLocalVoice();
+                        }
+                    }).show();
+            return true;
         }
 
         if (isStories || (messageEditText == null || TextUtils.isEmpty(messageEditText.getText())) && parentFragment != null && parentFragment.messagePreviewParams != null && parentFragment.messagePreviewParams.forwardMessages != null && parentFragment.messagePreviewParams.forwardMessages.messages != null && !parentFragment.messagePreviewParams.forwardMessages.messages.isEmpty()) {
