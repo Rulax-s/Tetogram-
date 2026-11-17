@@ -22,7 +22,6 @@ import java.nio.ShortBuffer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Collections;
-import java.util.HashSet;
 
 /**
  * Offline RVC pipeline. Accepts voice-changer-format ONNX synthesizers +
@@ -99,15 +98,37 @@ public final class LocalRvcEngine {
             OrtSession synthSession = synthHolder.session;
             Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
             try {
-                OnnxJavaType featsType = ((TensorInfo)synthSession.getInputInfo().get("feats").getInfo()).type;
-                inputs.put("feats", featsType == OnnxJavaType.FLOAT16
+                // voice-changer uses feats/p_len/pitchf; Applio/RVC v2 uses
+                // phone/phone_lengths/nsff0 plus an optional rate tensor.
+                // The rate means the fraction of audio to KEEP, so 1.0 keeps
+                // the full utterance (0.0 would trim almost everything).
+                String featsName = meta.applio ? "phone" : "feats";
+                String lenName = meta.applio ? "phone_lengths" : "p_len";
+                String pitchfName = meta.applio ? "nsff0" : "pitchf";
+                OnnxJavaType featsType = ((TensorInfo)synthSession.getInputInfo().get(featsName).getInfo()).type;
+                if (featsType != OnnxJavaType.FLOAT && featsType != OnnxJavaType.FLOAT16) {
+                    throw new IOException("Неподдерживаемый тип речевых признаков: " + featsType);
+                }
+                inputs.put(featsName, featsType == OnnxJavaType.FLOAT16
                     ? halfTensor(env, expanded, new long[]{1, frames, features.channels})
                     : floatTensor(env, expanded, new long[]{1, frames, features.channels}));
-                inputs.put("p_len", longTensor(env, new long[]{frames}, new long[]{1}));
+                inputs.put(lenName, longTensor(env, new long[]{frames}, new long[]{1}));
                 inputs.put("sid", longTensor(env, new long[]{0}, new long[]{1}));
                 if (meta.needsPitch) {
                     inputs.put("pitch", longTensor(env, pitch, new long[]{1, frames}));
-                    inputs.put("pitchf", floatTensor(env, pitchF, new long[]{1, frames}));
+                    inputs.put(pitchfName, floatTensor(env, pitchF, new long[]{1, frames}));
+                }
+                if (meta.applio && synthSession.getInputInfo().containsKey("rate")) {
+                    OnnxJavaType rateType = ((TensorInfo)synthSession.getInputInfo().get("rate").getInfo()).type;
+                    if (rateType == OnnxJavaType.FLOAT) {
+                        inputs.put("rate", floatTensor(env, new float[]{1.0f}, new long[]{1}));
+                    } else if (rateType == OnnxJavaType.FLOAT16) {
+                        inputs.put("rate", halfTensor(env, new float[]{1.0f}, new long[]{1}));
+                    } else if (rateType == OnnxJavaType.DOUBLE) {
+                        inputs.put("rate", OnnxTensor.createTensor(env, java.nio.DoubleBuffer.wrap(new double[]{1.0}), new long[]{1}));
+                    } else {
+                        throw new IOException("Неподдерживаемый ONNX-тип входа rate: " + rateType);
+                    }
                 }
                 try (OrtSession.Result result = synthSession.run(inputs, Collections.singleton("audio"))) {
                     generated = floatData(tensor(result, "audio"));
@@ -126,9 +147,10 @@ public final class LocalRvcEngine {
     }
     private static final class ModelMeta {
         final int sampleRate, embChannels, layer;
-        final boolean needsPitch, finalProjection;
-        ModelMeta(int rate, int channels, int layer, boolean f0, boolean proj) {
-            sampleRate=rate; embChannels=channels; this.layer=layer; needsPitch=f0; finalProjection=proj;
+        final boolean needsPitch, finalProjection, applio;
+        ModelMeta(int rate, int channels, int layer, boolean f0, boolean proj, boolean isApplio) {
+            sampleRate=rate; embChannels=channels; this.layer=layer;
+            needsPitch=f0; finalProjection=proj; applio=isApplio;
         }
         String outputName() throws IOException {
             if (layer==12 && !finalProjection) return "unit12";
@@ -138,13 +160,52 @@ public final class LocalRvcEngine {
         }
     }
     private static ModelMeta readMeta(OrtSession s) throws Exception {
-        String raw = s.getMetadata().getCustomMetadata().get("metadata");
-        if (raw == null) throw new IOException("Synth не содержит metadata. Нужен экспорт voice-changer export2onnx.py");
-        JSONObject obj = new JSONObject(raw);
-        int rate = obj.getInt("samplingRate");
-        int channels = obj.getInt("embChannels");
-        if (rate < 16000 || rate > 48000 || (channels != 256 && channels != 768)) throw new IOException("Неподдерживаемые параметры Synth");
-        return new ModelMeta(rate, channels, obj.getInt("embOutputLayer"), obj.getBoolean("f0"), obj.optBoolean("useFinalProj", false));
+        Map<String, ai.onnxruntime.NodeInfo> inputs = s.getInputInfo();
+        boolean applio = inputs.containsKey("phone") && inputs.containsKey("phone_lengths");
+        boolean voiceChanger = inputs.containsKey("feats") && inputs.containsKey("p_len");
+        if (!applio && !voiceChanger) {
+            throw new IOException("Неизвестные входы Synth: " + inputs.keySet());
+        }
+        if (!inputs.containsKey("sid")) throw new IOException("У Synth отсутствует вход sid");
+        Map<String, String> props = s.getMetadata().getCustomMetadata();
+        int rate, channels, layer;
+        boolean f0, proj;
+        if (applio) {
+            // Applio exports metadata as model_info, not voice-changer metadata.
+            // Never blindly assume this layout for an unrelated ONNX model.
+            String raw = props.get("model_info");
+            if (raw == null) throw new IOException("Applio Synth не содержит model_info");
+            JSONObject obj = new JSONObject(raw);
+            if (!"v1".equals(obj.optString("version")) && !"v2".equals(obj.optString("version"))) {
+                throw new IOException("Неизвестная версия Applio Synth");
+            }
+            rate = obj.getInt("sr");
+            ai.onnxruntime.NodeInfo node = inputs.get("phone");
+            if (!(node.getInfo() instanceof TensorInfo)) throw new IOException("Некорректный тип phone");
+            long[] phoneShape = ((TensorInfo)node.getInfo()).getShape();
+            if (phoneShape.length != 3) throw new IOException("Ожидался phone [B,T,C]");
+            channels = (int)phoneShape[2];
+            // RVC v1 uses 256d final-proj layer 9; v2 uses 768d raw layer 12.
+            layer = channels == 768 ? 12 : 9;
+            proj = channels == 256;
+            f0 = obj.optBoolean("f0", inputs.containsKey("pitch"));
+            if (f0 && (!inputs.containsKey("pitch") || !inputs.containsKey("nsff0"))) {
+                throw new IOException("Applio Synth требует входы pitch и nsff0");
+            }
+        } else {
+            String raw = props.get("metadata");
+            if (raw == null) throw new IOException("voice-changer Synth не содержит metadata");
+            JSONObject obj = new JSONObject(raw);
+            rate = obj.getInt("samplingRate");
+            channels = obj.getInt("embChannels");
+            layer = obj.getInt("embOutputLayer");
+            proj = obj.optBoolean("useFinalProj", false);
+            f0 = obj.getBoolean("f0");
+        }
+        if (rate < 16000 || rate > 48000 || (channels != 256 && channels != 768)) {
+            throw new IOException("Неподдерживаемые параметры Synth: " + rate + "Hz, " + channels + "d");
+        }
+        return new ModelMeta(rate, channels, layer, f0, proj, applio);
     }
     private static final class ManagedSession implements AutoCloseable {
         final OrtSession.SessionOptions options;
