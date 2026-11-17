@@ -19,6 +19,9 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.CheckBox;
+import android.widget.Button;
+import android.content.Intent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,6 +57,11 @@ public final class VoiceComposer {
         private final EditText editor;
         private final Spinner character;
         private final Spinner quality;
+        private final CheckBox rvcToggle;
+        private final Button rvcModels;
+        private volatile boolean rvcRequested;
+        private volatile int rvcCharacter;
+        private File rvcWav;
         private final TextView status;
         private final ProgressBar spinner;
         private final String token = Long.toHexString(System.nanoTime());
@@ -84,12 +92,23 @@ public final class VoiceComposer {
             character=menu(root,new String[]{"Касане Тето · тестовый тембр","Хацунэ Мику · тестовый тембр"});
             label(root,"Режим синтеза");
             quality=menu(root,new String[]{"Лёгкий · офлайн","Качественный · офлайн, если доступен"});
-            TextView note=label(root,"😊 😡 😢 🤩 🤫 📢 😂 — первая управляющая эмоция задаёт интонацию всего сообщения.\nНастоящие голосовые модели Тето и Мику пока не установлены: используются офлайн-голоса Android.");
+            rvcToggle = new CheckBox(activity);
+            rvcToggle.setText("Настоящий голос RVC (локально · экспериментально)");
+            rvcToggle.setChecked(false);
+            root.addView(rvcToggle, new LinearLayout.LayoutParams(-1,-2));
+            rvcModels = new Button(activity);
+            rvcModels.setText("Установить модели RVC");
+            rvcModels.setOnClickListener(v -> activity.startActivity(new Intent(activity, RvcModelManagerActivity.class)));
+            root.addView(rvcModels, new LinearLayout.LayoutParams(-1,-2));
+            TextView note=label(root,"😊 😡 😢 🤩 🤫 📢 😂 — первая управляющая эмоция задаёт интонацию всего сообщения.\nРежим RVC работает только с установленными ONNX-пакетами. Отключите его для обычного Android TTS.");
             note.setTextSize(12);
             spinner=new ProgressBar(activity);spinner.setVisibility(View.GONE);
             LinearLayout.LayoutParams progressLayout=new LinearLayout.LayoutParams(dp(activity,32),dp(activity,32));progressLayout.gravity=Gravity.CENTER_HORIZONTAL;
             root.addView(spinner,progressLayout);
             status=label(root,"Проверка офлайн-синтезатора русского языка…");
+            rvcToggle.setOnCheckedChangeListener((button, checked) -> {
+                status.setText(checked ? RvcModelStore.description(activity,character.getSelectedItemPosition()) : "Режим Android TTS без преобразования RVC");
+            });
             status.setTextSize(13);
             dialog=new AlertDialog.Builder(activity)
                 .setTitle("Озвучить сообщение")
@@ -124,8 +143,10 @@ public final class VoiceComposer {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(ready&&!busy);
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(ready&&!busy);
             spinner.setVisibility(busy?View.VISIBLE:View.GONE);
+            rvcToggle.setEnabled(!busy);
+            rvcModels.setEnabled(!busy);
         }
-        private String options(){return character.getSelectedItemPosition()+"/"+quality.getSelectedItemPosition();}
+        private String options(){return rvcToggle.isChecked()+"/"+character.getSelectedItemPosition()+"/"+quality.getSelectedItemPosition();}
         private Voice offlineRussianVoice(){
             if(engine==null)return null;
             Set<Voice> voices=engine.getVoices();
@@ -149,8 +170,13 @@ public final class VoiceComposer {
             if(encoded!=null&&current.equals(generatedSource)&&options().equals(generatedOptions)){
                 if(send)sendNow();else play();return;
             }
+            if(rvcToggle.isChecked() && !RvcModelStore.available(activity,character.getSelectedItemPosition())) {
+                status.setText("Для RVC сначала установите HuBERT, RMVPE и ONNX-модель Тето/Мику.");return;
+            }
             Voice voice=offlineRussianVoice();
             if(voice==null){status.setText("Нет установленного русского офлайн-голоса. Скачайте его в настройках синтеза речи Android.");return;}
+            rvcRequested=rvcToggle.isChecked();
+            rvcCharacter=character.getSelectedItemPosition();
             int request=++requestId;
             disposeAudio();busy=true;sendWhenReady=send;updateButtons();
             generatedSource=current;generatedOptions=options();
@@ -182,11 +208,17 @@ public final class VoiceComposer {
                     if(directory==null||!directory.isDirectory())directory=activity.getCacheDir();
                     output=File.createTempFile("tg_local_voice_", ".ogg", directory);
                     final File completed=output;
-                    VoiceOggEncoder.Result result=VoiceOggEncoder.encode(wav,completed);
+                    File inputAudio = wav;
+                    if(rvcRequested){
+                        rvcWav=File.createTempFile("tetogram_rvc_", ".wav", activity.getCacheDir());
+                        LocalRvcEngine.convert(activity.getApplicationContext(), wav, rvcWav, rvcCharacter, 0);
+                        inputAudio=rvcWav;
+                    }
+                    VoiceOggEncoder.Result result=VoiceOggEncoder.encode(inputAudio,completed);
                     activity.runOnUiThread(()->{
                         if(closed||request!=requestId){completed.delete();return;}
                         ogg=completed;encoded=result;busy=false;
-                        status.setText("Готово. Обычное голосовое Telegram (OGG/Opus). Тембр персонажа пока приблизительный.");
+                        status.setText(rvcRequested ? "Готово: голосовое RVC (OGG/Opus). Можно прослушать или отправить." : "Готово: стандартный Android TTS (OGG/Opus). Можно прослушать или отправить.");
                         updateButtons();
                         if(sendWhenReady)sendNow();else play();
                     });
@@ -200,11 +232,12 @@ public final class VoiceComposer {
             });
         }
         private void play(){
-            if(closed||wav==null||!wav.isFile())return;
+            File preview=(rvcRequested&&rvcWav!=null&&rvcWav.isFile())?rvcWav:wav;
+            if(closed||preview==null||!preview.isFile())return;
             try {
                 if(player!=null){player.release();player=null;}
                 player=new MediaPlayer();
-                player.setDataSource(wav.getAbsolutePath());
+                player.setDataSource(preview.getAbsolutePath());
                 player.prepare();player.start();
             }catch(Exception e){status.setText("Не удалось воспроизвести предпросмотр: "+e.getMessage());}
         }
@@ -221,6 +254,7 @@ public final class VoiceComposer {
         private void disposeAudio(){
             if(player!=null){try{player.release();}catch(Exception ignored){}player=null;}
             if(wav!=null)wav.delete();wav=null;
+            if(rvcWav!=null)rvcWav.delete();rvcWav=null;
             if(ogg!=null&&!sent)ogg.delete();ogg=null;encoded=null;
         }
         private void cleanup(){closed=true;requestId++;if(engine!=null){engine.stop();engine.shutdown();engine=null;}disposeAudio();}

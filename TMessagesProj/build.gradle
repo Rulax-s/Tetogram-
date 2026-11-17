@@ -43,6 +43,7 @@ configurations.all {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.31.1' // RVC offline arm64 inference
     implementation 'androidx.core:core:1.16.0'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.exifinterface:exifinterface:1.3.6'
