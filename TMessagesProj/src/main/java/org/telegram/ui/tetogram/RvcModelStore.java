@@ -12,9 +12,9 @@ import java.io.IOException;
 /** Five user-imported ONNX files, never uploaded or fetched over the network. */
 public final class RvcModelStore {
     private RvcModelStore() {}
-    public static final int HUBERT = 0, RMVPE = 1, TETO = 2, MIKU = 3, TETO_SV = 4;
-    public static final String[] LABELS = {"HuBERT / ContentVec", "RMVPE (F0)", "Касане Тето · UTAU (ONNX)", "Хацунэ Мику · Synth ONNX", "Касане Тето · SynthV (RVC ONNX)"};
-    private static final String[] FILES = {"hubert.onnx", "rmvpe.onnx", "teto.onnx", "miku.onnx", "teto_sv.onnx"};
+    public static final int HUBERT = 0, RMVPE = 1, TETO = 2, MIKU = 3, TETO_SV = 4, TETO_INDEX = 5, MIKU_INDEX = 6, TETO_SV_INDEX = 7;
+    public static final String[] LABELS = {"HuBERT / ContentVec", "RMVPE (F0)", "Касане Тето · UTAU (ONNX)", "Хацунэ Мику · Synth ONNX", "Касане Тето · SynthV (RVC ONNX)", "Индекс Тето UTAU · FAISS .index", "Индекс Мику · FAISS .index", "Индекс Тето SynthV · FAISS .index"};
+    private static final String[] FILES = {"hubert.onnx", "rmvpe.onnx", "teto.onnx", "miku.onnx", "teto_sv.onnx", "teto.index", "miku.index", "teto_sv.index"};
     private static final long MAX_BYTES = 900L * 1024 * 1024;
 
     public static File path(Context context, int slot) {
@@ -29,6 +29,11 @@ public final class RvcModelStore {
             case 2: return TETO_SV;
             default: throw new IllegalArgumentException("Unknown RVC character: " + which);
         }
+    }
+    public static File indexPath(Context ctx, int which) {
+        int slot=which==0 ? TETO_INDEX : which==1 ? MIKU_INDEX : which==2 ? TETO_SV_INDEX : -1;
+        if (slot<0) throw new IllegalArgumentException("Unknown RVC character");
+        return path(ctx,slot);
     }
     public static boolean available(Context ctx, int which) {
         if (which < 0 || which > 2) return false;
@@ -63,6 +68,7 @@ public final class RvcModelStore {
                 out.getFD().sync();
             }
             if (count <= 1024) throw new IOException("Модель пустая или повреждена");
+            if (slot >= TETO_INDEX) RvcFaissIndex.validate(temp);
             if (!temp.renameTo(dest)) throw new IOException("Не удалось сохранить модель");
         } finally {
             if (temp.exists()) temp.delete();

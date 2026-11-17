@@ -34,7 +34,7 @@ public final class LocalRvcEngine {
     private static final float MIN_F0 = 50f, MAX_F0 = 1100f;
     private LocalRvcEngine() {}
 
-    public static void convert(Context ctx, File sourceWav, File outputWav, int character, int transpose) throws Exception {
+    public static void convert(Context ctx, File sourceWav, File outputWav, int character, int transpose, int indexStrength, int indexProbes, int indexProtect) throws Exception {
         if (!RvcModelStore.available(ctx, character)) throw new IOException("Нет моделей RVC. Откройте настройки моделей.");
         float[] input = readPcmWav16k(sourceWav);
         if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Отменено");
@@ -62,7 +62,7 @@ public final class LocalRvcEngine {
         if (meta.needsPitch) {
             try (ManagedSession rmvpeHolder = open(env, RvcModelStore.path(ctx, RvcModelStore.RMVPE));
                  OnnxTensor wave = floatTensor(env, input, new long[]{1, input.length});
-                 OnnxTensor threshold = floatTensor(env, new float[]{0.3f}, new long[]{1})) {
+                 OnnxTensor threshold = floatTensor(env, new float[]{0.03f}, new long[]{1})) {
                 OrtSession rmvpe = rmvpeHolder.session;
                 Map<String, OnnxTensor> ins = new LinkedHashMap<>();
                 ins.put("waveform", wave); ins.put("threshold", threshold);
@@ -79,6 +79,14 @@ public final class LocalRvcEngine {
             }
         }
         int frames = features.frames * 2;
+        // FAISS retrieval applies to original ContentVec/HuBERT frames (50 Hz),
+        // before pitch-aligned duplication to the synth frame rate (100 Hz).
+        File indexFile=RvcModelStore.indexPath(ctx,character);
+        if (indexStrength>0 && indexFile.isFile()) {
+            features=new FeatureMatrix(RvcFaissIndex.blend(indexFile,features.data,
+                features.frames,features.channels,pitchF,indexStrength,indexProbes,indexProtect),
+                features.frames,features.channels);
+        }
         if (pitchF != null) frames = Math.min(frames, pitchF.length);
         if (frames <= 0) throw new IOException("Модель не вернула аудиокадры");
         float[] expanded = new float[frames * features.channels];

@@ -59,6 +59,10 @@ public final class VoiceComposer {
         private final Spinner quality;
         private final CheckBox rvcToggle;
         private final android.widget.SeekBar pitchSlider;
+        private final android.widget.SeekBar indexSlider;
+        private final android.widget.SeekBar probeSlider;
+        private final android.widget.SeekBar protectSlider;
+        private volatile int rvcIndexStrength, rvcIndexProbes, rvcIndexProtect;
         private final TextView pitchLabel;
         private final Button sourcePreview;
         private final Button rvcModels;
@@ -113,6 +117,29 @@ public final class VoiceComposer {
                 @Override public void onStopTrackingTouch(android.widget.SeekBar b) {}
             });
             root.addView(pitchSlider,new LinearLayout.LayoutParams(-1,-2));
+            label(root,"FAISS .index: сила 0% = выключен, 100% = максимум");
+            indexSlider = new android.widget.SeekBar(activity);
+            indexSlider.setMax(100);indexSlider.setProgress(60);
+            root.addView(indexSlider, new LinearLayout.LayoutParams(-1,-2));
+            final TextView probeLabel=label(root,"Поиск в IVF: 4 списка (точность/скорость)");
+            probeSlider = new android.widget.SeekBar(activity);
+            probeSlider.setMax(7);probeSlider.setProgress(3);
+            probeSlider.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener(){
+                public void onProgressChanged(android.widget.SeekBar s,int p,boolean user){probeLabel.setText("Поиск в IVF: "+(p+1)+" списков");}
+                public void onStartTrackingTouch(android.widget.SeekBar s){}
+                public void onStopTrackingTouch(android.widget.SeekBar s){}
+            });
+            root.addView(probeSlider,new LinearLayout.LayoutParams(-1,-2));
+            final TextView protectLabel=label(root,"Защита согласных: 30%");
+            protectSlider = new android.widget.SeekBar(activity);
+            protectSlider.setMax(100);protectSlider.setProgress(30);
+            protectSlider.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener(){
+                public void onProgressChanged(android.widget.SeekBar s,int p,boolean user){protectLabel.setText("Защита согласных: "+p+"%");}
+                public void onStartTrackingTouch(android.widget.SeekBar s){}
+                public void onStopTrackingTouch(android.widget.SeekBar s){}
+            });
+            root.addView(protectSlider,new LinearLayout.LayoutParams(-1,-2));
+            label(root,"Индекс для выбранного голоса импортируется отдельно. Если он отсутствует, синтез работает без FAISS.");
             rvcModels = new Button(activity);
             rvcModels.setText("Установить модели RVC");
             rvcModels.setOnClickListener(v -> activity.startActivity(new Intent(activity, RvcModelManagerActivity.class)));
@@ -169,11 +196,12 @@ public final class VoiceComposer {
             rvcToggle.setEnabled(!busy);
             rvcModels.setEnabled(!busy);
             pitchSlider.setEnabled(!busy);
+            indexSlider.setEnabled(!busy); probeSlider.setEnabled(!busy); protectSlider.setEnabled(!busy);
             character.setEnabled(!busy);
             quality.setEnabled(!busy);
             sourcePreview.setEnabled(!busy && wav!=null && wav.isFile());
         }
-        private String options(){return rvcToggle.isChecked()+"/"+character.getSelectedItemPosition()+"/"+quality.getSelectedItemPosition()+"/"+pitchSlider.getProgress();}
+        private String options(){return rvcToggle.isChecked()+"/"+character.getSelectedItemPosition()+"/"+quality.getSelectedItemPosition()+"/"+pitchSlider.getProgress()+"/"+indexSlider.getProgress()+"/"+probeSlider.getProgress()+"/"+protectSlider.getProgress();}
         private Voice offlineRussianVoice(){
             if(engine==null)return null;
             Set<Voice> voices=engine.getVoices();
@@ -205,6 +233,9 @@ public final class VoiceComposer {
             rvcRequested=rvcToggle.isChecked();
             rvcCharacter=character.getSelectedItemPosition();
             rvcTranspose=pitchSlider.getProgress()-12;
+            rvcIndexStrength=indexSlider.getProgress();
+            rvcIndexProbes=probeSlider.getProgress()+1;
+            rvcIndexProtect=protectSlider.getProgress();
             int request=++requestId;
             disposeAudio();busy=true;sendWhenReady=send;updateButtons();
             generatedSource=current;generatedOptions=options();
@@ -239,7 +270,7 @@ public final class VoiceComposer {
                     File inputAudio = wav;
                     if(rvcRequested){
                         rvcWav=File.createTempFile("tetogram_rvc_", ".wav", activity.getCacheDir());
-                        LocalRvcEngine.convert(activity.getApplicationContext(), wav, rvcWav, rvcCharacter, rvcTranspose);
+                        LocalRvcEngine.convert(activity.getApplicationContext(), wav, rvcWav, rvcCharacter, rvcTranspose, rvcIndexStrength, rvcIndexProbes, rvcIndexProtect);
                         inputAudio=rvcWav;
                     }
                     VoiceOggEncoder.Result result=VoiceOggEncoder.encode(inputAudio,completed);

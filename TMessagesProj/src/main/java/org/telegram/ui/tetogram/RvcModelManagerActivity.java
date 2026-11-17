@@ -26,7 +26,7 @@ public final class RvcModelManagerActivity extends Activity {
         int pad = (int)(16 * getResources().getDisplayMetrics().density + .5f);
         root.setPadding(pad, pad, pad, pad);
         TextView intro = new TextView(this);
-        intro.setText("RVC · локальные ONNX-модели\n\nДва независимых голоса Тето: UTAU (уже установленная модель сохранится) и SynthV (отдельный слот). Дополнительно поддерживается Мику. Общие модели HuBERT и RMVPE нужны один раз. Импортируйте совместимый RVC ONNX, а не исходную лицензионную базу Synthesizer V, архив .zip или .pth: они здесь не запускаются. Размеры могут составить сотни мегабайт.");
+        intro.setText("RVC · локальные ONNX-модели\n\nДва голоса Тето (UTAU и SynthV) и отдельные FAISS .index для обоих, также Мику с индексом. Дополнительно поддерживается Мику. Общие модели HuBERT и RMVPE нужны один раз. Импортируйте ONNX для голоса и обычный RVC IVF-Flat FAISS .index в отдельный слот. Архивы .zip и веса .pth напрямую не запускаются. Размеры могут составить сотни мегабайт.");
         root.addView(intro);
         for (int i = 0; i < labels.length; i++) {
             final int slot = i;
