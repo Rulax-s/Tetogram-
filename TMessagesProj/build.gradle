@@ -152,7 +152,7 @@ android {
         buildConfigField "String", "TETOGRAM_GOOGLE_AUTH_CLIENT_ID", rootProject.ext.tetogram.googleAuthLiteral
         buildConfigField "String", "TETOGRAM_SAFETYNET_KEY", rootProject.ext.tetogram.safetyNetLiteral
         ndk { abiFilters "arm64-v8a" }
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 36
 
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
