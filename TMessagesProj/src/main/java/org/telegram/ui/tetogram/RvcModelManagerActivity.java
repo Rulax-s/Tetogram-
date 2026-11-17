@@ -15,8 +15,8 @@ import java.io.File;
 
 /** Explicit user interaction through Storage Access Framework. No storage permission. */
 public final class RvcModelManagerActivity extends Activity {
-    private TextView[] labels = new TextView[4];
-    private Button[] buttons = new Button[4];
+    private TextView[] labels = new TextView[RvcModelStore.LABELS.length];
+    private Button[] buttons = new Button[RvcModelStore.LABELS.length];
     private boolean copying;
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -26,9 +26,9 @@ public final class RvcModelManagerActivity extends Activity {
         int pad = (int)(16 * getResources().getDisplayMetrics().density + .5f);
         root.setPadding(pad, pad, pad, pad);
         TextView intro = new TextView(this);
-        intro.setText("RVC · локальные ONNX-модели\n\nЗагрузите HuBERT, RMVPE и модели синтезатора Тето/Мику. Файлы остаются в памяти телефона. Нужны ONNX-модели, экспортированные для voice-changer с метаданными; обычные .pth не подходят. Размеры могут составить сотни мегабайт.");
+        intro.setText("RVC · локальные ONNX-модели\n\nДва независимых голоса Тето: UTAU (уже установленная модель сохранится) и SynthV (отдельный слот). Дополнительно поддерживается Мику. Общие модели HuBERT и RMVPE нужны один раз. Импортируйте совместимый RVC ONNX, а не исходную лицензионную базу Synthesizer V, архив .zip или .pth: они здесь не запускаются. Размеры могут составить сотни мегабайт.");
         root.addView(intro);
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < labels.length; i++) {
             final int slot = i;
             labels[i] = new TextView(this);
             labels[i].setPadding(0, pad, 0, 4);
@@ -47,7 +47,7 @@ public final class RvcModelManagerActivity extends Activity {
         refresh();
     }
     private void refresh() {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < labels.length; i++) {
             File f = RvcModelStore.path(this, i);
             labels[i].setText(RvcModelStore.LABELS[i] + "\n" + (f.isFile() ? ("Установлена: " + (f.length() / (1024 * 1024)) + " МиБ") : "Не установлена"));
             buttons[i].setEnabled(!copying);
@@ -62,7 +62,7 @@ public final class RvcModelManagerActivity extends Activity {
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
-        if (request < 1000 || request >= 1004 || result != RESULT_OK || data == null || data.getData() == null || copying) return;
+        if (request < 1000 || request >= 1000 + labels.length || result != RESULT_OK || data == null || data.getData() == null || copying) return;
         int slot = request - 1000;
         Uri uri = data.getData();
         copying = true; refresh();

@@ -39,7 +39,7 @@ public final class LocalRvcEngine {
         float[] input = readPcmWav16k(sourceWav);
         if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Отменено");
         OrtEnvironment env = OrtEnvironment.getEnvironment();
-        File synth = RvcModelStore.path(ctx, character == 0 ? RvcModelStore.TETO : RvcModelStore.MIKU);
+        File synth = RvcModelStore.path(ctx, RvcModelStore.characterSlot(character));
         ModelMeta meta;
         try (ManagedSession holder = open(env, synth)) {meta = readMeta(holder.session);}
         String embOutput = meta.outputName();

@@ -9,20 +9,30 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 
-/** Four user-imported ONNX files, never uploaded or fetched over the network. */
+/** Five user-imported ONNX files, never uploaded or fetched over the network. */
 public final class RvcModelStore {
     private RvcModelStore() {}
-    public static final int HUBERT = 0, RMVPE = 1, TETO = 2, MIKU = 3;
-    public static final String[] LABELS = {"HuBERT / ContentVec", "RMVPE (F0)", "Касане Тето · Synth ONNX", "Хацунэ Мику · Synth ONNX"};
-    private static final String[] FILES = {"hubert.onnx", "rmvpe.onnx", "teto.onnx", "miku.onnx"};
+    public static final int HUBERT = 0, RMVPE = 1, TETO = 2, MIKU = 3, TETO_SV = 4;
+    public static final String[] LABELS = {"HuBERT / ContentVec", "RMVPE (F0)", "Касане Тето · UTAU (ONNX)", "Хацунэ Мику · Synth ONNX", "Касане Тето · SynthV (RVC ONNX)"};
+    private static final String[] FILES = {"hubert.onnx", "rmvpe.onnx", "teto.onnx", "miku.onnx", "teto_sv.onnx"};
     private static final long MAX_BYTES = 900L * 1024 * 1024;
 
     public static File path(Context context, int slot) {
         if (slot < 0 || slot >= FILES.length) throw new IllegalArgumentException("slot");
         return new File(new File(context.getFilesDir(), "rvc-models"), FILES[slot]);
     }
+    /** Character IDs in VoiceComposer: 0 = Teto UTAU, 1 = Miku, 2 = Teto SynthV. */
+    public static int characterSlot(int which) {
+        switch (which) {
+            case 0: return TETO;
+            case 1: return MIKU;
+            case 2: return TETO_SV;
+            default: throw new IllegalArgumentException("Unknown RVC character: " + which);
+        }
+    }
     public static boolean available(Context ctx, int which) {
-        return valid(path(ctx, HUBERT)) && valid(path(ctx, RMVPE)) && valid(path(ctx, which == 0 ? TETO : MIKU));
+        if (which < 0 || which > 2) return false;
+        return valid(path(ctx, HUBERT)) && valid(path(ctx, RMVPE)) && valid(path(ctx, characterSlot(which)));
     }
     private static boolean valid(File f) {return f.isFile() && f.length() > 1024;}
     public static String description(Context ctx, int which) {

@@ -58,9 +58,13 @@ public final class VoiceComposer {
         private final Spinner character;
         private final Spinner quality;
         private final CheckBox rvcToggle;
+        private final android.widget.SeekBar pitchSlider;
+        private final TextView pitchLabel;
+        private final Button sourcePreview;
         private final Button rvcModels;
         private volatile boolean rvcRequested;
         private volatile int rvcCharacter;
+        private volatile int rvcTranspose;
         private File rvcWav;
         private final TextView status;
         private final ProgressBar spinner;
@@ -88,18 +92,35 @@ public final class VoiceComposer {
             editor.setFilters(new InputFilter[]{new InputFilter.LengthFilter(500)});
             editor.setText(input);
             root.addView(editor,new LinearLayout.LayoutParams(-1,-2));
-            label(root,"Персонаж (экспериментальный тембр)");
-            character=menu(root,new String[]{"Касане Тето · тестовый тембр","Хацунэ Мику · тестовый тембр"});
+            label(root,"Персонаж / модель голоса");
+            character=menu(root,new String[]{"Касане Тето · UTAU (старая)","Хацунэ Мику","Касане Тето · SynthV (новая)"});
             label(root,"Режим синтеза");
             quality=menu(root,new String[]{"Лёгкий · офлайн","Качественный · офлайн, если доступен"});
             rvcToggle = new CheckBox(activity);
             rvcToggle.setText("Настоящий голос RVC (локально · экспериментально)");
             rvcToggle.setChecked(false);
             root.addView(rvcToggle, new LinearLayout.LayoutParams(-1,-2));
+            pitchLabel = label(root,"Высота RVC: 0 полутонов");
+            pitchSlider = new android.widget.SeekBar(activity);
+            pitchSlider.setMax(24);
+            pitchSlider.setProgress(12);
+            pitchSlider.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
+                @Override public void onProgressChanged(android.widget.SeekBar b,int p,boolean user) {
+                    int semitones=p-12;
+                    pitchLabel.setText("Высота RVC: " + (semitones>0?"+":"") + semitones + " полутонов");
+                }
+                @Override public void onStartTrackingTouch(android.widget.SeekBar b) {}
+                @Override public void onStopTrackingTouch(android.widget.SeekBar b) {}
+            });
+            root.addView(pitchSlider,new LinearLayout.LayoutParams(-1,-2));
             rvcModels = new Button(activity);
             rvcModels.setText("Установить модели RVC");
             rvcModels.setOnClickListener(v -> activity.startActivity(new Intent(activity, RvcModelManagerActivity.class)));
             root.addView(rvcModels, new LinearLayout.LayoutParams(-1,-2));
+            sourcePreview=new Button(activity);
+            sourcePreview.setText("Слушать исходный TTS (сравнение)");
+            sourcePreview.setOnClickListener(v -> playOriginal());
+            root.addView(sourcePreview,new LinearLayout.LayoutParams(-1,-2));
             TextView note=label(root,"😊 😡 😢 🤩 🤫 📢 😂 — первая управляющая эмоция задаёт интонацию всего сообщения.\nРежим RVC работает только с установленными ONNX-пакетами. Отключите его для обычного Android TTS.");
             note.setTextSize(12);
             spinner=new ProgressBar(activity);spinner.setVisibility(View.GONE);
@@ -110,9 +131,11 @@ public final class VoiceComposer {
                 status.setText(checked ? RvcModelStore.description(activity,character.getSelectedItemPosition()) : "Режим Android TTS без преобразования RVC");
             });
             status.setTextSize(13);
+            android.widget.ScrollView scroll=new android.widget.ScrollView(activity);
+            scroll.addView(root);
             dialog=new AlertDialog.Builder(activity)
                 .setTitle("Озвучить сообщение")
-                .setView(root)
+                .setView(scroll)
                 .setPositiveButton("Отправить",null)
                 .setNeutralButton("Прослушать",null)
                 .setNegativeButton("Отмена",(d,w)->{})
@@ -145,8 +168,12 @@ public final class VoiceComposer {
             spinner.setVisibility(busy?View.VISIBLE:View.GONE);
             rvcToggle.setEnabled(!busy);
             rvcModels.setEnabled(!busy);
+            pitchSlider.setEnabled(!busy);
+            character.setEnabled(!busy);
+            quality.setEnabled(!busy);
+            sourcePreview.setEnabled(!busy && wav!=null && wav.isFile());
         }
-        private String options(){return rvcToggle.isChecked()+"/"+character.getSelectedItemPosition()+"/"+quality.getSelectedItemPosition();}
+        private String options(){return rvcToggle.isChecked()+"/"+character.getSelectedItemPosition()+"/"+quality.getSelectedItemPosition()+"/"+pitchSlider.getProgress();}
         private Voice offlineRussianVoice(){
             if(engine==null)return null;
             Set<Voice> voices=engine.getVoices();
@@ -177,12 +204,13 @@ public final class VoiceComposer {
             if(voice==null){status.setText("Нет установленного русского офлайн-голоса. Скачайте его в настройках синтеза речи Android.");return;}
             rvcRequested=rvcToggle.isChecked();
             rvcCharacter=character.getSelectedItemPosition();
+            rvcTranspose=pitchSlider.getProgress()-12;
             int request=++requestId;
             disposeAudio();busy=true;sendWhenReady=send;updateButtons();
             generatedSource=current;generatedOptions=options();
             int which=character.getSelectedItemPosition();
-            float basePitch=which==0?1.11f:1.30f;
-            float baseSpeed=which==0?1.02f:1.08f;
+            float basePitch=which==1?1.30f:1.11f;
+            float baseSpeed=which==1?1.08f:1.02f;
             status.setText("Генерация голосового без отправки текста в интернет…");
             try {
                 wav=File.createTempFile("tg_tts_", ".wav", activity.getCacheDir());
@@ -211,7 +239,7 @@ public final class VoiceComposer {
                     File inputAudio = wav;
                     if(rvcRequested){
                         rvcWav=File.createTempFile("tetogram_rvc_", ".wav", activity.getCacheDir());
-                        LocalRvcEngine.convert(activity.getApplicationContext(), wav, rvcWav, rvcCharacter, 0);
+                        LocalRvcEngine.convert(activity.getApplicationContext(), wav, rvcWav, rvcCharacter, rvcTranspose);
                         inputAudio=rvcWav;
                     }
                     VoiceOggEncoder.Result result=VoiceOggEncoder.encode(inputAudio,completed);
@@ -231,8 +259,19 @@ public final class VoiceComposer {
                 busy=false;status.setText(text);updateButtons();
             });
         }
+        private void playOriginal(){
+            File original=wav;
+            if (original==null || !original.isFile()) {
+                status.setText("Сначала сгенерируйте сообщение, чтобы сравнить исходный голос.");
+                return;
+            }
+            playFile(original);
+        }
         private void play(){
             File preview=(rvcRequested&&rvcWav!=null&&rvcWav.isFile())?rvcWav:wav;
+            playFile(preview);
+        }
+        private void playFile(File preview){
             if(closed||preview==null||!preview.isFile())return;
             try {
                 if(player!=null){player.release();player=null;}
