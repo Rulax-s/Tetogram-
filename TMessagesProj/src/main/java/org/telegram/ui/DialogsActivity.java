@@ -587,19 +587,21 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         } catch(Exception e) { FileLog.e("Tetogram sections configuration unavailable");tetogramSections=null; }
     }
     private String tetogramTabKey(int index) { return index>=0 && index<tetogramTabs.size()?tetogramTabs.get(index):SectionConfig.OWN; }
+    /** Only the changed field is written, on top of the newest settings: edits made in the section editor are never rolled back. */
+    private void tetogramUpdateSections(SectionsStore.Mutation change){if(!SectionsStore.update(currentAccount,tetogramSectionsOwner,change) && getContext()!=null)android.widget.Toast.makeText(getContext(),getString(R.string.TetogramStorageError),android.widget.Toast.LENGTH_SHORT).show();}
     private void tetogramPersistSections(){if(!SectionsStore.trySave(currentAccount,tetogramSectionsOwner,tetogramSections) && getContext()!=null)android.widget.Toast.makeText(getContext(),getString(R.string.TetogramStorageError),android.widget.Toast.LENGTH_SHORT).show();}
     private void tetogramRememberVisibleTab() {
         if(!isTetogramSectionList() || tetogramRebuilding || tetogramSections==null || viewPages==null)return;
         SectionConfig.Section section=tetogramSections.section(tetogramSectionId);if(section==null)return;
         String key=tetogramTabKey(viewPages[0].selectedType);
-        if(!section.lastFolder.equals(key)){section.lastFolder=key;tetogramPersistSections();}
+        if(!section.lastFolder.equals(key)){section.lastFolder=key;final String sid=section.id;tetogramUpdateSections(c->{SectionConfig.Section t=c.section(sid);if(t!=null&&(t.tabs.contains(key)||SectionConfig.OWN.equals(key)))t.lastFolder=key;});}
         tetogramRefreshAppearance();
     }
     private void tetogramChooseSection(String id) {
         tetogramReadSections();if(tetogramSections==null)return;
         if(SectionUnreadPolicy.SYSTEM_ID.equals(id)){
             if(!tetogramSections.unreadEnabled)return;if(!isTetogramUnreadSection())tetogramPreviousSection=tetogramSectionId;tetogramSectionId=id;
-        }else{if(tetogramSections.section(id)==null)return;tetogramSectionId=id;tetogramSections.selectedId=id;tetogramPersistSections();}
+        }else{if(tetogramSections.section(id)==null)return;tetogramSectionId=id;tetogramSections.selectedId=id;tetogramUpdateSections(c->{if(c.section(id)!=null)c.selectedId=id;});}
         updateFilterTabs(true,true);hideFloatingButton(false);tetogramScrollGate.reset();tetogramRefreshBadgesNow();
     }
     private boolean tetogramUseChatsButton(){return isTetogramSectionList()&&hasMainTabs&&mainTabsActivityController!=null&&tetogramSections!=null&&SectionOpeningPolicy.CHATS.equals(tetogramSections.openingMode);}
@@ -8055,7 +8057,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 loadArchived=loadArchivedFromCache || !getMessagesController().isServerDialogsEndReached(1);
             }
         }
-        if (visibleItemCount > 0 && lastVisibleItem >= tetogramDialogsForPage(viewPage,folderId,dialogsListFrozen).size() - 10 ||
+        // Section pages: the adapter already holds the projection; re-projecting all dialogs on every scroll event stutters on big accounts.
+        if (visibleItemCount > 0 && lastVisibleItem >= (isTetogramSectionList() && viewPage.dialogsType == 0 && viewPage.dialogsAdapter != null ? viewPage.dialogsAdapter.getDialogsCount() : tetogramDialogsForPage(viewPage,folderId,dialogsListFrozen).size()) - 10 ||
                 visibleItemCount == 0 && (viewPage.dialogsType == 7 || viewPage.dialogsType == 8) && !getMessagesController().isDialogsEndReached(folderId)) {
             loadFromCache = !getMessagesController().isDialogsEndReached(folderId);
             if (loadFromCache || !getMessagesController().isServerDialogsEndReached(folderId)) {
