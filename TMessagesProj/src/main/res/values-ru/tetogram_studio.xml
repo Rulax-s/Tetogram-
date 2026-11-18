@@ -46,4 +46,22 @@
     <string name="TetogramStudioResetElement">Как в Telegram</string>
     <string name="TetogramStudioLikeParent">Как в общей теме</string>
     <string name="TetogramStudioPhotoVideo">Фото или видео…</string>
+    <string name="TetogramPersonTitle">Цвет сообщений</string>
+    <string name="TetogramPersonInfo">Пузыри %1$s получат свой цвет или обводку. Это видите только вы: в Telegram и этому человеку ничего не отправляется.</string>
+    <string name="TetogramPersonEverywhere">Во всех чатах</string>
+    <string name="TetogramPersonThisGroup">Только в этой группе</string>
+    <string name="TetogramPersonStyle">Вид</string>
+    <string name="TetogramPersonFill">Заливка</string>
+    <string name="TetogramPersonOutline">Обводка</string>
+    <string name="TetogramPersonBoth">Заливка и обводка</string>
+    <string name="TetogramPersonOutlineInfo">Пузырь сохраняет заливку темы: прозрачный останется прозрачным, а человека выделит только обводка.</string>
+    <string name="TetogramPersonColor">Цвет</string>
+    <string name="TetogramPersonOpacity">Непрозрачность</string>
+    <string name="TetogramPersonOutlineWidth">Обводка</string>
+    <string name="TetogramPersonRemove">Убрать цвет</string>
+    <string name="TetogramPersonPrivacy">Если на заливке плохо читается текст темы, он станет чёрным или белым. Альбомы остаются в оформлении темы.</string>
+    <string name="TetogramPersonMenuGroup">Цвет участника</string>
+    <string name="TetogramPersonMenuPrivate">Цвет его сообщений</string>
+    <string name="TetogramPersonSection">Цвета людей</string>
+    <string name="TetogramPersonHowTo">Чтобы добавить человека, зажмите его сообщение и выберите «Цвет участника» или откройте его профиль → ⋮ → «Цвет его сообщений».</string>
 </resources>

@@ -17225,6 +17225,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             Theme.chat_msgTextCodePaint.setColor(getThemedColor(Theme.key_chat_messageTextIn));
             Theme.chat_msgTextCode2Paint.setColor(getThemedColor(Theme.key_chat_messageTextIn));
             Theme.chat_msgTextCode3Paint.setColor(getThemedColor(Theme.key_chat_messageTextIn));
+            { Integer tetogramText = org.telegram.ui.tetogram.PersonBubble.text(currentMessageObject, resourcesProvider, getThemedColor(Theme.key_chat_messageTextIn)); if (tetogramText != null) { Theme.chat_msgTextPaint.setColor(tetogramText); Theme.chat_msgGameTextPaint.setColor(tetogramText); } }
             Theme.chat_msgGameTextPaint.linkColor =
             Theme.chat_replyTextPaint.linkColor =
             Theme.chat_quoteTextPaint.linkColor =
@@ -18061,6 +18062,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 }
             }
         }
+        if ((drawBackground || transitionParams.animateDrawBackground) && currentBackgroundDrawable != null && currentPosition == null && !mediaBackground) org.telegram.ui.tetogram.PersonBubble.draw(canvas, currentBackgroundDrawable, currentMessageObject, resourcesProvider, false, fromParent ? alphaInternal * getAlpha() : alphaInternal);
         if (currentMessageObject != null && currentMessageObject.isRoundVideo()) {
             currentBackgroundDrawable.setRoundingRadius(0);
         }

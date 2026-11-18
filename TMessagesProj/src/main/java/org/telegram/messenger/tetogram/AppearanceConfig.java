@@ -71,21 +71,23 @@ public final class AppearanceConfig {
     public static final String RECENT_COLORS="palette.recent.",FAVORITE_COLORS="palette.favorite.";
     public static final int PALETTE_SIZE=12;
     /** Not appearance: never copied into presets/exports, never replaced by a preset or a reset. */
-    public static boolean isPersonalKey(String key){return key!=null&&(key.startsWith("launcher.")||key.startsWith("palette."));}
+    public static boolean isPersonalKey(String key){return key!=null&&(isAccountKey(key)||key.startsWith(AppearancePeople.PREFIX));}
+    /** Account data that even a full appearance reset keeps: the personal shortcut and color history. */
+    public static boolean isAccountKey(String key){return key!=null&&(key.startsWith("launcher.")||key.startsWith("palette."));}
     public static Style withoutPersonal(Style style){Style out=new Style();if(style!=null)for(Map.Entry<String,String> e:style.values.entrySet())if(!isPersonalKey(e.getKey()))out.values.put(e.getKey(),e.getValue());return out;}
     public static Style personal(Style style){Style out=new Style();if(style!=null)for(Map.Entry<String,String> e:style.values.entrySet())if(isPersonalKey(e.getKey()))out.values.put(e.getKey(),e.getValue());return out;}
     /** Equality of appearance only; color history and shortcut data are ignored. */
     public static boolean sameAppearance(Style a,Style b){return withoutPersonal(a).values.equals(withoutPersonal(b).values);}
     /** A preset replaces the global appearance but keeps the account's personal data. */
     public static Style applyPreset(Style currentGlobal,Style preset){Style out=withoutPersonal(preset);out.values.putAll(personal(currentGlobal).values);return out;}
-    /** Writes an editor draft for one scope; the global scope keeps the latest stored personal data. */
+    /** Writes an editor draft for one scope; personal data (shortcut, color history, people) always comes from the latest stored scope. */
     public void putScope(String scope,Style draft){
         validateScope(scope);
-        Style next=GLOBAL.equals(scope)?applyPreset(scopes.get(GLOBAL),draft):withoutPersonal(draft);
+        Style next=applyPreset(scopes.get(scope),draft);
         if(next.values.isEmpty())scopes.remove(scope);else scopes.put(scope,next);
     }
     /** Removes every local appearance override; personal data in the global scope survives. */
-    public void resetAppearance(){Style keep=personal(scopes.get(GLOBAL));scopes.clear();if(!keep.values.isEmpty())scopes.put(GLOBAL,keep);}
+    public void resetAppearance(){Style keep=new Style();Style g=scopes.get(GLOBAL);if(g!=null)for(Map.Entry<String,String> e:g.values.entrySet())if(isAccountKey(e.getKey()))keep.values.put(e.getKey(),e.getValue());scopes.clear();if(!keep.values.isEmpty())scopes.put(GLOBAL,keep);}
     public List<Integer> palette(String prefix){ArrayList<Integer> out=new ArrayList<>();Style g=scopes.get(GLOBAL);if(g==null)return out;for(int i=0;i<PALETTE_SIZE;i++){String v=g.values.get(prefix+i);if(v==null)continue;try{Integer c=Integer.valueOf(v);if(!out.contains(c))out.add(c);}catch(NumberFormatException ignored){}}return out;}
     /** Puts a color first in the account-level list, without duplicates, at most {@link #PALETTE_SIZE}. */
     public void remember(String prefix,int color){ArrayList<Integer> list=new ArrayList<>(palette(prefix));list.remove(Integer.valueOf(color));list.add(0,color);writePalette(prefix,list);}

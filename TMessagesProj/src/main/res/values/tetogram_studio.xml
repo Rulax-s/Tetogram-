@@ -46,4 +46,22 @@
     <string name="TetogramStudioResetElement">Reset to Telegram</string>
     <string name="TetogramStudioLikeParent">As in the general theme</string>
     <string name="TetogramStudioPhotoVideo">Photo or video…</string>
+    <string name="TetogramPersonTitle">Message color</string>
+    <string name="TetogramPersonInfo">Bubbles of %1$s get their own color or outline. Only you see it: nothing is sent to Telegram or to this person.</string>
+    <string name="TetogramPersonEverywhere">In every chat</string>
+    <string name="TetogramPersonThisGroup">Only in this group</string>
+    <string name="TetogramPersonStyle">Style</string>
+    <string name="TetogramPersonFill">Fill</string>
+    <string name="TetogramPersonOutline">Outline</string>
+    <string name="TetogramPersonBoth">Fill and outline</string>
+    <string name="TetogramPersonOutlineInfo">The bubble keeps the theme fill, so a transparent bubble stays transparent and only the outline marks the person.</string>
+    <string name="TetogramPersonColor">Color</string>
+    <string name="TetogramPersonOpacity">Opacity</string>
+    <string name="TetogramPersonOutlineWidth">Outline</string>
+    <string name="TetogramPersonRemove">Remove the color</string>
+    <string name="TetogramPersonPrivacy">Text on a custom fill switches to black or white when the theme text would be hard to read. Albums keep the theme look.</string>
+    <string name="TetogramPersonMenuGroup">Member color</string>
+    <string name="TetogramPersonMenuPrivate">Color of their messages</string>
+    <string name="TetogramPersonSection">People</string>
+    <string name="TetogramPersonHowTo">To add someone, long-press their message and choose “Member color”, or open their profile → ⋮ → “Color of their messages”.</string>
 </resources>

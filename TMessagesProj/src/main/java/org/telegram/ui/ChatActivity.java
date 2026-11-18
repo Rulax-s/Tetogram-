@@ -34747,6 +34747,10 @@ public class ChatActivity extends BaseFragment implements
                 if (selectedObject != null && selectedObject.tetogramLocalDeleted) org.telegram.ui.tetogram.HistoryActivity.showInfo(this, selectedObject);
                 break;
             }
+            case 46004: {
+                if (selectedObject != null && selectedObject.getFromChatId() != 0) presentFragment(new org.telegram.ui.tetogram.AppearancePersonActivity(currentAccount, selectedObject.getFromChatId(), selectedObject.getDialogId()));
+                break;
+            }
             case 46003: {
                 if (org.telegram.messenger.tetogram.EditHistory.canOpen(selectedObject)) presentFragment(new org.telegram.ui.tetogram.EditHistoryActivity(currentAccount,selectedObject.getDialogId(),selectedObject.getId()));
                 break;
@@ -46710,6 +46714,9 @@ public class ChatActivity extends BaseFragment implements
         final int type = getMessageType(message);
         if (chatMode == MODE_DEFAULT && org.telegram.messenger.tetogram.EditHistory.canOpen(message)) {
             items.add(LocaleController.getString(R.string.TetogramEditHistory)); options.add(46003); icons.add(R.drawable.msg_info);
+        }
+        if (chatMode == MODE_DEFAULT && message != null && !message.isOutOwner() && message.getFromChatId() != 0 && message.getFromChatId() != getUserConfig().getClientUserId()) {
+            items.add(LocaleController.getString(message.getDialogId() < 0 ? R.string.TetogramPersonMenuGroup : R.string.TetogramPersonMenuPrivate)); options.add(46004); icons.add(R.drawable.menu_profile_colors);
         }
         if (message.tetogramLocalDeleted) {
             if (canReplyToTetogramDeleted(message)) {

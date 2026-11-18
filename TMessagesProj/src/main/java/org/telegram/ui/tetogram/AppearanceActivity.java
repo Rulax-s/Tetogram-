@@ -185,6 +185,19 @@ public final class AppearanceActivity extends LabsPage {
         for(int i=0;i<tabs.size();i++){Category c=tabs.get(i);labels[i]=getString(tabTitle(c));if(c==category)selected=i;runs[i]=()->{if(c==category||saving||mediaBusy)return;if(c==Category.PROFILE&&scope.equals(AppearanceConfig.GLOBAL)){AppearanceActivity editor=new AppearanceActivity(currentAccount,"profile:"+owner,null,null,0,0);editor.selectCategory(Category.PROFILE);presentFragment(editor);return;}selectCategory(c);};}
         tabsHost.removeAllViews();tabsHost.addView(AppearanceStudioViews.tabs(getContext(),labels,selected,runs),LayoutHelper.createFrame(-1,-1));
     }
+    /** People with their own bubble color in this scope; new ones are added from a message or a profile. */
+    private void peopleSection(ArrayList<UItem> items){
+        if(editingPresetId!=null||!(scope.equals(AppearanceConfig.GLOBAL)||scope.startsWith("chat:")))return;
+        long chat=scope.startsWith("chat:")?Long.parseLong(scope.substring(5)):0;
+        items.add(UItem.asHeader(getString(R.string.TetogramPersonSection)));
+        for(long id:AppearancePeople.people(config.scopes.get(scope))){
+            String name;if(id>0){org.telegram.tgnet.TLRPC.User u=getMessagesController().getUser(id);name=u==null?"ID "+id:UserObject.getUserName(u);}else{org.telegram.tgnet.TLRPC.Chat c=getMessagesController().getChat(-id);name=c==null?"ID "+id:c.title;}
+            AppearanceConfig.Style stored=config.scopes.get(scope);AppearancePeople.Style style=stored==null?null:AppearancePeople.read(stored.values::get,id);
+            String value=style==null?"":style.fill!=null&&style.hasOutline()?getString(R.string.TetogramPersonBoth):style.hasOutline()?getString(R.string.TetogramPersonOutline):getString(R.string.TetogramPersonFill);
+            button(items,name,value,()->presentFragment(new AppearancePersonActivity(currentAccount,id,chat)));
+        }
+        items.add(UItem.asShadow(getString(R.string.TetogramPersonHowTo)));
+    }
     // ---- Tap an element in the preview to edit its colors ----
     private void onElementPicked(String element){
         if(!valid()||saving||mediaBusy)return;
@@ -406,13 +419,14 @@ public final class AppearanceActivity extends LabsPage {
             String outlineKey=base+"Outline";Integer outline=r.color(previewDark,outlineKey);button(items,getString(R.string.TetogramAppearanceOutlineColor),()->colorDialog(outlineKey,outline==null?Theme.getColor(Theme.key_chats_unreadCounter):outline));
         }
 
+        peopleSection(items);
         button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=category==Category.WALLPAPERS?AppearanceEditorPolicy.resetWallpaper(draft,mediaPrefix()):AppearanceEditorPolicy.resetCategory(draft,category);refresh();});
     }
     private void simpleSettings(ArrayList<UItem> items){
         AppearanceConfig.Resolved r=resolved();
         if(category==Category.COLORS){modeControl(items);if(scope.startsWith("profile:")){button(items,getString(R.string.TetogramEditorGlobalColors),()->openCategory(Category.COLORS));return;}Integer accent=r.color(previewDark,"accent.primary");button(items,getString(R.string.TetogramAppearancePrimaryColor),()->colorDialog("accent.primary",accent==null?Theme.getColor(Theme.key_windowBackgroundWhiteBlueText):accent));}
         else if(category==Category.LIST){listStyles(items);number(items,"list.rowOpacity",getString(R.string.TetogramAppearanceRowOpacity),0,1);number(items,"list.navigationOpacity",getString(R.string.TetogramAppearanceNavigationOpacity),0,1);}
-        else if(category==Category.CHATS){number(items,"bubble.inRadius",getString(R.string.TetogramAppearanceInRadius),0,32);number(items,"bubble.outRadius",getString(R.string.TetogramAppearanceOutRadius),0,32);for(String role:new String[]{"chat_inBubble","chat_outBubble","chat_messageTextIn","chat_messageTextOut"}){Integer value=r.color(previewDark,role);button(items,colorLabel(role),()->colorDialog(role,value==null?Theme.getColor(ThemeColors.stringKeyToInt(role)):value));}button(items,getString(R.string.TetogramAppearanceBubbleOpacity),this::bubbleOpacity);}
+        else if(category==Category.CHATS){peopleSection(items);number(items,"bubble.inRadius",getString(R.string.TetogramAppearanceInRadius),0,32);number(items,"bubble.outRadius",getString(R.string.TetogramAppearanceOutRadius),0,32);for(String role:new String[]{"chat_inBubble","chat_outBubble","chat_messageTextIn","chat_messageTextOut"}){Integer value=r.color(previewDark,role);button(items,colorLabel(role),()->colorDialog(role,value==null?Theme.getColor(ThemeColors.stringKeyToInt(role)):value));}button(items,getString(R.string.TetogramAppearanceBubbleOpacity),this::bubbleOpacity);}
         categoryLinks(items);
     }
     private void bubbleOpacity(){AppearanceConfig.Resolved r=resolved();Integer color=r.color(previewDark,"chat_outBubble");input(getString(R.string.TetogramAppearanceBubbleOpacity),Float.toString(color==null?1:Color.alpha(color)/255f),text->{try{float alpha=Float.parseFloat(text.trim().replace(',','.'));if(Float.isNaN(alpha)||Float.isInfinite(alpha)||alpha<0||alpha>1)throw new IllegalArgumentException();checkpoint();for(String role:new String[]{"chat_inBubble","chat_inBubbleMedia","chat_outBubble","chat_outBubbleMedia","chat_outBubbleGradient1","chat_outBubbleGradient2","chat_outBubbleGradient3","bubble.inGradient1","bubble.inGradient2","bubble.inGradient3"}){Integer old=r.color(previewDark,role);int key=ThemeColors.stringKeyToInt(role);if(old==null&&key<0||role.contains("Gradient")&&(old==null||old==0))continue;draft.color(previewDark,role,((old==null?AppearanceRuntime.baseColor(previewDark,key):old)&0xffffff)|Math.round(alpha*255)<<24);}refresh();}catch(IllegalArgumentException e){error(getString(R.string.TetogramAppearanceInvalidValue));}});}
