@@ -52,4 +52,11 @@
     <string name="TetogramEditorHoldToInherit">Удержите для наследования</string>
     <string name="TetogramEditorShortcutAccountScope">Заготовка ярлыка сохраняется для этого аккаунта. Сам ярлык Android общий для устройства и открывает последний выбранный аккаунт; он создаётся только после подтверждения.</string>
     <string name="TetogramEditorChatRow">Строка этого чата в списке</string>
+  <string name="TetogramEditorChangedElsewhere">Изменено в другом окне</string>
+  <string name="TetogramEditorChangedElsewhereInfo">Пока вы редактировали, это оформление изменили и сохранили в другом месте. Заменить его вашей версией?</string>
+  <string name="TetogramEditorOverwrite">Заменить</string>
+  <string name="TetogramEditorPresetMissing">Этот пресет удалён в другом окне.</string>
+  <string name="TetogramEditorRecover">Начать с чистого оформления</string>
+  <string name="TetogramEditorRecoverInfo">Сохранённый файл оформления не читается. Tetogram сохранит его и медиа отдельной копией и начнёт со стандартного оформления. Чаты, сообщения и другие аккаунты не затрагиваются.</string>
+  <string name="TetogramEditorExactValue">Ввести точное значение</string>
 </resources>

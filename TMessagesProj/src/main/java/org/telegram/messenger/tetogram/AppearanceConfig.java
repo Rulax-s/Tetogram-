@@ -65,7 +65,45 @@ public final class AppearanceConfig {
     }
     public static boolean isWallpaperKey(String key){return key.startsWith("wallpaper.")||key.startsWith("light.chat_wallpaper")||key.startsWith("dark.chat_wallpaper");}
     public static boolean isSurfaceWallpaperKey(String key,String domain){if("wallpaper".equals(domain))return isWallpaperKey(key);String prefix=domain.substring(0,domain.length()-"wallpaper".length());return key.startsWith(domain+".")||key.startsWith("light."+prefix+"chat_wallpaper")||key.startsWith("dark."+prefix+"chat_wallpaper");}
-    public void apply(String scope, Preset preset) { scopes.put(scope, preset.style.copy()); revision++; }
+    public void apply(String scope, Preset preset) { Style next=GLOBAL.equals(scope)?applyPreset(scopes.get(GLOBAL),preset.style):withoutPersonal(preset.style); scopes.put(scope, next); revision++; }
+
+    // ---- Account-level personal data (shortcut identity and color history) ----
+    public static final String RECENT_COLORS="palette.recent.",FAVORITE_COLORS="palette.favorite.";
+    public static final int PALETTE_SIZE=12;
+    /** Not appearance: never copied into presets/exports, never replaced by a preset or a reset. */
+    public static boolean isPersonalKey(String key){return key!=null&&(key.startsWith("launcher.")||key.startsWith("palette."));}
+    public static Style withoutPersonal(Style style){Style out=new Style();if(style!=null)for(Map.Entry<String,String> e:style.values.entrySet())if(!isPersonalKey(e.getKey()))out.values.put(e.getKey(),e.getValue());return out;}
+    public static Style personal(Style style){Style out=new Style();if(style!=null)for(Map.Entry<String,String> e:style.values.entrySet())if(isPersonalKey(e.getKey()))out.values.put(e.getKey(),e.getValue());return out;}
+    /** Equality of appearance only; color history and shortcut data are ignored. */
+    public static boolean sameAppearance(Style a,Style b){return withoutPersonal(a).values.equals(withoutPersonal(b).values);}
+    /** A preset replaces the global appearance but keeps the account's personal data. */
+    public static Style applyPreset(Style currentGlobal,Style preset){Style out=withoutPersonal(preset);out.values.putAll(personal(currentGlobal).values);return out;}
+    /** Writes an editor draft for one scope; the global scope keeps the latest stored personal data. */
+    public void putScope(String scope,Style draft){
+        validateScope(scope);
+        Style next=GLOBAL.equals(scope)?applyPreset(scopes.get(GLOBAL),draft):withoutPersonal(draft);
+        if(next.values.isEmpty())scopes.remove(scope);else scopes.put(scope,next);
+    }
+    /** Removes every local appearance override; personal data in the global scope survives. */
+    public void resetAppearance(){Style keep=personal(scopes.get(GLOBAL));scopes.clear();if(!keep.values.isEmpty())scopes.put(GLOBAL,keep);}
+    public List<Integer> palette(String prefix){ArrayList<Integer> out=new ArrayList<>();Style g=scopes.get(GLOBAL);if(g==null)return out;for(int i=0;i<PALETTE_SIZE;i++){String v=g.values.get(prefix+i);if(v==null)continue;try{Integer c=Integer.valueOf(v);if(!out.contains(c))out.add(c);}catch(NumberFormatException ignored){}}return out;}
+    /** Puts a color first in the account-level list, without duplicates, at most {@link #PALETTE_SIZE}. */
+    public void remember(String prefix,int color){ArrayList<Integer> list=new ArrayList<>(palette(prefix));list.remove(Integer.valueOf(color));list.add(0,color);writePalette(prefix,list);}
+    private void writePalette(String prefix,List<Integer> list){Style g=scopes.computeIfAbsent(GLOBAL,k->new Style());for(int i=0;i<PALETTE_SIZE;i++)g.values.remove(prefix+i);for(int i=0;i<Math.min(PALETTE_SIZE,list.size());i++)g.values.put(prefix+i,Integer.toString(list.get(i)));if(g.values.isEmpty())scopes.remove(GLOBAL);}
+    /** Older builds stored color history in chat/section/folder/profile scopes and presets; gather it into the account list. */
+    public boolean migratePalette(){
+        boolean changed=false;
+        for(String prefix:new String[]{RECENT_COLORS,FAVORITE_COLORS}){
+            ArrayList<Integer> list=new ArrayList<>(palette(prefix));boolean found=false;
+            ArrayList<Style> sources=new ArrayList<>();
+            for(Map.Entry<String,Style> e:scopes.entrySet())if(!GLOBAL.equals(e.getKey()))sources.add(e.getValue());
+            for(Preset preset:presets.values())sources.add(preset.style);
+            for(Style s:sources)for(int i=0;i<PALETTE_SIZE;i++){String v=s.values.remove(prefix+i);if(v==null)continue;found=true;try{Integer c=Integer.valueOf(v);if(!list.contains(c))list.add(c);}catch(NumberFormatException ignored){}}
+            if(found){writePalette(prefix,list);changed=true;}
+        }
+        if(changed)scopes.entrySet().removeIf(e->!GLOBAL.equals(e.getKey())&&e.getValue().values.isEmpty());
+        return changed;
+    }
     public void reset(String scope) { scopes.remove(scope); revision++; }
     public boolean sameScopes(AppearanceConfig other){if(other==null)return false;Set<String> keys=new HashSet<>(scopes.keySet());keys.addAll(other.scopes.keySet());for(String key:keys){Style a=scopes.get(key),b=other.scopes.get(key);Map<String,String> av=a==null?Collections.emptyMap():a.values,bv=b==null?Collections.emptyMap():b.values;if(!av.equals(bv))return false;}return true;}
     public AppearanceConfig copy() { return decode(encode()); }
