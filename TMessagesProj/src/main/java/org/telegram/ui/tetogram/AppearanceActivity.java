@@ -24,7 +24,7 @@ import org.telegram.ui.*;
 import org.telegram.ui.ActionBar.*;
 import org.telegram.ui.Components.*;
 
-public final class AppearanceActivity extends LabsPage {
+public final class AppearanceActivity extends LabsPage implements NotificationCenter.NotificationCenterDelegate {
     private final long owner;
     private final String page,scope,section,folder;
     private final long dialog,topic;
@@ -97,11 +97,17 @@ public final class AppearanceActivity extends LabsPage {
         });
     }
     @Override public void onPause(){foreground=false;if(preview!=null)preview.setResumed(false);super.onPause();}
-    @Override public void onFragmentDestroy(){destroyed=true;AndroidUtilities.cancelRunOnUIThread(searchRefresh);queuedSaves.clear();if(mediaJob!=null)mediaJob.cancel();if(preview!=null)preview.setResumed(false);for(File f:pendingMedia)AppearanceMedia.discard(f);pendingMedia.clear();super.onFragmentDestroy();}
-    private void refresh(){refreshTabs();if(simpleActionBar!=null&&"edit".equals(page))simpleActionBar.setTitle(title());if(undoAction!=null){undoAction.setEnabled(!undo.isEmpty()&&!saving&&!mediaBusy);undoAction.setAlpha(undoAction.isEnabled()?1:.4f);}if(applyButton!=null){applyButton.setText(getString(editingPresetId==null?R.string.TetogramAppearanceApply:R.string.Save));boolean enabled=valid()&&!saving&&!mediaBusy&&AppearanceEditorPolicy.dirtyAppearance(baseline,draft);applyButton.setEnabled(enabled);applyButton.setAlpha(enabled?1:.45f);}if(list!=null)list.adapter.update(false);}
+    @Override public void onFragmentDestroy(){NotificationCenter.getGlobalInstance().removeObserver(this,NotificationCenter.albumsDidLoad);AndroidUtilities.cancelRunOnUIThread(livePreview);destroyed=true;AndroidUtilities.cancelRunOnUIThread(searchRefresh);queuedSaves.clear();if(mediaJob!=null)mediaJob.cancel();if(preview!=null)preview.setResumed(false);for(File f:pendingMedia)AppearanceMedia.discard(f);pendingMedia.clear();super.onFragmentDestroy();}
+    private void refresh(){refreshTabs();if(simpleActionBar!=null&&"edit".equals(page))simpleActionBar.setTitle(title());if(undoAction!=null){undoAction.setEnabled(!undo.isEmpty()&&!saving&&!mediaBusy);undoAction.setAlpha(undoAction.isEnabled()?1:.4f);}if(applyButton!=null){applyButton.setText(getString(editingPresetId==null?R.string.TetogramAppearanceApply:R.string.Save));boolean enabled=valid()&&!saving&&!mediaBusy&&AppearanceEditorPolicy.dirtyAppearance(baseline,draft);applyButton.setEnabled(enabled);applyButton.setAlpha(enabled?1:.45f);}if(!chromeOnly&&list!=null)list.adapter.update(false);}
+    private boolean chromeOnly;
+    /** Buttons and preview only: used while a slider is dragged, so the row under the finger is not rebuilt. */
+    private void refreshChrome(){chromeOnly=true;try{refresh();}finally{chromeOnly=false;}}
+    @Override public boolean onFragmentCreate(){NotificationCenter.getGlobalInstance().addObserver(this,NotificationCenter.albumsDidLoad);return super.onFragmentCreate();}
+    @Override public void didReceivedNotification(int id,int account,Object... args){if(id==NotificationCenter.albumsDidLoad&&valid()&&category==Category.WALLPAPERS)refresh();}
+    @Override public void onRequestPermissionsResultFragment(int requestCode,String[] permissions,int[] grantResults){super.onRequestPermissionsResultFragment(requestCode,permissions,grantResults);if(requestCode==BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE&&getParentActivity()!=null&&AndroidPermissions.gallery(getParentActivity())){galleryRequested=true;MediaController.loadGalleryPhotosAlbums(getClassGuid());refresh();}}
     private int categoryTitle(Category c){switch(c){case COLORS:return R.string.TetogramEditorColors;case WALLPAPERS:return R.string.TetogramAppearanceWallpapers;case LIST:return R.string.TetogramAppearanceDialogList;case CHATS:return R.string.TetogramEditorChats;case PROFILE:return R.string.TetogramEditorProfiles;case SECTIONS:return R.string.TetogramEditorSections;default:return R.string.TetogramEditorAdvanced;}}
     private void openCategory(Category c){AppearanceActivity editor=new AppearanceActivity(currentAccount,AppearanceConfig.GLOBAL,null,null,0,0);editor.selectCategory(c);presentFragment(editor);}
-    private void selectCategory(Category c){if(c==Category.WALLPAPERS)wallpaperSurface=category==Category.PROFILE||previewKind==2&&!scope.startsWith("chat:")&&!scope.startsWith("topic:")?2:category==Category.LIST||category==Category.SECTIONS||previewKind==1||previewKind==4||previewKind==5?1:0;if(wallpaperSurface==2&&!scope.equals(AppearanceConfig.GLOBAL)&&!scope.startsWith("profile:"))wallpaperSurface=0;category=c;previewKind=c==Category.WALLPAPERS?wallpaperSurface:AppearanceEditorPolicy.preview(c);if(scope.startsWith("profile:"))previewKind=2;if(c==Category.CHATS&&dialog<0)previewKind=3;if(c==Category.SECTIONS&&folder!=null)previewKind=5;previewDialogs=previewKind==1||previewKind==4||previewKind==5;search="";if(searchInput!=null)searchInput.setText("");refresh();}
+    private void selectCategory(Category c){backgroundMode=-1;if(c==Category.WALLPAPERS)wallpaperSurface=category==Category.PROFILE||previewKind==2&&!scope.startsWith("chat:")&&!scope.startsWith("topic:")?2:category==Category.LIST||category==Category.SECTIONS||previewKind==1||previewKind==4||previewKind==5?1:0;if(wallpaperSurface==2&&!scope.equals(AppearanceConfig.GLOBAL)&&!scope.startsWith("profile:"))wallpaperSurface=0;category=c;previewKind=c==Category.WALLPAPERS?wallpaperSurface:AppearanceEditorPolicy.preview(c);if(scope.startsWith("profile:"))previewKind=2;if(c==Category.CHATS&&dialog<0)previewKind=3;if(c==Category.SECTIONS&&folder!=null)previewKind=5;previewDialogs=previewKind==1||previewKind==4||previewKind==5;search="";if(searchInput!=null)searchInput.setText("");refresh();}
     private TextView editorText(CharSequence label){TextView view=new TextView(getContext());view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,16);view.setText(label);view.setGravity(Gravity.CENTER);view.setPadding(AndroidUtilities.dp(12),AndroidUtilities.dp(12),AndroidUtilities.dp(12),AndroidUtilities.dp(12));ThemeBind.textColor(view,Theme.key_windowBackgroundWhiteBlueText);view.setBackground(Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector),2));return view;}
     private void setupEditorChrome(FrameLayout root){
         undoAction=simpleActionBar.createMenu().addItem(9101,R.drawable.tetogram_editor_undo);undoAction.setContentDescription(getString(R.string.TetogramAppearanceUndo));simpleActionBar.createMenu().addItem(9102,R.drawable.ic_ab_other);
@@ -127,7 +133,7 @@ public final class AppearanceActivity extends LabsPage {
     }
     private void modeControl(ArrayList<UItem> items){String mode=resolved().get("mode");button(items,getString(scope.startsWith("profile:")?R.string.TetogramAppearanceBannerMode:R.string.TetogramAppearanceDisplayMode),getString("dark".equals(mode)?R.string.TetogramAppearanceDark:"light".equals(mode)?R.string.TetogramAppearanceLight:R.string.TetogramAppearanceInherited),()->showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(scope.startsWith("profile:")?R.string.TetogramAppearanceBannerMode:R.string.TetogramAppearanceDisplayMode)).setItems(new CharSequence[]{getString(R.string.TetogramAppearanceLight),getString(R.string.TetogramAppearanceDark),getString(R.string.TetogramAppearanceInherit)},(d,n)->{checkpoint();if(n==2){draft.values.remove("mode");AppearanceConfig.Resolved inherited=resolved();String inheritedMode=inherited.get("mode");previewDark=AppearanceConfig.GLOBAL.equals(inherited.origins.get("mode"))?Theme.isCurrentThemeDark():"dark".equals(inheritedMode)||!"light".equals(inheritedMode)&&Theme.isCurrentThemeDark();}else{draft.set("mode",n==0?"light":"dark");previewDark=n==1;}refresh();}).create()));}
     private void categoryLinks(ArrayList<UItem> items){if(category==Category.CHATS&&dialog==0)button(items,getString(R.string.TetogramEditorChooseChat),this::pickChat);if(category==Category.SECTIONS){button(items,getString(R.string.TetogramAppearanceSections),()->pickSection(false));button(items,getString(R.string.TetogramAppearanceFolders),()->pickSection(true));}}
-    private void wallpaperTarget(ArrayList<UItem> items){button(items,getString(R.string.TetogramEditorBackgroundTarget),getString(wallpaperSurface==1&&dialog!=0?R.string.TetogramEditorChatRow:surfaceLabel(wallpaperSurface)),()->{ArrayList<Integer> choices=new ArrayList<>();if(scope.startsWith("profile:"))choices.add(2);else{choices.add(0);choices.add(1);if(scope.equals(AppearanceConfig.GLOBAL))choices.add(2);}CharSequence[] names=new CharSequence[choices.size()];for(int i=0;i<names.length;i++)names[i]=getString(choices.get(i)==1&&dialog!=0?R.string.TetogramEditorChatRow:surfaceLabel(choices.get(i)));showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditorBackgroundTarget)).setItems(names,(d,n)->{wallpaperSurface=choices.get(n);previewKind=wallpaperSurface;previewDialogs=previewKind==1;refresh();}).create());});}
+    private void wallpaperTarget(ArrayList<UItem> items){button(items,getString(R.string.TetogramEditorBackgroundTarget),getString(wallpaperSurface==1&&dialog!=0?R.string.TetogramEditorChatRow:surfaceLabel(wallpaperSurface)),()->{ArrayList<Integer> choices=new ArrayList<>();if(scope.startsWith("profile:"))choices.add(2);else{choices.add(0);choices.add(1);if(scope.equals(AppearanceConfig.GLOBAL))choices.add(2);}CharSequence[] names=new CharSequence[choices.size()];for(int i=0;i<names.length;i++)names[i]=getString(choices.get(i)==1&&dialog!=0?R.string.TetogramEditorChatRow:surfaceLabel(choices.get(i)));showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditorBackgroundTarget)).setItems(names,(d,n)->{wallpaperSurface=choices.get(n);backgroundMode=-1;previewKind=wallpaperSurface;previewDialogs=previewKind==1;refresh();}).create());});}
     private void listStyles(ArrayList<UItem> items){button(items,getString(R.string.TetogramEditorListStyle),()->showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditorListStyle)).setItems(new CharSequence[]{getString(R.string.TetogramEditorTransparent),getString(R.string.TetogramEditorGlass),getString(R.string.TetogramEditorCards)},(d,n)->{checkpoint();draft.set("list.rowOpacity",n==0?"0":n==1?"0.55":"0.94");draft.set("list.radius",n==2?"16":"0");draft.set("list.sideInset",n==2?"10":"0");draft.set("list.rowGap",n==2?"6":"0");draft.set("list.separators",Boolean.toString(n!=2));refresh();}).create()));}
     private void updatePreview(){
         AppearanceConfig.Resolved value=previewStyle();if(preview==null)preview=new AppearancePreview(getContext(),currentAccount,value,previewDark,previewKind,section);else preview.updateSurface(value,previewDark,previewKind);
@@ -197,6 +203,123 @@ public final class AppearanceActivity extends LabsPage {
             button(items,name,value,()->presentFragment(new AppearancePersonActivity(currentAccount,id,chat)));
         }
         items.add(UItem.asShadow(getString(R.string.TetogramPersonHowTo)));
+    }
+    // ---- Background tab: color / gradient / photo and video / pattern ----
+    private int backgroundMode=-1;private boolean galleryRequested;
+    private final Runnable livePreview=()->{if(preview!=null&&valid())preview.updateSurface(previewStyle(),previewDark,previewKind);refreshChrome();};
+    private void backgroundStudio(ArrayList<UItem> items){
+        AppearanceConfig.Resolved r=resolved();
+        boolean hasMedia=AppearanceConfig.isMediaName(r.get(mediaKey("file")));
+        if(backgroundMode<0)backgroundMode=hasMedia?2:"true".equals(r.get(mediaKey("pattern")))?3:r.color(previewDark,wallpaperColorName("_gradient_to1"))!=null?1:0;
+        LinearLayout modes=AppearanceStudioViews.segments(getContext(),new CharSequence[]{getString(R.string.TetogramStudioBgColor),getString(R.string.TetogramStudioBgGradient),getString(rowMedia()?R.string.TetogramStudioBgPhoto:R.string.TetogramStudioBgMedia),getString(R.string.TetogramStudioBgPattern)},backgroundMode,new Runnable[]{()->{backgroundMode=0;refresh();},()->{backgroundMode=1;refresh();},()->{backgroundMode=2;refresh();},()->{backgroundMode=3;refresh();}});
+        FrameLayout modesFrame=new FrameLayout(getContext());modesFrame.setPadding(AndroidUtilities.dp(14),AndroidUtilities.dp(8),AndroidUtilities.dp(14),AndroidUtilities.dp(8));modesFrame.addView(modes,LayoutHelper.createFrame(-1,-2));items.add(UItem.asCustom(modesFrame,-2));
+        if(backgroundMode==0||backgroundMode==3){
+            items.add(UItem.asHeader(getString(R.string.TetogramStudioBgColor)));
+            String solid=wallpaperColorName("");int current=currentColor(solid);
+            items.add(UItem.asCustom(quickColors(current,c->acceptColor(solid,c),()->colorDialog(solid,current)),-2));
+            if(backgroundMode==3){
+                items.add(UItem.asHeader(getString(R.string.TetogramStudioBgPattern)));
+                if(!rowMedia())toggle(items,mediaKey("pattern"),getString(R.string.TetogramAppearanceDefaultPattern),false);
+                if("true".equals(r.get(mediaKey("pattern"))))items.add(UItem.asCustom(slider(mediaKey("patternIntensity"),getString(R.string.TetogramAppearancePatternIntensity),0,100),-2));
+            }
+            button(items,getString(R.string.TetogramAppearanceWallpaperBase),wallpaperSource(),this::chooseWallpaperBase);
+        }else if(backgroundMode==1){
+            items.add(UItem.asHeader(getString(R.string.TetogramStudioBgGradient)));
+            String solid=wallpaperColorName("");int first=currentColor(solid);
+            button(items,getString(R.string.TetogramAppearanceGradientStop)+" 1",AppearanceColors.hex(first),()->colorDialog(solid,first));
+            for(int stop=1;stop<=3;stop++){final String name=wallpaperColorName("_gradient_to"+stop);Integer value=r.color(previewDark,name);button(items,getString(R.string.TetogramAppearanceGradientStop)+" "+(stop+1),value==null?getString(R.string.TetogramStudioNotSet):AppearanceColors.hex(value),()->colorDialog(name,value==null?first:value));}
+            items.add(UItem.asCustom(slider(mediaKey("angle"),getString(R.string.TetogramAppearanceGradientAngle),0,360),-2));
+            toggle(items,mediaKey("gradientMotion"),getString(R.string.TetogramAppearanceGradientMotion),false);
+        }else{
+            galleryTiles(items);
+            if(hasMedia){
+                items.add(UItem.asHeader(getString(R.string.TetogramStudioBgAdjust)));
+                if(!rowMedia())button(items,getString(R.string.TetogramWallpaperPosition),getString(R.string.TetogramWallpaperGestures),this::positionWallpaper);
+                button(items,getString(R.string.TetogramAppearanceEditMedia),()->{mediaBusy=true;if(preview!=null)preview.setResumed(false);refresh();mediaJob=AppearanceMedia.inspect(currentAccount,owner,r.get(mediaKey("source.file")),r.get(mediaKey("file")),"video".equals(r.get(mediaKey("type"))),this::editSelectedMedia);});
+                items.add(UItem.asCustom(slider(mediaKey("dim"),getString(R.string.TetogramAppearanceDimming),0,1),-2));
+                items.add(UItem.asCustom(slider(mediaKey("blur"),getString(Build.VERSION.SDK_INT>=31&&!rowMedia()?R.string.TetogramAppearanceBlur:R.string.TetogramAppearanceStaticBlur),0,Build.VERSION.SDK_INT>=31&&!rowMedia()?32:1),-2));
+                items.add(UItem.asCustom(slider(mediaKey("opacity"),getString(R.string.TetogramAppearanceOpacity),0,1),-2));
+                if(!rowMedia()){
+                    button(items,getString(R.string.TetogramAppearanceFit),getString("fit".equals(r.get(mediaKey("fit")))?R.string.TetogramEditorFit:R.string.TetogramEditorFill),()->{checkpoint();draft.set(mediaKey("fit"),"fit".equals(resolved().get(mediaKey("fit")))?"fill":"fit");refresh();});
+                    if(getContext().getPackageManager().hasSystemFeature(android.content.pm.PackageManager.FEATURE_SENSOR_ACCELEROMETER))toggle(items,mediaKey("parallax"),getString(R.string.TetogramAppearanceWallpaperParallax),false);
+                }
+                if(!rowMedia()&&"video".equals(r.get(mediaKey("type")))){
+                    items.add(UItem.asHeader(getString(R.string.TetogramStudioBgVideo)));
+                    items.add(UItem.asCustom(slider(mediaKey("speed"),getString(R.string.TetogramAppearancePlaybackSpeed),.25f,2),-2));
+                    toggle(items,mediaKey("loop"),getString(R.string.TetogramAppearanceLoop),true);
+                    toggle(items,mediaKey("animate"),getString(R.string.TetogramAppearanceAnimateWallpaper),true);
+                    button(items,getString(R.string.TetogramAppearanceCoverCurrent),()->setCover(preview==null?0:preview.positionMs()));
+                }
+                button(items,getString(R.string.TetogramStudioBgRemove),()->{checkpoint();String prefix=mediaPrefix();boolean explicit=draft.values.containsKey(prefix+".file");for(String part:new String[]{"file","type","cover.file","source.file"})draft.values.remove(prefix+"."+part);if(!explicit||AppearanceConfig.isMediaName(resolved().get(prefix+".file")))draft.set(prefix+".file","");refresh();});
+            }
+        }
+        button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=AppearanceEditorPolicy.resetWallpaper(draft,mediaPrefix());backgroundMode=-1;refresh();});
+    }
+    private void chooseWallpaperBase(){showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearanceWallpaperBase)).setItems(new CharSequence[]{getString(R.string.TetogramAppearanceInherit),getString(R.string.TetogramAppearanceGlobalWallpaper),getString(R.string.TetogramAppearanceTelegramWallpaper)},(d,n)->{checkpoint();for(String key:new ArrayList<>(draft.values.keySet()))if(AppearanceConfig.isSurfaceWallpaperKey(key,mediaPrefix()))draft.values.remove(key);if(n!=0)draft.set(mediaKey("base"),n==1?"global":"telegram");backgroundMode=-1;refresh();}).create());}
+    private void galleryTiles(ArrayList<UItem> items){
+        android.app.Activity activity=getParentActivity();boolean allowed=activity!=null&&AndroidPermissions.gallery(activity);boolean videos=!rowMedia();
+        items.add(UItem.asHeader(getString(R.string.TetogramStudioGallery)));
+        ArrayList<AppearanceGalleryView.Tile> tiles=new ArrayList<>();
+        if(allowed){
+            if(MediaController.allMediaAlbumEntry==null&&!galleryRequested){galleryRequested=true;MediaController.loadGalleryPhotosAlbums(getClassGuid());}
+            MediaController.AlbumEntry album=MediaController.allMediaAlbumEntry;
+            if(album!=null)for(MediaController.PhotoEntry entry:album.photos){if(tiles.size()>=14)break;if(entry.isVideo&&!videos)continue;tiles.add(new AppearanceGalleryView.Tile(AppearanceGalleryView.thumb(entry),entry.isVideo?AppearanceGalleryView.duration(entry.duration):null,null,false,()->pickGallery(entry)));}
+            else items.add(UItem.asShadow(getString(R.string.Loading)));
+        }
+        tiles.add(new AppearanceGalleryView.Tile(null,null,getString(R.string.TetogramStudioFiles),false,()->pickMedia(false)));
+        if(videos)tiles.add(new AppearanceGalleryView.Tile(null,null,getString(R.string.TetogramStudioVideoFile),false,()->pickMedia(true)));
+        items.add(UItem.asCustom(new AppearanceGalleryView(getContext(),tiles),-2));
+        if(!allowed)button(items,getString(R.string.TetogramStudioAllowGallery),getString(R.string.TetogramStudioAllowGalleryInfo),()->{if(getParentActivity()!=null)AndroidPermissions.requestGallery(getParentActivity(),BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE,true);});
+        ArrayList<AppearanceGalleryView.Tile> own=myBackgrounds(videos);
+        if(!own.isEmpty()){items.add(UItem.asHeader(getString(R.string.TetogramStudioMyBackgrounds)));items.add(UItem.asCustom(new AppearanceGalleryView(getContext(),own),-2));}
+    }
+    private void pickGallery(MediaController.PhotoEntry entry){
+        if(mediaBusy||saving||!valid())return;
+        android.net.Uri uri=android.content.ContentUris.withAppendedId(entry.isVideo?MediaStore.Video.Media.EXTERNAL_CONTENT_URI:MediaStore.Images.Media.EXTERNAL_CONTENT_URI,entry.imageId);
+        pickingVideo=entry.isVideo;mediaBusy=true;if(preview!=null)preview.setResumed(false);refresh();
+        mediaJob=AppearanceMedia.importUri(currentAccount,owner,uri,entry.isVideo,this::editSelectedMedia);
+    }
+    /** Backgrounds already stored for this account (any scope or preset); choosing one reuses the file, nothing is copied. */
+    private ArrayList<AppearanceGalleryView.Tile> myBackgrounds(boolean videos){
+        LinkedHashMap<String,String[]> found=new LinkedHashMap<>();
+        ArrayList<AppearanceConfig.Style> styles=new ArrayList<>();styles.add(draft);styles.addAll(config.scopes.values());for(AppearanceConfig.Preset p:config.presets.values())styles.add(p.style);
+        for(AppearanceConfig.Style style:styles)for(String prefix:new String[]{"wallpaper","list.wallpaper","banner.wallpaper"}){String file=style.values.get(prefix+".file");if(!AppearanceConfig.isMediaName(file)||found.containsKey(file))continue;found.put(file,new String[]{file,style.values.get(prefix+".type"),style.values.get(prefix+".cover.file"),style.values.get(prefix+".source.file")});}
+        String current=resolved().get(mediaKey("file"));
+        ArrayList<AppearanceGalleryView.Tile> tiles=new ArrayList<>();
+        for(String[] bg:found.values()){
+            boolean video="video".equals(bg[1]);if(video&&!videos)continue;
+            File thumb=AppearanceMedia.file(owner,video?bg[2]:bg[0]);if(thumb==null||!thumb.isFile())continue;
+            tiles.add(new AppearanceGalleryView.Tile(thumb.getAbsolutePath(),video?"▶":null,null,bg[0].equals(current),()->{if(!valid()||saving||mediaBusy)return;checkpoint();String prefix=mediaPrefix();draft.set(prefix+".file",bg[0]);draft.set(prefix+".type",video?"video":"image");draft.set(prefix+".cover.file",bg[2]==null?"":bg[2]);if(bg[3]!=null)draft.set(prefix+".source.file",bg[3]);else draft.values.remove(prefix+".source.file");refresh();}));
+            if(tiles.size()>=8)break;
+        }
+        return tiles;
+    }
+    private interface ColorPick{void pick(int color);}
+    private View quickColors(int current,ColorPick pick,Runnable custom){
+        LinearLayout swatches=new LinearLayout(getContext());swatches.setOrientation(LinearLayout.HORIZONTAL);swatches.setPadding(AndroidUtilities.dp(16),AndroidUtilities.dp(4),AndroidUtilities.dp(16),AndroidUtilities.dp(10));
+        int[] colors={0xffE6EBEE,0xffCBB8F5,0xffF2C6DE,0xffFBE3C4,0xffB9F0E6,0xff9FD8F5,0xff17212B,0xff2D2A5C};
+        for(int color:colors){View dot=swatch(color,(current|0xff000000)==color,v->{if(valid()&&!saving&&!mediaBusy)pick.pick(color);});dot.setContentDescription(AppearanceColors.hex(color));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,AndroidUtilities.dp(34),1);lp.rightMargin=AndroidUtilities.dp(6);swatches.addView(dot,lp);}
+        TextView plus=new TextView(getContext());plus.setText("+");plus.setTextSize(20);plus.setGravity(Gravity.CENTER);plus.setContentDescription(getString(R.string.TetogramStudioCustomColor));ThemeBind.textColor(plus,Theme.key_windowBackgroundWhiteGrayText);plus.setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(17),Theme.getColor(Theme.key_windowBackgroundGray)));plus.setOnClickListener(v->custom.run());swatches.addView(plus,new LinearLayout.LayoutParams(0,AndroidUtilities.dp(34),1));
+        return swatches;
+    }
+    /** Inline slider: drag changes the draft and the preview live; the row is rebuilt only after release. */
+    private View slider(String key,CharSequence label,float min,float max){
+        AppearanceConfig.Resolved r=resolved();float current=Math.max(min,Math.min(max,r.number(key,defaultNumber(key))));boolean explicit=draft.values.containsKey(key);
+        LinearLayout column=new LinearLayout(getContext());column.setOrientation(LinearLayout.VERTICAL);column.setPadding(AndroidUtilities.dp(20),AndroidUtilities.dp(6),AndroidUtilities.dp(12),AndroidUtilities.dp(2));
+        LinearLayout top=new LinearLayout(getContext());top.setOrientation(LinearLayout.HORIZONTAL);top.setGravity(Gravity.CENTER_VERTICAL);
+        TextView title=new TextView(getContext());title.setText(label);title.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,15);ThemeBind.textColor(title,Theme.key_windowBackgroundWhiteBlackText);top.addView(title,new LinearLayout.LayoutParams(0,-2,1));
+        TextView value=new TextView(getContext());value.setText(AppearanceNumbers.format(key,current));value.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,14);value.setTypeface(AndroidUtilities.bold());ThemeBind.textColor(value,Theme.key_windowBackgroundWhiteBlackText);top.addView(value,new LinearLayout.LayoutParams(-2,-2));
+        if(explicit){TextView reset=new TextView(getContext());reset.setText("↺");reset.setTextSize(18);reset.setGravity(Gravity.CENTER);reset.setContentDescription(getString(R.string.TetogramAppearanceInherit));ThemeBind.textColor(reset,Theme.key_windowBackgroundWhiteGrayText);reset.setOnClickListener(v->{if(!valid()||saving||mediaBusy)return;checkpoint();draft.values.remove(key);refresh();});top.addView(reset,new LinearLayout.LayoutParams(AndroidUtilities.dp(40),AndroidUtilities.dp(36)));}
+        column.addView(top,new LinearLayout.LayoutParams(-1,-2));
+        android.widget.SeekBar seek=new android.widget.SeekBar(getContext());seek.setMax(AppearanceNumbers.steps(key,min,max));seek.setProgress(AppearanceNumbers.progress(key,min,max,current));seek.setContentDescription(label);
+        seek.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener(){
+            boolean started;
+            public void onStartTrackingTouch(android.widget.SeekBar b){if(!valid()||saving||mediaBusy)return;checkpoint();started=true;}
+            public void onStopTrackingTouch(android.widget.SeekBar b){if(started){started=false;AndroidUtilities.cancelRunOnUIThread(livePreview);refresh();}}
+            public void onProgressChanged(android.widget.SeekBar b,int progress,boolean user){if(!user||!valid()||saving||mediaBusy)return;if(!started){checkpoint();started=true;}float v=AppearanceNumbers.value(key,min,max,progress);value.setText(AppearanceNumbers.format(key,v));draft.set(key,Float.toString(v));AndroidUtilities.cancelRunOnUIThread(livePreview);AndroidUtilities.runOnUIThread(livePreview,40);}
+        });
+        column.addView(seek,new LinearLayout.LayoutParams(-1,AndroidUtilities.dp(40)));
+        return column;
     }
     // ---- Tap an element in the preview to edit its colors ----
     private void onElementPicked(String element){
@@ -356,7 +479,7 @@ public final class AppearanceActivity extends LabsPage {
         if(category==Category.COLORS&&!advanced)themeCarousel(items);
         if(category==Category.ADVANCED){items.add(UItem.asHeader(getString(R.string.TetogramStudioTabMore)));button(items,getString(R.string.TetogramStudioPresets),()->presentFragment(new AppearanceActivity(currentAccount,"presets",AppearanceConfig.GLOBAL,null,null,0,0)));button(items,getString(R.string.TetogramAppearanceLauncher),()->presentFragment(new AppearanceLauncherActivity(currentAccount)));button(items,getString(R.string.TetogramAppearanceNativeThemes),()->presentFragment(new ThemeActivity(ThemeActivity.THEME_TYPE_BASIC)));
             items.add(UItem.asHeader(getString(R.string.TetogramAppearanceEffects)));toggle(items,"effects.enabled",getString(R.string.TetogramAppearanceAnimationsEnabled),true);number(items,"effects.durationScale",getString(R.string.TetogramAppearanceTransitionDuration),.25f,2);toggle(items,"effects.reduceOnBattery",getString(R.string.TetogramAppearanceReduceOnBattery),true);button(items,getString(R.string.TetogramAppearanceNativeEffects),()->presentFragment(new LiteModeSettingsActivity()));button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();for(String key:new ArrayList<>(draft.values.keySet()))if(key.startsWith("effects."))draft.values.remove(key);refresh();});return;}
-        if(category==Category.WALLPAPERS){wallpaperTarget(items);mediaControls(items);return;}
+        if(category==Category.WALLPAPERS){wallpaperTarget(items);if(advanced)mediaControls(items);else backgroundStudio(items);return;}
         if(!advanced&&category!=Category.PROFILE&&category!=Category.SECTIONS){simpleSettings(items);return;}
         if(category==Category.PROFILE){AppearanceConfig.Resolved banner=resolved();for(String role:new String[]{"banner.text","banner.secondaryText"}){Integer current=banner.color(previewDark,role);button(items,getString(role.equals("banner.text")?R.string.TetogramAppearanceMainText:R.string.TetogramAppearanceHeaderSubtitle),()->colorDialog(role,current==null?AppearanceRuntime.baseColor(previewDark,role.equals("banner.text")?Theme.key_profile_title:Theme.key_profile_status):current));}number(items,"banner.height",getString(R.string.TetogramAppearanceBannerHeight),120,480);number(items,"banner.radius",getString(R.string.TetogramAppearanceRowRadius),0,40);number(items,"banner.parallax",getString(R.string.TetogramAppearanceBannerParallax),0,1);number(items,"banner.avatarAlignment",getString(R.string.TetogramAppearanceAvatarAlignment),-1,1);button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();draft=category==Category.WALLPAPERS?AppearanceEditorPolicy.resetWallpaper(draft,mediaPrefix()):AppearanceEditorPolicy.resetCategory(draft,category);refresh();});categoryLinks(items);return;}
         if(category==Category.COLORS){modeControl(items);if(scope.startsWith("profile:")){button(items,getString(R.string.TetogramEditorGlobalColors),()->openCategory(Category.COLORS));return;}}

@@ -64,4 +64,19 @@
     <string name="TetogramPersonMenuPrivate">Цвет его сообщений</string>
     <string name="TetogramPersonSection">Цвета людей</string>
     <string name="TetogramPersonHowTo">Чтобы добавить человека, зажмите его сообщение и выберите «Цвет участника» или откройте его профиль → ⋮ → «Цвет его сообщений».</string>
+    <string name="TetogramStudioBgColor">Цвет</string>
+    <string name="TetogramStudioBgGradient">Градиент</string>
+    <string name="TetogramStudioBgMedia">Фото и видео</string>
+    <string name="TetogramStudioBgPhoto">Фото</string>
+    <string name="TetogramStudioBgPattern">Узор</string>
+    <string name="TetogramStudioBgAdjust">Настройка</string>
+    <string name="TetogramStudioBgVideo">Видео</string>
+    <string name="TetogramStudioBgRemove">Убрать фото или видео</string>
+    <string name="TetogramStudioNotSet">не задан</string>
+    <string name="TetogramStudioGallery">Галерея</string>
+    <string name="TetogramStudioFiles">Все файлы</string>
+    <string name="TetogramStudioVideoFile">Видео-файл</string>
+    <string name="TetogramStudioAllowGallery">Показывать галерею здесь</string>
+    <string name="TetogramStudioAllowGalleryInfo">Разрешите доступ к фото и видео — тот же, что Telegram использует для вложений.</string>
+    <string name="TetogramStudioMyBackgrounds">Мои фоны</string>
 </resources>

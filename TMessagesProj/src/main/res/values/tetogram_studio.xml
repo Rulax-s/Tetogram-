@@ -64,4 +64,19 @@
     <string name="TetogramPersonMenuPrivate">Color of their messages</string>
     <string name="TetogramPersonSection">People</string>
     <string name="TetogramPersonHowTo">To add someone, long-press their message and choose “Member color”, or open their profile → ⋮ → “Color of their messages”.</string>
+    <string name="TetogramStudioBgColor">Color</string>
+    <string name="TetogramStudioBgGradient">Gradient</string>
+    <string name="TetogramStudioBgMedia">Photo &amp; video</string>
+    <string name="TetogramStudioBgPhoto">Photo</string>
+    <string name="TetogramStudioBgPattern">Pattern</string>
+    <string name="TetogramStudioBgAdjust">Adjust</string>
+    <string name="TetogramStudioBgVideo">Video</string>
+    <string name="TetogramStudioBgRemove">Remove photo or video</string>
+    <string name="TetogramStudioNotSet">not set</string>
+    <string name="TetogramStudioGallery">Gallery</string>
+    <string name="TetogramStudioFiles">All files</string>
+    <string name="TetogramStudioVideoFile">Video file</string>
+    <string name="TetogramStudioAllowGallery">Show my gallery here</string>
+    <string name="TetogramStudioAllowGalleryInfo">Allow access to photos and videos, the same permission Telegram uses for attachments.</string>
+    <string name="TetogramStudioMyBackgrounds">My backgrounds</string>
 </resources>
