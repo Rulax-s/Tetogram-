@@ -67,6 +67,7 @@ public final class AppearanceActivity extends LabsPage {
     private final Runnable searchRefresh=this::refresh;
     // Studio layout: preview with its own header on top, category tabs above the pinned actions.
     private LinearLayout topPanel;private FrameLayout previewHeader,tabsHost;private String tabsState;
+    private String selectedElement;
     public AppearanceActivity(int account){this(account,"edit",AppearanceConfig.GLOBAL,null,null,0,0);}
     public AppearanceActivity(int account,String scope,String section,String folder,long dialog,long topic){this(account,"edit",scope,section,folder,dialog,topic);}
     private AppearanceActivity(int account,String page,String scope,String section,String folder,long dialog,long topic){super(account);this.owner=UserConfig.getInstance(account).getClientUserId();this.page=page;this.scope=scope;this.section=section;this.folder=folder;this.dialog=dialog;this.topic=topic;previewKind=scope.startsWith("profile:")?2:section!=null?4:folder!=null?5:dialog<0?3:0;previewDialogs=previewKind==4||previewKind==5;category=scope.startsWith("profile:")?Category.PROFILE:section!=null||folder!=null?Category.SECTIONS:dialog!=0?Category.CHATS:Category.COLORS;wallpaperSurface=previewKind==2?2:previewDialogs?1:0;previewDark=Theme.isCurrentThemeDark();}
@@ -142,6 +143,9 @@ public final class AppearanceActivity extends LabsPage {
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,0,1);lp.leftMargin=lp.rightMargin=AndroidUtilities.dp(12);lp.bottomMargin=AndroidUtilities.dp(8);topPanel.addView(previewHost,lp);
         }
         updatePreviewHeader();
+        preview.setElementListener(this::onElementPicked);
+        if(selectedElement!=null&&!AppearanceElements.onSurface(selectedElement,previewKind))selectedElement=null;
+        preview.setHighlighted(selectedElement);
         previewResolved=value;lastPreviewKind=previewKind;lastPreviewDark=previewDark;preview.setResumed(valid()&&foreground&&!mediaBusy&&!hidePreview);
     }
     /** What the preview shows (chat / list / profile) and where the change applies, right above the preview. */
@@ -180,6 +184,93 @@ public final class AppearanceActivity extends LabsPage {
         ArrayList<Category> tabs=tabCategories();CharSequence[] labels=new CharSequence[tabs.size()];Runnable[] runs=new Runnable[tabs.size()];int selected=-1;
         for(int i=0;i<tabs.size();i++){Category c=tabs.get(i);labels[i]=getString(tabTitle(c));if(c==category)selected=i;runs[i]=()->{if(c==category||saving||mediaBusy)return;if(c==Category.PROFILE&&scope.equals(AppearanceConfig.GLOBAL)){AppearanceActivity editor=new AppearanceActivity(currentAccount,"profile:"+owner,null,null,0,0);editor.selectCategory(Category.PROFILE);presentFragment(editor);return;}selectCategory(c);};}
         tabsHost.removeAllViews();tabsHost.addView(AppearanceStudioViews.tabs(getContext(),labels,selected,runs),LayoutHelper.createFrame(-1,-1));
+    }
+    // ---- Tap an element in the preview to edit its colors ----
+    private void onElementPicked(String element){
+        if(!valid()||saving||mediaBusy)return;
+        if(!AppearanceElements.allowed(element,scope)){error(getString(R.string.TetogramStudioElementElsewhere));return;}
+        selectedElement=element.equals(selectedElement)?null:element;
+        if(preview!=null)preview.setHighlighted(selectedElement);
+        refresh();
+        if(list!=null&&selectedElement!=null)list.scrollToPosition(0);
+    }
+    private int elementTitle(String element){switch(element){case AppearanceElements.WALLPAPER:return R.string.TetogramStudioElementWallpaper;case AppearanceElements.INCOMING:return R.string.TetogramStudioElementIncoming;case AppearanceElements.OUTGOING:return R.string.TetogramStudioElementOutgoing;case AppearanceElements.HEADER:return R.string.TetogramStudioElementHeader;case AppearanceElements.INPUT:return R.string.TetogramStudioElementInput;case AppearanceElements.LIST_ROW:return R.string.TetogramStudioElementListRow;case AppearanceElements.LIST_BACKGROUND:return R.string.TetogramStudioElementListBackground;case AppearanceElements.PROFILE_NAME:return R.string.TetogramStudioElementProfileName;case AppearanceElements.PROFILE_STATUS:return R.string.TetogramStudioElementProfileStatus;case AppearanceElements.BANNER:return R.string.TetogramStudioElementBanner;default:return R.string.TetogramStudioElementSection;}}
+    private int roleTitle(String name){
+        if(name.contains("wallpaper")||name.endsWith("Bubble")||name.equals("actionBarDefault")||name.endsWith("PanelBackground")||name.endsWith("windowBackgroundWhite")||name.equals("section.background"))return R.string.TetogramStudioRoleBackground;
+        if(name.endsWith("TimeText")||name.endsWith("chats_date"))return R.string.TetogramStudioRoleTime;
+        if(name.endsWith("DefaultTitle"))return R.string.TetogramStudioRoleTitle;
+        if(name.endsWith("DefaultIcon"))return R.string.TetogramStudioRoleIcons;
+        if(name.endsWith("PanelHint"))return R.string.TetogramStudioRoleHint;
+        if(name.endsWith("chats_name"))return R.string.TetogramStudioRoleName;
+        if(name.endsWith("chats_message"))return R.string.TetogramStudioRoleMessage;
+        if(name.endsWith("unreadCounter")||name.equals("section.badge"))return R.string.TetogramStudioRoleBadge;
+        if(name.equals("section.badgeText"))return R.string.TetogramStudioRoleBadgeText;
+        return R.string.TetogramStudioRoleText;
+    }
+    /** Current value of a role: explicit, inherited, legacy list key, or the native Telegram color. */
+    private int currentColor(String name){
+        AppearanceConfig.Resolved r=resolved();Integer value=r.color(previewDark,name);
+        if(value==null&&name.startsWith("list."))value=r.color(previewDark,name.substring(5));
+        if(value!=null)return value;
+        if(name.equals("banner.text"))return AppearanceRuntime.baseColor(previewDark,Theme.key_profile_title);
+        if(name.equals("banner.secondaryText"))return AppearanceRuntime.baseColor(previewDark,Theme.key_profile_status);
+        if(name.startsWith("section."))return AppearanceRuntime.baseColor(previewDark,name.contains("Text")?Theme.key_chats_actionIcon:Theme.key_chats_actionBackground);
+        String plain=name.startsWith("list.")?name.substring(5):name.startsWith("banner.")?name.substring(7):name;
+        int key=ThemeColors.stringKeyToInt(plain);int color=key<0?0:AppearanceRuntime.baseColor(previewDark,key);
+        if(plain.equals("chat_wallpaper")&&color==0)color=previewDark?0xff17212b:0xffe6ebee;
+        return color;
+    }
+    private static final int[] QUICK_COLORS={0xff7B5CE6,0xffE8577E,0xffD93A3A,0xffF08C2E,0xff1FA88F,0xff3C8DD9,0xff2E3440,0xffFFFFFF};
+    private void elementPanel(ArrayList<UItem> items){
+        if(selectedElement==null){if(category==Category.COLORS&&!advanced)items.add(UItem.asShadow(getString(R.string.TetogramStudioTapHint)));return;}
+        List<AppearanceElements.Role> roles=AppearanceElements.roles(selectedElement);if(roles.isEmpty())return;
+        String main=roles.get(0).name;int mainColor=currentColor(main);
+        LinearLayout panel=new LinearLayout(getContext());panel.setOrientation(LinearLayout.VERTICAL);panel.setPadding(AndroidUtilities.dp(16),AndroidUtilities.dp(10),AndroidUtilities.dp(16),AndroidUtilities.dp(12));
+        LinearLayout title=new LinearLayout(getContext());title.setOrientation(LinearLayout.HORIZONTAL);title.setGravity(Gravity.CENTER_VERTICAL);
+        TextView name=new TextView(getContext());name.setText(getString(elementTitle(selectedElement)));name.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,16);name.setTypeface(AndroidUtilities.bold());ThemeBind.textColor(name,Theme.key_windowBackgroundWhiteBlackText);title.addView(name,new LinearLayout.LayoutParams(0,-2,1));
+        int text=-1;for(int i=0;i<roles.size();i++)if(!roles.get(i).surface){text=i;break;}
+        if(text>=0){
+            boolean profile=selectedElement.startsWith("profile")||selectedElement.equals(AppearanceElements.BANNER),listElement=selectedElement.equals(AppearanceElements.LIST_ROW);
+            String canvasRole=profile?"banner.chat_wallpaper":listElement?"list.chat_wallpaper":"chat_wallpaper";int canvas=currentColor(canvasRole)|0xff000000;
+            int bg=AppearanceElements.backgroundOf(roles,text);int surfaceColor=bg>=0?currentColor(roles.get(bg).name):canvas,textColor=currentColor(roles.get(text).name);
+            boolean ok=AppearanceColors.visibleRatio(textColor,surfaceColor,canvas)>=4.5;
+            TextView badge=new TextView(getContext());badge.setText(getString(ok?R.string.TetogramStudioReadable:R.string.TetogramStudioHardToRead));badge.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,12);badge.setTypeface(AndroidUtilities.bold());badge.setPadding(AndroidUtilities.dp(8),AndroidUtilities.dp(3),AndroidUtilities.dp(8),AndroidUtilities.dp(3));badge.setTextColor(ok?0xff1C6B3C:0xff8A2A12);badge.setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(8),ok?0xffDFF3E6:0xffFCE3DA));title.addView(badge,new LinearLayout.LayoutParams(-2,-2));}
+        TextView close=new TextView(getContext());close.setText("✕");close.setTextSize(18);close.setGravity(Gravity.CENTER);close.setContentDescription(getString(R.string.Close));ThemeBind.textColor(close,Theme.key_windowBackgroundWhiteGrayText);close.setOnClickListener(v->{selectedElement=null;if(preview!=null)preview.setHighlighted(null);refresh();});title.addView(close,new LinearLayout.LayoutParams(AndroidUtilities.dp(40),AndroidUtilities.dp(40)));
+        panel.addView(title,new LinearLayout.LayoutParams(-1,-2));
+        // quick colors for the main role
+        LinearLayout swatches=new LinearLayout(getContext());swatches.setOrientation(LinearLayout.HORIZONTAL);
+        for(int color:QUICK_COLORS){View dot=swatch(color,(mainColor|0xff000000)==color,v->{if(valid()&&!saving&&!mediaBusy)acceptColor(main,(mainColor&0xff000000)==0?color:(color&0xffffff)|(mainColor&0xff000000));});dot.setContentDescription(AppearanceColors.hex(color));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,AndroidUtilities.dp(34),1);lp.rightMargin=AndroidUtilities.dp(6);swatches.addView(dot,lp);}
+        TextView custom=new TextView(getContext());custom.setText("+");custom.setTextSize(20);custom.setGravity(Gravity.CENTER);custom.setContentDescription(getString(R.string.TetogramStudioCustomColor));ThemeBind.textColor(custom,Theme.key_windowBackgroundWhiteGrayText);custom.setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(17),Theme.getColor(Theme.key_windowBackgroundGray)));custom.setOnClickListener(v->colorDialog(main,mainColor));swatches.addView(custom,new LinearLayout.LayoutParams(0,AndroidUtilities.dp(34),1));
+        LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.topMargin=AndroidUtilities.dp(10);panel.addView(swatches,sp);
+        // every role of the element
+        LinearLayout rolesRow=new LinearLayout(getContext());rolesRow.setOrientation(LinearLayout.HORIZONTAL);
+        android.widget.HorizontalScrollView rolesScroll=new android.widget.HorizontalScrollView(getContext());rolesScroll.setHorizontalScrollBarEnabled(false);rolesScroll.addView(rolesRow);
+        for(AppearanceElements.Role role:roles){int color=currentColor(role.name);LinearLayout chip=new LinearLayout(getContext());chip.setOrientation(LinearLayout.HORIZONTAL);chip.setGravity(Gravity.CENTER_VERTICAL);chip.setPadding(AndroidUtilities.dp(8),0,AndroidUtilities.dp(12),0);chip.setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(12),Theme.getColor(Theme.key_windowBackgroundGray)));
+            View dot=new View(getContext());dot.setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(6),color|0xff000000));chip.addView(dot,new LinearLayout.LayoutParams(AndroidUtilities.dp(22),AndroidUtilities.dp(22)));
+            TextView label=new TextView(getContext());label.setText(getString(roleTitle(role.name)));label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,13);ThemeBind.textColor(label,Theme.key_windowBackgroundWhiteBlackText);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,-2);lp.leftMargin=AndroidUtilities.dp(8);chip.addView(label,lp);
+            chip.setContentDescription(label.getText());chip.setOnClickListener(v->colorDialog(role.name,color));
+            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-2,AndroidUtilities.dp(40));cp.rightMargin=AndroidUtilities.dp(8);rolesRow.addView(chip,cp);}
+        LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-1,-2);rp.topMargin=AndroidUtilities.dp(10);panel.addView(rolesScroll,rp);
+        // recent colors
+        List<Integer> recent=config.palette(AppearanceConfig.RECENT_COLORS);
+        if(!recent.isEmpty()){LinearLayout row=new LinearLayout(getContext());row.setOrientation(LinearLayout.HORIZONTAL);row.setGravity(Gravity.CENTER_VERTICAL);TextView label=new TextView(getContext());label.setText(getString(R.string.TetogramEditorRecent));label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,12);ThemeBind.textColor(label,Theme.key_windowBackgroundWhiteGrayText);row.addView(label,new LinearLayout.LayoutParams(-2,-2));
+            for(int i=0;i<Math.min(8,recent.size());i++){int color=recent.get(i);View dot=swatch(color,false,v->{if(valid()&&!saving&&!mediaBusy)acceptColor(main,color);});dot.setContentDescription(AppearanceColors.hex(color));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(AndroidUtilities.dp(26),AndroidUtilities.dp(26));lp.leftMargin=AndroidUtilities.dp(8);row.addView(dot,lp);}
+            LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.topMargin=AndroidUtilities.dp(10);panel.addView(row,lp);}
+        // actions
+        LinearLayout actionsRow=new LinearLayout(getContext());actionsRow.setOrientation(LinearLayout.HORIZONTAL);
+        boolean explicit=false;String prefix=previewDark?"dark.":"light.";for(AppearanceElements.Role role:roles)if(draft.values.containsKey(prefix+role.name))explicit=true;
+        if(explicit){TextView inherit=editorText(getString(scope.equals(AppearanceConfig.GLOBAL)?R.string.TetogramStudioResetElement:R.string.TetogramStudioLikeParent));inherit.setTextSize(14);inherit.setOnClickListener(v->{if(!valid()||saving||mediaBusy)return;checkpoint();for(AppearanceElements.Role role:roles)draft.values.remove(prefix+role.name);refresh();});actionsRow.addView(inherit,new LinearLayout.LayoutParams(0,-2,1));}
+        if(selectedElement.equals(AppearanceElements.WALLPAPER)||selectedElement.equals(AppearanceElements.LIST_BACKGROUND)||selectedElement.equals(AppearanceElements.BANNER)){TextView media=editorText(getString(R.string.TetogramStudioPhotoVideo));media.setTextSize(14);media.setOnClickListener(v->selectCategory(Category.WALLPAPERS));actionsRow.addView(media,new LinearLayout.LayoutParams(0,-2,1));}
+        if(actionsRow.getChildCount()>0){LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.topMargin=AndroidUtilities.dp(6);panel.addView(actionsRow,lp);}
+        items.add(UItem.asCustom(panel,-2));
+        items.add(UItem.asShadow(null));
+    }
+    private View swatch(int color,boolean selected,View.OnClickListener click){
+        View dot=new View(getContext());
+        android.graphics.drawable.GradientDrawable shape=new android.graphics.drawable.GradientDrawable();shape.setShape(android.graphics.drawable.GradientDrawable.OVAL);shape.setColor(color|0xff000000);
+        int ring=selected?Theme.getColor(Theme.key_windowBackgroundWhiteBlackText):AppearancePresets.ratio(color|0xff000000,Theme.getColor(Theme.key_windowBackgroundWhite))<1.4?Theme.getColor(Theme.key_windowBackgroundWhiteGrayText):0;
+        if(ring!=0)shape.setStroke(AndroidUtilities.dp(selected?3:1),ring);
+        dot.setBackground(shape);dot.setOnClickListener(click);dot.setSelected(selected);return dot;
     }
     /** Theme thumbnails: tapping one previews it in the draft; Apply saves it, personal data is kept. */
     private void themeCarousel(ArrayList<UItem> items){
@@ -248,6 +339,7 @@ public final class AppearanceActivity extends LabsPage {
         for(int mode=0;mode<2;mode++){final boolean useAdvanced=mode==1;TextView tab=editorText(getString(useAdvanced?R.string.TetogramEditorModeAdvanced:R.string.TetogramEditorModeSimple));tab.setTextSize(14);tab.setAlpha(advanced==useAdvanced?1:.5f);tab.setOnClickListener(v->{advanced=useAdvanced;refresh();});switches.addView(tab,new LinearLayout.LayoutParams(0,-2,1));}items.add(UItem.asCustom(switches,-2));
         if(mediaBusy)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePreparingMedia)));
         if(searchInput!=null&&advanced)items.add(UItem.asCustom(searchInput,48));filterParameters=advanced;
+        elementPanel(items);
         if(category==Category.COLORS&&!advanced)themeCarousel(items);
         if(category==Category.ADVANCED){items.add(UItem.asHeader(getString(R.string.TetogramStudioTabMore)));button(items,getString(R.string.TetogramStudioPresets),()->presentFragment(new AppearanceActivity(currentAccount,"presets",AppearanceConfig.GLOBAL,null,null,0,0)));button(items,getString(R.string.TetogramAppearanceLauncher),()->presentFragment(new AppearanceLauncherActivity(currentAccount)));button(items,getString(R.string.TetogramAppearanceNativeThemes),()->presentFragment(new ThemeActivity(ThemeActivity.THEME_TYPE_BASIC)));
             items.add(UItem.asHeader(getString(R.string.TetogramAppearanceEffects)));toggle(items,"effects.enabled",getString(R.string.TetogramAppearanceAnimationsEnabled),true);number(items,"effects.durationScale",getString(R.string.TetogramAppearanceTransitionDuration),.25f,2);toggle(items,"effects.reduceOnBattery",getString(R.string.TetogramAppearanceReduceOnBattery),true);button(items,getString(R.string.TetogramAppearanceNativeEffects),()->presentFragment(new LiteModeSettingsActivity()));button(items,getString(R.string.TetogramAppearanceReset),()->{checkpoint();for(String key:new ArrayList<>(draft.values.keySet()))if(key.startsWith("effects."))draft.values.remove(key);refresh();});return;}
