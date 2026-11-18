@@ -79,4 +79,11 @@
     <string name="TetogramStudioAllowGallery">Показывать галерею здесь</string>
     <string name="TetogramStudioAllowGalleryInfo">Разрешите доступ к фото и видео — тот же, что Telegram использует для вложений.</string>
     <string name="TetogramStudioMyBackgrounds">Мои фоны</string>
+    <string name="TetogramStudioBoth">Оба</string>
+    <string name="TetogramStudioStyleTheme">Как в теме</string>
+    <string name="TetogramStudioStyleGlass">Прозрачный с обводкой</string>
+    <string name="TetogramStudioStyleRound">Круглые без хвостика</string>
+    <string name="TetogramStudioRadius">Скругление</string>
+    <string name="TetogramStudioAllParameters">Углы по отдельности и все параметры</string>
+    <string name="TetogramStudioApplyAnyway">Применить всё равно</string>
 </resources>

@@ -303,23 +303,106 @@ public final class AppearanceActivity extends LabsPage implements NotificationCe
         return swatches;
     }
     /** Inline slider: drag changes the draft and the preview live; the row is rebuilt only after release. */
+    private interface FloatSet{void set(float value);}
     private View slider(String key,CharSequence label,float min,float max){
-        AppearanceConfig.Resolved r=resolved();float current=Math.max(min,Math.min(max,r.number(key,defaultNumber(key))));boolean explicit=draft.values.containsKey(key);
+        AppearanceConfig.Resolved r=resolved();float current=Math.max(min,Math.min(max,r.number(key,defaultNumber(key))));
+        return sliderView(label,key,min,max,current,draft.values.containsKey(key),v->draft.set(key,Float.toString(v)),()->draft.values.remove(key));
+    }
+    /**
+     * Inline slider: drag changes the draft and the preview live; the row is rebuilt only after release.
+     * {@code formatKey} only chooses units and steps; {@code set} writes one or several keys.
+     */
+    private View sliderView(CharSequence label,String formatKey,float min,float max,float current,boolean explicit,FloatSet set,Runnable reset){
+        current=Math.max(min,Math.min(max,current));
         LinearLayout column=new LinearLayout(getContext());column.setOrientation(LinearLayout.VERTICAL);column.setPadding(AndroidUtilities.dp(20),AndroidUtilities.dp(6),AndroidUtilities.dp(12),AndroidUtilities.dp(2));
         LinearLayout top=new LinearLayout(getContext());top.setOrientation(LinearLayout.HORIZONTAL);top.setGravity(Gravity.CENTER_VERTICAL);
         TextView title=new TextView(getContext());title.setText(label);title.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,15);ThemeBind.textColor(title,Theme.key_windowBackgroundWhiteBlackText);top.addView(title,new LinearLayout.LayoutParams(0,-2,1));
-        TextView value=new TextView(getContext());value.setText(AppearanceNumbers.format(key,current));value.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,14);value.setTypeface(AndroidUtilities.bold());ThemeBind.textColor(value,Theme.key_windowBackgroundWhiteBlackText);top.addView(value,new LinearLayout.LayoutParams(-2,-2));
-        if(explicit){TextView reset=new TextView(getContext());reset.setText("↺");reset.setTextSize(18);reset.setGravity(Gravity.CENTER);reset.setContentDescription(getString(R.string.TetogramAppearanceInherit));ThemeBind.textColor(reset,Theme.key_windowBackgroundWhiteGrayText);reset.setOnClickListener(v->{if(!valid()||saving||mediaBusy)return;checkpoint();draft.values.remove(key);refresh();});top.addView(reset,new LinearLayout.LayoutParams(AndroidUtilities.dp(40),AndroidUtilities.dp(36)));}
+        TextView value=new TextView(getContext());value.setText(AppearanceNumbers.format(formatKey,current));value.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,14);value.setTypeface(AndroidUtilities.bold());ThemeBind.textColor(value,Theme.key_windowBackgroundWhiteBlackText);top.addView(value,new LinearLayout.LayoutParams(-2,-2));
+        if(explicit&&reset!=null){TextView back=new TextView(getContext());back.setText("↺");back.setTextSize(18);back.setGravity(Gravity.CENTER);back.setContentDescription(getString(R.string.TetogramAppearanceInherit));ThemeBind.textColor(back,Theme.key_windowBackgroundWhiteGrayText);back.setOnClickListener(v->{if(!valid()||saving||mediaBusy)return;checkpoint();reset.run();refresh();});top.addView(back,new LinearLayout.LayoutParams(AndroidUtilities.dp(40),AndroidUtilities.dp(36)));}
         column.addView(top,new LinearLayout.LayoutParams(-1,-2));
-        android.widget.SeekBar seek=new android.widget.SeekBar(getContext());seek.setMax(AppearanceNumbers.steps(key,min,max));seek.setProgress(AppearanceNumbers.progress(key,min,max,current));seek.setContentDescription(label);
+        android.widget.SeekBar seek=new android.widget.SeekBar(getContext());seek.setMax(AppearanceNumbers.steps(formatKey,min,max));seek.setProgress(AppearanceNumbers.progress(formatKey,min,max,current));seek.setContentDescription(label);
         seek.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener(){
             boolean started;
             public void onStartTrackingTouch(android.widget.SeekBar b){if(!valid()||saving||mediaBusy)return;checkpoint();started=true;}
             public void onStopTrackingTouch(android.widget.SeekBar b){if(started){started=false;AndroidUtilities.cancelRunOnUIThread(livePreview);refresh();}}
-            public void onProgressChanged(android.widget.SeekBar b,int progress,boolean user){if(!user||!valid()||saving||mediaBusy)return;if(!started){checkpoint();started=true;}float v=AppearanceNumbers.value(key,min,max,progress);value.setText(AppearanceNumbers.format(key,v));draft.set(key,Float.toString(v));AndroidUtilities.cancelRunOnUIThread(livePreview);AndroidUtilities.runOnUIThread(livePreview,40);}
+            public void onProgressChanged(android.widget.SeekBar b,int progress,boolean user){if(!user||!valid()||saving||mediaBusy)return;if(!started){checkpoint();started=true;}float v=AppearanceNumbers.value(formatKey,min,max,progress);value.setText(AppearanceNumbers.format(formatKey,v));set.set(v);AndroidUtilities.cancelRunOnUIThread(livePreview);AndroidUtilities.runOnUIThread(livePreview,40);}
         });
         column.addView(seek,new LinearLayout.LayoutParams(-1,AndroidUtilities.dp(40)));
         return column;
+    }
+    // ---- Bubbles tab: both / incoming / outgoing, styles, inline sliders ----
+    private int bubbleSide;
+    private String[] sides(){return bubbleSide==1?new String[]{"in"}:bubbleSide==2?new String[]{"out"}:new String[]{"in","out"};}
+    /** Every color that paints a bubble of one side; gradient stops only when they are in use. */
+    private ArrayList<String> fillRoles(String side,AppearanceConfig.Resolved r){
+        ArrayList<String> out=new ArrayList<>();boolean in=side.equals("in");
+        out.add(in?"chat_inBubble":"chat_outBubble");out.add(in?"chat_inBubbleSelected":"chat_outBubbleSelected");
+        for(int stop=1;stop<=3;stop++){String name=in?"bubble.inGradient"+stop:"chat_outBubbleGradient"+stop;Integer v=r.color(previewDark,name);if(v!=null&&v!=0)out.add(name);}
+        return out;
+    }
+    private void setFillAlpha(String side,float alpha,AppearanceConfig.Resolved r){for(String role:fillRoles(side,r)){int color=currentColor(role);if(color==0&&!role.contains("Selected"))continue;draft.color(previewDark,role,(color&0xffffff)|Math.round(Math.max(0,Math.min(1,alpha))*255)<<24);}}
+    private void bubbleStyle(int style){
+        if(!valid()||saving||mediaBusy)return;checkpoint();AppearanceConfig.Resolved r=resolved();String prefix=previewDark?"dark.":"light.";
+        for(String side:sides()){
+            String base="bubble."+side;
+            if(style==0){for(String key:new ArrayList<>(draft.values.keySet())){String plain=AppearanceEditorPolicy.plain(key);if(plain.startsWith(base)||plain.startsWith(side.equals("in")?"chat_inBubble":"chat_outBubble"))draft.values.remove(key);}continue;}
+            if(style==1){int fill=currentColor(side.equals("in")?"chat_inBubble":"chat_outBubble");int outline=(fill|0xff000000);if(AppearancePresets.ratio(outline,currentColor("chat_wallpaper")|0xff000000)<1.6)outline=AppearancePresets.contrast(currentColor("chat_wallpaper")|0xff000000);setFillAlpha(side,0,r);draft.set(base+"OutlineWidth","2.0");draft.color(previewDark,base+"Outline",outline);draft.set(base+"Shadow","false");}
+            if(style==2){draft.set(base+"Radius","24.0");draft.set(base+"Tail","false");}
+        }
+        refresh();
+    }
+    private void bubbleStudio(ArrayList<UItem> items){
+        AppearanceConfig.Resolved r=resolved();
+        peopleSection(items);
+        FrameLayout sideFrame=new FrameLayout(getContext());sideFrame.setPadding(AndroidUtilities.dp(14),AndroidUtilities.dp(8),AndroidUtilities.dp(14),AndroidUtilities.dp(4));
+        sideFrame.addView(AppearanceStudioViews.segments(getContext(),new CharSequence[]{getString(R.string.TetogramStudioBoth),getString(R.string.TetogramAppearanceIncoming),getString(R.string.TetogramAppearanceOutgoing)},bubbleSide,new Runnable[]{()->{bubbleSide=0;refresh();},()->{bubbleSide=1;refresh();},()->{bubbleSide=2;refresh();}}),LayoutHelper.createFrame(-1,-2));
+        items.add(UItem.asHeader(getString(R.string.TetogramStudioTabBubbles)));items.add(UItem.asCustom(sideFrame,-2));
+        // ready-made styles
+        LinearLayout styles=new LinearLayout(getContext());styles.setOrientation(LinearLayout.HORIZONTAL);
+        int[] names={R.string.TetogramStudioStyleTheme,R.string.TetogramStudioStyleGlass,R.string.TetogramStudioStyleRound};
+        for(int i=0;i<names.length;i++){final int style=i;TextView pill=AppearanceStudioViews.pill(getContext(),getString(names[i]),false,true);pill.setOnClickListener(v->bubbleStyle(style));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,AndroidUtilities.dp(36));lp.rightMargin=AndroidUtilities.dp(8);styles.addView(pill,lp);}
+        android.widget.HorizontalScrollView stylesScroll=new android.widget.HorizontalScrollView(getContext());stylesScroll.setHorizontalScrollBarEnabled(false);stylesScroll.setPadding(AndroidUtilities.dp(14),AndroidUtilities.dp(4),AndroidUtilities.dp(14),AndroidUtilities.dp(6));stylesScroll.addView(styles);
+        items.add(UItem.asCustom(stylesScroll,-2));
+        String first=sides()[0];String[] all=sides();
+        // radius
+        float radius=r.number("bubble."+first+"Radius",SharedConfig.bubbleRadius);boolean radiusExplicit=false;for(String side:all)radiusExplicit|=draft.values.containsKey("bubble."+side+"Radius");
+        items.add(UItem.asCustom(sliderView(getString(R.string.TetogramStudioRadius),"bubble.inRadius",0,32,radius,radiusExplicit,v->{for(String side:all)draft.set("bubble."+side+"Radius",Float.toString(v));},()->{for(String side:all)draft.values.remove("bubble."+side+"Radius");}),-2));
+        // fill opacity
+        float alpha=(currentColor(first.equals("in")?"chat_inBubble":"chat_outBubble")>>>24)/255f;
+        items.add(UItem.asCustom(sliderView(getString(R.string.TetogramPersonOpacity),"bubble.fillOpacity",0,1,alpha,false,v->{for(String side:all)setFillAlpha(side,v,r);},null),-2));
+        // outline
+        float outline=r.number("bubble."+first+"OutlineWidth",0);boolean outlineExplicit=false;for(String side:all)outlineExplicit|=draft.values.containsKey("bubble."+side+"OutlineWidth");
+        items.add(UItem.asCustom(sliderView(getString(R.string.TetogramAppearanceOutlineWidth),"bubble.inOutlineWidth",0,4,outline,outlineExplicit,v->{for(String side:all)draft.set("bubble."+side+"OutlineWidth",Float.toString(v));},()->{for(String side:all)draft.values.remove("bubble."+side+"OutlineWidth");}),-2));
+        if(outline>0){Integer color=r.color(previewDark,"bubble."+first+"Outline");int shown=color==null?Theme.getColor(Theme.key_chats_unreadCounter):color;items.add(UItem.asCustom(quickColors(shown,c->{checkpoint();for(String side:all)draft.color(previewDark,"bubble."+side+"Outline",c);refresh();rememberColor(AppearanceConfig.RECENT_COLORS,c);},()->colorDialog("bubble."+first+"Outline",shown)),-2));}
+        sideToggle(items,"Tail",getString(R.string.TetogramAppearanceBubbleTail),true);
+        sideToggle(items,"Shadow",getString(R.string.TetogramAppearanceBubbleShadow),true);
+        // colors of the chosen side
+        for(String side:all){boolean in=side.equals("in");for(String role:new String[]{in?"chat_inBubble":"chat_outBubble",in?"chat_messageTextIn":"chat_messageTextOut"}){int color=currentColor(role);button(items,colorLabel(role),AppearanceColors.hex(color),()->colorDialog(role,color));}}
+        button(items,getString(R.string.TetogramStudioAllParameters),()->{advanced=true;refresh();});
+    }
+    private void sideToggle(ArrayList<UItem> items,String suffix,CharSequence label,boolean fallback){
+        String[] all=sides();AppearanceConfig.Resolved r=resolved();String value=r.get("bubble."+all[0]+suffix);boolean checked=value==null?fallback:Boolean.parseBoolean(value);boolean explicit=false;for(String side:all)explicit|=draft.values.containsKey("bubble."+side+suffix);
+        String state=getString(checked?R.string.TetogramEditorEnabled:R.string.TetogramEditorDisabled)+(explicit?" · "+getString(R.string.TetogramEditorHoldToInherit):"");
+        AppearanceSettingRow row=new AppearanceSettingRow(getContext(),label,state,!saving&&!mediaBusy,checked,()->{if(!valid()||saving||mediaBusy)return;checkpoint();for(String side:all)draft.set("bubble."+side+suffix,Boolean.toString(!checked));refresh();});
+        if(explicit)row.setOnLongClickListener(v->{checkpoint();for(String side:all)draft.values.remove("bubble."+side+suffix);refresh();return true;});
+        items.add(UItem.asCustom(row,-2));
+    }
+    // ---- List tab ----
+    private void listStudio(ArrayList<UItem> items){
+        LinearLayout styles=new LinearLayout(getContext());styles.setOrientation(LinearLayout.HORIZONTAL);
+        int[] names={R.string.TetogramEditorTransparent,R.string.TetogramEditorGlass,R.string.TetogramEditorCards};
+        for(int i=0;i<names.length;i++){final int n=i;TextView pill=AppearanceStudioViews.pill(getContext(),getString(names[i]),false,true);pill.setOnClickListener(v->{if(!valid()||saving||mediaBusy)return;checkpoint();draft.set("list.rowOpacity",n==0?"0":n==1?"0.55":"0.94");draft.set("list.radius",n==2?"16":"0");draft.set("list.sideInset",n==2?"10":"0");draft.set("list.rowGap",n==2?"6":"0");draft.set("list.separators",Boolean.toString(n!=2));refresh();});LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,AndroidUtilities.dp(36));lp.rightMargin=AndroidUtilities.dp(8);styles.addView(pill,lp);}
+        android.widget.HorizontalScrollView scroll=new android.widget.HorizontalScrollView(getContext());scroll.setHorizontalScrollBarEnabled(false);scroll.setPadding(AndroidUtilities.dp(14),AndroidUtilities.dp(8),AndroidUtilities.dp(14),AndroidUtilities.dp(6));scroll.addView(styles);
+        items.add(UItem.asHeader(getString(R.string.TetogramEditorListStyle)));items.add(UItem.asCustom(scroll,-2));
+        items.add(UItem.asCustom(slider("list.rowOpacity",getString(R.string.TetogramAppearanceRowOpacity),0,1),-2));
+        items.add(UItem.asCustom(slider("list.radius",getString(R.string.TetogramAppearanceRowRadius),0,32),-2));
+        items.add(UItem.asCustom(slider("list.sideInset",getString(R.string.TetogramAppearanceSideInset),0,24),-2));
+        items.add(UItem.asCustom(slider("list.rowGap",getString(R.string.TetogramAppearanceRowGap),0,20),-2));
+        items.add(UItem.asCustom(slider("list.avatarSize",getString(R.string.TetogramAppearanceAvatarSize),24,SharedConfig.useThreeLinesLayout?56:52),-2));
+        items.add(UItem.asCustom(slider("list.outlineWidth",getString(R.string.TetogramAppearanceOutlineWidth),0,4),-2));
+        items.add(UItem.asCustom(slider("list.navigationOpacity",getString(R.string.TetogramAppearanceNavigationOpacity),0,1),-2));
+        toggle(items,"list.separators",getString(R.string.TetogramAppearanceSeparators),true);
+        button(items,getString(R.string.TetogramStudioAllParameters),()->{advanced=true;refresh();});
     }
     // ---- Tap an element in the preview to edit its colors ----
     private void onElementPicked(String element){
@@ -548,8 +631,8 @@ public final class AppearanceActivity extends LabsPage implements NotificationCe
     private void simpleSettings(ArrayList<UItem> items){
         AppearanceConfig.Resolved r=resolved();
         if(category==Category.COLORS){modeControl(items);if(scope.startsWith("profile:")){button(items,getString(R.string.TetogramEditorGlobalColors),()->openCategory(Category.COLORS));return;}Integer accent=r.color(previewDark,"accent.primary");button(items,getString(R.string.TetogramAppearancePrimaryColor),()->colorDialog("accent.primary",accent==null?Theme.getColor(Theme.key_windowBackgroundWhiteBlueText):accent));}
-        else if(category==Category.LIST){listStyles(items);number(items,"list.rowOpacity",getString(R.string.TetogramAppearanceRowOpacity),0,1);number(items,"list.navigationOpacity",getString(R.string.TetogramAppearanceNavigationOpacity),0,1);}
-        else if(category==Category.CHATS){peopleSection(items);number(items,"bubble.inRadius",getString(R.string.TetogramAppearanceInRadius),0,32);number(items,"bubble.outRadius",getString(R.string.TetogramAppearanceOutRadius),0,32);for(String role:new String[]{"chat_inBubble","chat_outBubble","chat_messageTextIn","chat_messageTextOut"}){Integer value=r.color(previewDark,role);button(items,colorLabel(role),()->colorDialog(role,value==null?Theme.getColor(ThemeColors.stringKeyToInt(role)):value));}button(items,getString(R.string.TetogramAppearanceBubbleOpacity),this::bubbleOpacity);}
+        else if(category==Category.LIST){listStudio(items);}
+        else if(category==Category.CHATS){bubbleStudio(items);}
         categoryLinks(items);
     }
     private void bubbleOpacity(){AppearanceConfig.Resolved r=resolved();Integer color=r.color(previewDark,"chat_outBubble");input(getString(R.string.TetogramAppearanceBubbleOpacity),Float.toString(color==null?1:Color.alpha(color)/255f),text->{try{float alpha=Float.parseFloat(text.trim().replace(',','.'));if(Float.isNaN(alpha)||Float.isInfinite(alpha)||alpha<0||alpha>1)throw new IllegalArgumentException();checkpoint();for(String role:new String[]{"chat_inBubble","chat_inBubbleMedia","chat_outBubble","chat_outBubbleMedia","chat_outBubbleGradient1","chat_outBubbleGradient2","chat_outBubbleGradient3","bubble.inGradient1","bubble.inGradient2","bubble.inGradient3"}){Integer old=r.color(previewDark,role);int key=ThemeColors.stringKeyToInt(role);if(old==null&&key<0||role.contains("Gradient")&&(old==null||old==0))continue;draft.color(previewDark,role,((old==null?AppearanceRuntime.baseColor(previewDark,key):old)&0xffffff)|Math.round(alpha*255)<<24);}refresh();}catch(IllegalArgumentException e){error(getString(R.string.TetogramAppearanceInvalidValue));}});}
@@ -647,16 +730,18 @@ case "section.badgeText":return getString(R.string.TetogramAppearanceCircleBadge
     private void acceptColor(String name,int color){checkpoint();putColor(draft,name,color);refresh();rememberColor(AppearanceConfig.RECENT_COLORS,color);}
     private int contrastBase(boolean dark,String key){int nativeKey=ThemeColors.stringKeyToInt(key);return AppearanceRuntime.baseColor(dark,nativeKey<0?Theme.key_windowBackgroundWhite:nativeKey);}
     private void restoreContrast(){checkpoint();AppearanceConfig.Resolved r=resolved();AppearanceContrast.repair(draft,r,previewDark,key->contrastBase(previewDark,key));refresh();}
+    /** Set for one Apply after the user accepted low contrast (e.g. transparent bubbles over a photo). */
+    private boolean skipContrast;
     private void applyDraft(){
         AppearanceConfig.Resolved r=resolved();ArrayList<String> issues=new ArrayList<>();for(boolean dark:new boolean[]{false,true})for(String key:AppearanceContrast.issues(draft,r,dark,name->contrastBase(dark,name)))issues.add(getString(dark?R.string.TetogramAppearanceDark:R.string.TetogramAppearanceLight)+": "+colorLabel(key));
-        if(!issues.isEmpty()){showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearanceLowContrast)).setMessage(getString(R.string.TetogramAppearanceLowContrastInfo)+"\n\n"+String.join("\n",issues)).setPositiveButton(getString(R.string.TetogramAppearanceRestoreContrast),(d,n)->{checkpoint();for(boolean dark:new boolean[]{false,true})AppearanceContrast.repair(draft,r,dark,key->contrastBase(dark,key));refresh();applyDraft();}).setNegativeButton(getString(R.string.Edit),null).create());return;}
+        if(!issues.isEmpty()&&!skipContrast){showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearanceLowContrast)).setNeutralButton(getString(R.string.TetogramStudioApplyAnyway),(d,n)->{skipContrast=true;applyDraft();}).setMessage(getString(R.string.TetogramAppearanceLowContrastInfo)+"\n\n"+String.join("\n",issues)).setPositiveButton(getString(R.string.TetogramAppearanceRestoreContrast),(d,n)->{checkpoint();for(boolean dark:new boolean[]{false,true})AppearanceContrast.repair(draft,r,dark,key->contrastBase(dark,key));refresh();applyDraft();}).setNegativeButton(getString(R.string.Edit),null).create());return;}
         final String presetId=editingPresetId;final AppearanceConfig.Style write=draft.copy(),base=baseline==null?null:baseline.copy();final boolean overwrite=overwriteScope;scopeConflict=false;
         Change change=fresh->{
             if(presetId!=null){AppearanceConfig.Preset target=fresh.presets.get(presetId);if(target==null)return false;if(AppearanceEditorPolicy.rebase(base,target.style,overwrite)==AppearanceEditorPolicy.Rebase.CONFLICT){scopeConflict=true;return false;}target.style=AppearanceConfig.withoutPersonal(write);return true;}
             if(AppearanceEditorPolicy.rebase(base,fresh.scopes.get(scope),overwrite)==AppearanceEditorPolicy.Rebase.CONFLICT){scopeConflict=true;return false;}
             fresh.putScope(scope,write);return true;
         };
-        saveConfig(change,()->{overwriteScope=false;leaving=true;finishFragment();},presetId==null&&scope.equals(AppearanceConfig.GLOBAL),()->{
+        skipContrast=false;saveConfig(change,()->{overwriteScope=false;leaving=true;finishFragment();},presetId==null&&scope.equals(AppearanceConfig.GLOBAL),()->{
             if(scopeConflict)showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditorChangedElsewhere)).setMessage(getString(R.string.TetogramEditorChangedElsewhereInfo)).setPositiveButton(getString(R.string.TetogramEditorOverwrite),(d,n)->{overwriteScope=true;applyDraft();}).setNegativeButton(getString(R.string.Cancel),null).create());
             else error(getString(presetId!=null&&config.presets.get(presetId)==null?R.string.TetogramEditorPresetMissing:R.string.TetogramAppearanceConflict));
         });

@@ -79,4 +79,11 @@
     <string name="TetogramStudioAllowGallery">Show my gallery here</string>
     <string name="TetogramStudioAllowGalleryInfo">Allow access to photos and videos, the same permission Telegram uses for attachments.</string>
     <string name="TetogramStudioMyBackgrounds">My backgrounds</string>
+    <string name="TetogramStudioBoth">Both</string>
+    <string name="TetogramStudioStyleTheme">As in the theme</string>
+    <string name="TetogramStudioStyleGlass">Transparent with outline</string>
+    <string name="TetogramStudioStyleRound">Round, no tail</string>
+    <string name="TetogramStudioRadius">Rounding</string>
+    <string name="TetogramStudioAllParameters">Separate corners and all parameters</string>
+    <string name="TetogramStudioApplyAnyway">Apply anyway</string>
 </resources>
