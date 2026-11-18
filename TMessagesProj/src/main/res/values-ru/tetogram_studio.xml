@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramStudioFor">Для: %1$s</string>
+    <string name="TetogramStudioAllChats">всех чатов</string>
+    <string name="TetogramStudioScope">Где применить</string>
+    <string name="TetogramStudioScopeChat">Конкретный чат…</string>
+    <string name="TetogramStudioScopeSection">Раздел…</string>
+    <string name="TetogramStudioScopeFolder">Папка…</string>
+    <string name="TetogramStudioScopeProfile">Мой профиль</string>
+    <string name="TetogramStudioPreviewChat">Чат</string>
+    <string name="TetogramStudioTabColors">Цвета</string>
+    <string name="TetogramStudioTabBackground">Фон</string>
+    <string name="TetogramStudioTabBubbles">Пузыри</string>
+    <string name="TetogramStudioTabList">Список</string>
+    <string name="TetogramStudioTabProfile">Профиль</string>
+    <string name="TetogramStudioTabSections">Разделы</string>
+    <string name="TetogramStudioTabMore">Ещё</string>
+    <string name="TetogramStudioThemes">Темы</string>
+    <string name="TetogramStudioPresets">Пресеты, импорт и экспорт</string>
+</resources>

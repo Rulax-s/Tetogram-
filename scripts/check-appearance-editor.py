@@ -13,7 +13,7 @@ class EditorContracts(unittest.TestCase):
  def test_pinned_actions_and_preview_are_not_list_rows(self):
   src=source('ui/tetogram/AppearanceActivity.java');fill=src.split('@Override protected void fill(',1)[1].split('private void simpleSettings(',1)[0]
   self.assertNotIn('this::applyDraft',fill);self.assertNotIn('TetogramAppearanceSavePreset',fill);self.assertNotIn('UItem.asCustom(preview',fill)
-  self.assertIn('setTopContent(preview',fill);self.assertIn('setBottomActions(editorDock)',src);self.assertIn('AppearanceEditorPolicy.dirtyAppearance(baseline,draft)',src)
+  self.assertIn('setTopContent(topPanel',fill);self.assertIn('setBottomActions(editorDock)',src);self.assertIn('AppearanceEditorPolicy.dirtyAppearance(baseline,draft)',src)
  def test_saves_never_mutate_before_success_and_keep_personal_data(self):
   src=source('ui/tetogram/AppearanceActivity.java')
   for bad in ('config.scopes.clear()','config.presets.remove(','config.presets.put(','config.scopes.put(scope,draft.copy())'):self.assertNotIn(bad,src)

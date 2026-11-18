@@ -65,7 +65,7 @@ class SettingsInsetsContracts(unittest.TestCase):
         self.assertIn('lp.leftMargin=mSystemInsets.left',page)
         self.assertIn('lp.rightMargin=mSystemInsets.right',page)
         screen=source('ui/tetogram/AppearanceActivity.java')
-        self.assertIn('setTopContent(preview',screen)
+        self.assertIn('setTopContent(topPanel',screen)
         self.assertIn('setBottomActions(editorDock)',screen)
 
     def test_no_manual_system_padding_in_common_page(self):

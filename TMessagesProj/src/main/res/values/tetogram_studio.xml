@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramStudioFor">For: %1$s</string>
+    <string name="TetogramStudioAllChats">all chats</string>
+    <string name="TetogramStudioScope">Where to apply</string>
+    <string name="TetogramStudioScopeChat">A specific chat…</string>
+    <string name="TetogramStudioScopeSection">A section…</string>
+    <string name="TetogramStudioScopeFolder">A folder…</string>
+    <string name="TetogramStudioScopeProfile">My profile</string>
+    <string name="TetogramStudioPreviewChat">Chat</string>
+    <string name="TetogramStudioTabColors">Colors</string>
+    <string name="TetogramStudioTabBackground">Background</string>
+    <string name="TetogramStudioTabBubbles">Bubbles</string>
+    <string name="TetogramStudioTabList">List</string>
+    <string name="TetogramStudioTabProfile">Profile</string>
+    <string name="TetogramStudioTabSections">Sections</string>
+    <string name="TetogramStudioTabMore">More</string>
+    <string name="TetogramStudioThemes">Themes</string>
+    <string name="TetogramStudioPresets">Presets, import and export</string>
+</resources>
