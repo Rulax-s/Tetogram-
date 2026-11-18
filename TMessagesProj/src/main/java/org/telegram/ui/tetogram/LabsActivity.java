@@ -36,6 +36,9 @@ public final class LabsActivity extends LabsPage {
         items.add(UItem.asButton(14,getString(R.string.TetogramEditsOpen)));
         items.add(UItem.asButton(15,getString(R.string.TetogramEditsClear)).red());
         items.add(UItem.asShadow(getString(R.string.TetogramEditsLocalInfo)));
+        items.add(UItem.asHeader(getString(R.string.TetogramStats)));
+        items.add(UItem.asButton(16,R.drawable.msg_stats,getString(R.string.TetogramStats)));
+        items.add(UItem.asShadow(getString(R.string.TetogramStatsIntro)));
         items.add(UItem.asHeader(getString(R.string.TetogramInterfaceSection)));
         items.add(UItem.asButton(11,getString(R.string.TetogramSections)));
         items.add(UItem.asHeader(getString(R.string.TetogramInformation)));
@@ -58,6 +61,7 @@ public final class LabsActivity extends LabsPage {
                 break;
             case 13: toggle("edit_history_mark",true);EditHistory.refresh(currentAccount);break;
             case 14: selectChat(true);break;
+            case 16: selectChat(2);break;
             case 15: showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditsClear)).setMessage(getString(R.string.TetogramEditsClearConfirm)).setPositiveButton(getString(R.string.Delete),(d,n)->EditHistory.erase(currentAccount,0,0,ok->{if(getParentActivity()!=null)showDialog(new AlertDialog.Builder(getContext()).setMessage(getString(ok?R.string.TetogramCleared:R.string.TetogramStorageError)).setPositiveButton(getString(R.string.OK),null).create());})).setNegativeButton(getString(R.string.Cancel),null).create());break;
             case 11: presentFragment(new SectionsActivity(currentAccount)); break;
             case 1:
@@ -95,12 +99,13 @@ public final class LabsActivity extends LabsPage {
     private void selectChat() {
         selectChat(false);
     }
-    private void selectChat(boolean edits) {
+    private void selectChat(boolean edits) {selectChat(edits?1:0);}
+    private void selectChat(int target) {
         Bundle args=new Bundle(); args.putBoolean("onlySelect",true); args.putInt("dialogsType",0);
         DialogsActivity picker=new DialogsActivity(args); picker.setCurrentAccount(currentAccount);
         picker.setDelegate((fragment,dids,message,param,notify,schedule,repeat,topics)-> {
             if(dids.isEmpty() || DialogObject.isEncryptedDialog(dids.get(0).dialogId)) return false;
-            fragment.finishFragment(); presentFragment(edits?new EditHistoryActivity(currentAccount,dids.get(0).dialogId,0):new HistoryActivity(currentAccount,dids.get(0).dialogId)); return true;
+            fragment.finishFragment(); long did=dids.get(0).dialogId; presentFragment(target==2?new ChatStatsActivity(currentAccount,did):target==1?new EditHistoryActivity(currentAccount,did,0):new HistoryActivity(currentAccount,did)); return true;
         });
         presentFragment(picker);
     }
