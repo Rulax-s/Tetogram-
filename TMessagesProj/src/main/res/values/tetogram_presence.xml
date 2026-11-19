@@ -7,13 +7,6 @@
     <string name="TetogramPresenceServer">Presence server</string>
     <string name="TetogramPresenceServerMissing">Not set up</string>
     <string name="TetogramPresenceServerInfo">This needs Tetogram\'s small presence server. Its code and setup guide are in the repository (server/presence). Paste its address here once it is deployed.</string>
-    <string name="TetogramPresenceConnect">Connect via the Tetogram bot</string>
-    <string name="TetogramPresenceConnecting">Waiting for the bot…</string>
-    <string name="TetogramPresenceConnectInfo">Opens the Tetogram bot: press Start there. This proves the account is yours so nobody can pretend to be you.</string>
     <string name="TetogramPresenceVisible">Show others that I\'m in Tetogram</string>
-    <string name="TetogramPresenceVisibleInfo">While Tetogram is open, it tells the server every two minutes that you are here. Turn off to hide the mark from everyone. The server keeps only your Telegram ID; it does see which people you check.</string>
-    <string name="TetogramPresenceDisconnect">Disconnect</string>
-    <string name="TetogramPresenceConnected">Connected</string>
-    <string name="TetogramPresenceFailed">Could not connect. Check the server address and try again.</string>
-    <string name="TetogramPresenceWrongAccount">The bot was opened from a different Telegram account.</string>
+    <string name="TetogramPresenceVisibleInfo">While Tetogram is open, it tells the server every two minutes that you are here. Turn off to hide the mark from everyone. The server keeps only your Telegram ID and the time of the signal, in memory, for a few minutes; it does see which people you check.</string>
 </resources>

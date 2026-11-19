@@ -7,13 +7,6 @@
     <string name="TetogramPresenceServer">Сервер присутствия</string>
     <string name="TetogramPresenceServerMissing">Не настроен</string>
     <string name="TetogramPresenceServerInfo">Нужен маленький сервер Тетограма. Его код и инструкция лежат в репозитории (server/presence). Когда он запущен, вставьте сюда его адрес.</string>
-    <string name="TetogramPresenceConnect">Подключиться через бота Тетограма</string>
-    <string name="TetogramPresenceConnecting">Жду бота…</string>
-    <string name="TetogramPresenceConnectInfo">Откроется бот Тетограма — нажмите там «Старт». Так подтверждается, что аккаунт ваш, и никто не выдаст себя за вас.</string>
     <string name="TetogramPresenceVisible">Показывать другим, что я в Тетограме</string>
-    <string name="TetogramPresenceVisibleInfo">Пока Тетограм открыт, он раз в две минуты сообщает серверу, что вы здесь. Выключите — метку не увидит никто. Сервер хранит только ваш Telegram ID, но видит, кого вы проверяете.</string>
-    <string name="TetogramPresenceDisconnect">Отключиться</string>
-    <string name="TetogramPresenceConnected">Подключено</string>
-    <string name="TetogramPresenceFailed">Не удалось подключиться. Проверьте адрес сервера и попробуйте ещё раз.</string>
-    <string name="TetogramPresenceWrongAccount">Бот открыт с другого аккаунта Telegram.</string>
+    <string name="TetogramPresenceVisibleInfo">Пока Тетограм открыт, он раз в две минуты сообщает серверу, что вы здесь. Выключите — метку не увидит никто. Сервер хранит только ваш Telegram ID и время сигнала, в памяти, несколько минут; он видит, кого вы проверяете.</string>
 </resources>
