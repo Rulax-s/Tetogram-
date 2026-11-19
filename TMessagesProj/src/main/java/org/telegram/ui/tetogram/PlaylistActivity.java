@@ -68,23 +68,25 @@ public final class PlaylistActivity extends LabsPage implements NotificationCent
     private View header(List<Playlists.Track> all){
         Context ctx=getContext();LinearLayout box=new LinearLayout(ctx);box.setOrientation(LinearLayout.VERTICAL);box.setGravity(Gravity.CENTER_HORIZONTAL);box.setPadding(dp(16),dp(16),dp(16),dp(12));
         Playlists.Playlist p=playlist();int color=p!=null?p.color:id==RECENT?4:id==MOST?0:5;int icon=id==RECENT?R.drawable.msg_recent:id==MOST?R.drawable.msg_premium_liststar:R.drawable.msg_filled_data_music;
-        View cover=MusicUi.cover(ctx,color,icon,112);box.addView(cover);
+        View cover=MusicUi.cover(ctx,color,icon,88);box.addView(cover);
         TextView name=new TextView(ctx);name.setText(title());name.setTextSize(TypedValue.COMPLEX_UNIT_SP,20);name.setTypeface(AndroidUtilities.bold());name.setGravity(Gravity.CENTER);name.setMaxLines(2);name.setEllipsize(TextUtils.TruncateAt.END);ThemeBind.textColor(name,Theme.key_windowBackgroundWhiteBlackText);
         LinearLayout.LayoutParams np=new LinearLayout.LayoutParams(-2,-2);np.topMargin=dp(12);box.addView(name,np);
         int seconds=0;for(Playlists.Track t:all)seconds+=t.duration;
         TextView sub=new TextView(ctx);sub.setText(all.isEmpty()?getString(R.string.TetogramMusicEmptyShort):formatString(R.string.TetogramMusicSummary,all.size(),Playlists.duration(seconds)));sub.setTextSize(TypedValue.COMPLEX_UNIT_SP,14);ThemeBind.textColor(sub,Theme.key_windowBackgroundWhiteGrayText);box.addView(sub);
         if(!all.isEmpty()){
             LinearLayout buttons=new LinearLayout(ctx);buttons.setOrientation(LinearLayout.HORIZONTAL);LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,dp(44));bp.topMargin=dp(14);box.addView(buttons,bp);
-            buttons.addView(button(ctx,getString(R.string.TetogramMusicPlay),true,()->MusicUi.play(this,all,0)),new LinearLayout.LayoutParams(0,-1,1));
+            buttons.addView(button(ctx,R.drawable.ic_action_play,getString(R.string.TetogramMusicPlay),true,()->MusicUi.play(this,all,0)),new LinearLayout.LayoutParams(0,-1,1));
             LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(0,-1,1);sp.leftMargin=dp(10);
-            buttons.addView(button(ctx,getString(R.string.TetogramMusicShuffle),false,()->MusicUi.play(this,Playlists.shuffled(all,null,System.nanoTime()),0)),sp);
+            buttons.addView(button(ctx,R.drawable.player_new_shuffle,getString(R.string.TetogramMusicShuffle),false,()->MusicUi.play(this,Playlists.shuffled(all,null,System.nanoTime()),0)),sp);
         }
         return box;
     }
-    private TextView button(Context ctx,CharSequence text,boolean primary,Runnable run){
+    private TextView button(Context ctx,int icon,CharSequence text,boolean primary,Runnable run){
         TextView b=new TextView(ctx);b.setText(text);b.setGravity(Gravity.CENTER);b.setTextSize(TypedValue.COMPLEX_UNIT_SP,15);b.setTypeface(AndroidUtilities.bold());
-        int accent=Theme.getColor(Theme.key_featuredStickers_addButton);
-        b.setTextColor(primary?Theme.getColor(Theme.key_featuredStickers_buttonText):accent);
+        int accent=Theme.getColor(Theme.key_featuredStickers_addButton);int fg=primary?Theme.getColor(Theme.key_featuredStickers_buttonText):accent;
+        b.setTextColor(fg);
+        android.graphics.drawable.Drawable d=ctx.getResources().getDrawable(icon).mutate();d.setColorFilter(new android.graphics.PorterDuffColorFilter(fg,android.graphics.PorterDuff.Mode.SRC_IN));int s=dp(20);d.setBounds(0,0,s,s);
+        b.setCompoundDrawablesRelative(d,null,null,null);b.setCompoundDrawablePadding(dp(6));b.setPadding(dp(12),0,dp(12),0);
         b.setBackground(Theme.createSimpleSelectorRoundRectDrawable(dp(12),primary?accent:Theme.multAlpha(accent,0.12f),Theme.multAlpha(primary?0xffffffff:accent,0.2f)));
         b.setOnClickListener(v->run.run());return b;
     }

@@ -3,10 +3,10 @@
     <string name="TetogramPresence">Друзья в Тетограме</string>
     <string name="TetogramPresenceBadge">в Тетограме</string>
     <string name="TetogramPresenceOn">Видно</string>
-    <string name="TetogramPresenceInfo">Видно, когда друг прямо сейчас в сети через Тетограм: в шапке чата появляется «в сети · в Тетограме». Метка пропадает через несколько минут после закрытия приложения и показывается только у тех, кто не выключил «Показывать другим».</string>
+    <string name="TetogramPresenceInfo">Покажет «в сети · в Тетограме» в шапке чата, пока друг сидит в Тетограме.</string>
     <string name="TetogramPresenceServer">Сервер присутствия</string>
     <string name="TetogramPresenceServerMissing">Не настроен</string>
-    <string name="TetogramPresenceServerInfo">Нужен маленький сервер Тетограма. Его код и инструкция лежат в репозитории (server/presence). Когда он запущен, вставьте сюда его адрес.</string>
+    <string name="TetogramPresenceServerInfo">Адрес сервера присутствия. Обычно менять не нужно.</string>
     <string name="TetogramPresenceVisible">Показывать другим, что я в Тетограме</string>
-    <string name="TetogramPresenceVisibleInfo">Пока Тетограм открыт, он раз в две минуты сообщает серверу, что вы здесь. Выключите — метку не увидит никто. Сервер хранит только ваш Telegram ID и время сигнала, в памяти, несколько минут; он видит, кого вы проверяете.</string>
+    <string name="TetogramPresenceVisibleInfo">Выключите, чтобы метку не видел никто. Сервер знает только ваш Telegram ID и время последнего входа.</string>
 </resources>

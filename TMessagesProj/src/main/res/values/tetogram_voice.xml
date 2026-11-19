@@ -17,7 +17,7 @@
     <string name="TetogramVoiceTranslate">Translate</string>
     <string name="TetogramVoiceLanguage">Speech language</string>
     <string name="TetogramVoiceNotDownloaded">Not downloaded · %1$s MB</string>
-    <string name="TetogramVoiceInfo">Long-press a voice or round video message → Transcribe on device. Recognition runs on the phone; the audio never leaves it. Tap the chosen language again to delete its model.</string>
+    <string name="TetogramVoiceInfo">Long-press a voice or round video message and choose “Transcribe on device”. Audio never leaves the phone.</string>
     <string name="TetogramVoiceDeleteText">Delete this speech model? You can download it again later.</string>
     <string name="TetogramVoiceClear">Clear saved texts</string>
     <string name="TetogramVoiceClearInfo">Recognised texts are kept on this phone so they open instantly next time.</string>

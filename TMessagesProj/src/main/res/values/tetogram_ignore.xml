@@ -4,7 +4,7 @@
     <string name="TetogramIgnoreTile">Hide blocked</string>
     <string name="TetogramIgnoreTileOn">%1$d hidden</string>
     <string name="TetogramIgnoreEnable">Hide messages from blocked people in groups</string>
-    <string name="TetogramIgnoreInfo">Messages of people from your Telegram block list disappear from groups and comments, notifications and chat previews. Replies to them show “Hidden message” instead of the quote. Nothing is deleted, reported or marked as read; only this device is affected.</string>
+    <string name="TetogramIgnoreInfo">Messages from people on your block list are hidden in groups, notifications and previews. Only this phone changes.</string>
     <string name="TetogramIgnoreBlockList">Block list</string>
     <string name="TetogramIgnoreSync">Refresh from Telegram</string>
     <string name="TetogramIgnoreNeverSynced">not loaded yet</string>

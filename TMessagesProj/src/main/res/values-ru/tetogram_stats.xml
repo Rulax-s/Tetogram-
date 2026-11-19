@@ -6,7 +6,7 @@
     <string name="TetogramStatsQuick">Быстро — последние 3 000 сообщений</string>
     <string name="TetogramStatsDeep">Подробно — последние 20 000 сообщений</string>
     <string name="TetogramStatsAll">Вся история</string>
-    <string name="TetogramStatsAllInfo">Длинная история может загружаться несколько минут. Telegram ограничивает скорость запросов, поэтому Tetogram сам делает паузы, когда это требуется. Остановить можно в любой момент — результат по уже загруженному сохранится.</string>
+    <string name="TetogramStatsAllInfo">Длинная история грузится несколько минут. Можно остановить в любой момент, загруженное сохранится.</string>
     <string name="TetogramStatsLoading">Анализирую переписку…</string>
     <string name="TetogramStatsLoaded">%1$s из %2$s сообщений</string>
     <string name="TetogramStatsWait">Telegram попросил подождать %1$d с, продолжу автоматически</string>

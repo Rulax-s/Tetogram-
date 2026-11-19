@@ -6,8 +6,8 @@
     <string name="TetogramTagsName">Tag name</string>
     <string name="TetogramTagsShowChats">Chats with this tag</string>
     <string name="TetogramTagsUp">Move up</string>
-    <string name="TetogramTagsInfo">Coloured labels for your chats, shown in the chat list. Put them on a chat via ⋮ → Tags. Stored only on this device.</string>
-    <string name="TetogramTagsNoChats">No chats with this tag yet. Open a chat → ⋮ → Tags.</string>
+    <string name="TetogramTagsInfo">Coloured labels in the chat list. Stored only on this phone.</string>
+    <string name="TetogramTagsNoChats">No chats with this tag yet. Add one from the chat menu, “Tags”.</string>
     <string name="TetogramTagsChatsInfo">Tap a chat to open it or remove the tag.</string>
     <string name="TetogramTagsRemoveFromChat">Remove tag from chat</string>
 </resources>

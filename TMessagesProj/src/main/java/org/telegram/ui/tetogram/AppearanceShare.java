@@ -58,7 +58,7 @@ public final class AppearanceShare {
         Bundle args=new Bundle();args.putBoolean("onlySelect",true);args.putInt("dialogsType",DialogsActivity.DIALOGS_TYPE_FORWARD);args.putBoolean("canSelectTopics",true);
         DialogsActivity picker=new DialogsActivity(args);picker.setCurrentAccount(from.getCurrentAccount());
         picker.setDelegate((fragment,dids,message,param,notify,schedule,repeat,topics)->{
-            if(dids.isEmpty())return false;String caption="🎨 "+(name==null||name.isEmpty()?"Tetogram":name)+" — "+getString(R.string.TetogramAppearanceShareCaption);
+            if(dids.isEmpty())return false;String caption=org.telegram.messenger.LocaleController.formatString(R.string.TetogramAppearanceShareCaption,name==null||name.isEmpty()?"Tetogram":name);
             AccountInstance account=AccountInstance.getInstance(from.getCurrentAccount());
             for(MessagesStorage.TopicKey key:dids)SendMessagesHelper.prepareSendingDocument(account,file.getAbsolutePath(),file.getAbsolutePath(),null,caption,"application/zip",key.dialogId,null,null,null,null,null,notify,schedule,null,null,false);
             fragment.finishFragment();

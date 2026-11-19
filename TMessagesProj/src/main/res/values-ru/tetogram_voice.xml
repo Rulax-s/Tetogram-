@@ -17,7 +17,7 @@
     <string name="TetogramVoiceTranslate">Перевести</string>
     <string name="TetogramVoiceLanguage">Язык речи</string>
     <string name="TetogramVoiceNotDownloaded">Не скачана · %1$s МБ</string>
-    <string name="TetogramVoiceInfo">Долгое нажатие на голосовое или кружок → «Расшифровать на устройстве». Распознавание идёт на телефоне, аудио никуда не отправляется. Повторное нажатие на выбранный язык удалит его модель.</string>
+    <string name="TetogramVoiceInfo">Удерживайте голосовое или кружок и выберите «Расшифровать на устройстве». Аудио не покидает телефон.</string>
     <string name="TetogramVoiceDeleteText">Удалить эту модель речи? Её можно скачать снова.</string>
     <string name="TetogramVoiceClear">Очистить сохранённые тексты</string>
     <string name="TetogramVoiceClearInfo">Расшифровки хранятся на телефоне, чтобы в следующий раз открываться сразу.</string>

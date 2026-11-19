@@ -88,6 +88,6 @@
     <string name="TetogramStudioApplyAnyway">Apply anyway</string>
     <string name="TetogramAppearanceShareChat">Send to a chat</string>
     <string name="TetogramAppearanceShareFile">Save as a file</string>
-    <string name="TetogramAppearanceShareCaption">tap to open in Tetogram</string>
+    <string name="TetogramAppearanceShareCaption">“%1$s” appearance for Tetogram. Tap to open.</string>
     <string name="TetogramAppearanceShared">Sent</string>
 </resources>

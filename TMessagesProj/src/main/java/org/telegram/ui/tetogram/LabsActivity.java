@@ -89,30 +89,37 @@ public final class LabsActivity extends LabsPage {
     @Override protected void fill(ArrayList<UItem> items,UniversalAdapter adapter){
         filled=null;Context ctx=getContext();
         items.add(UItem.asCustomShadow(header(ctx),-2));
-        items.add(UItem.asHeader(getString(R.string.TetogramLabsFeatures)));
+        rowActions.clear();
+        // Four main tools as tiles, the rest as ordinary settings rows grouped like Telegram's own settings.
         ArrayList<View> tiles=new ArrayList<>();
         tiles.add(tile(ctx,R.drawable.settings_chat,0xff6A4FC4,getString(R.string.TetogramAppearance),appearanceState(),false,()->presentFragment(new AppearanceActivity(currentAccount))));
         tiles.add(tile(ctx,R.drawable.msg_folders,0xff2F7DD3,getString(R.string.TetogramSections),sectionsState(),false,()->presentFragment(new SectionsActivity(currentAccount))));
-        tiles.add(tile(ctx,R.drawable.msg_stats,0xff1E9E86,getString(R.string.TetogramStats),getString(R.string.TetogramLabsPickChat),false,this::pickStatsChat));
-        tiles.add(tile(ctx,R.drawable.menu_profile_colors,0xffD9507A,getString(R.string.TetogramPersonSection),peopleState(),false,()->presentFragment(AppearanceActivity.people(currentAccount))));
-        boolean deleted=LabsSettings.enabled(currentAccount),edits=LabsSettings.edits(currentAccount);
-        tiles.add(tile(ctx,R.drawable.msg_delete,0xffD9822B,getString(R.string.TetogramLabsDeletedTitle),getString(deleted?R.string.TetogramLabsSaving:R.string.TetogramLabsOff),deleted,()->presentFragment(new LabsHistoryActivity(currentAccount,false))));
-        tiles.add(tile(ctx,R.drawable.msg_edit,0xff7A8696,getString(R.string.TetogramLabsEditsTitle),getString(edits?R.string.TetogramLabsSaving:R.string.TetogramLabsOff),edits,()->presentFragment(new LabsHistoryActivity(currentAccount,true))));
-        int bookmarks=org.telegram.messenger.tetogram.BookmarksStore.load(currentAccount).items.size();
-        tiles.add(tile(ctx,R.drawable.msg_fave,0xffE2A33B,getString(R.string.TetogramBookmarks),bookmarks==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,bookmarks),false,()->presentFragment(new BookmarksActivity(currentAccount,0))));
-        boolean ignore=org.telegram.messenger.tetogram.Ignore.enabled(currentAccount);
-        tiles.add(tile(ctx,R.drawable.msg_block,0xff8E5A5A,getString(R.string.TetogramIgnoreTile),ignore?formatString(R.string.TetogramIgnoreTileOn,org.telegram.messenger.tetogram.Ignore.blocked(currentAccount).size()):getString(R.string.TetogramLabsOff),ignore,()->presentFragment(new IgnoreActivity(currentAccount))));
         int playlists=org.telegram.messenger.tetogram.PlaylistsStore.load(currentAccount).playlists.size();
         tiles.add(tile(ctx,R.drawable.msg_filled_data_music,0xffE5533D,getString(R.string.TetogramMusic),playlists==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,playlists),false,()->presentFragment(new MusicActivity(currentAccount))));
         int translated=org.telegram.messenger.tetogram.ChatTranslation.chats(currentAccount).size();
         tiles.add(tile(ctx,R.drawable.msg_translate,0xff3C8DBC,getString(R.string.TetogramTranslate),translated==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,translated),translated>0,()->presentFragment(new TranslateSettingsActivity(currentAccount))));
-        int tagCount=org.telegram.messenger.tetogram.ChatTagsStore.load(currentAccount).tags.size();
-        tiles.add(tile(ctx,R.drawable.menu_tag_filter,0xffC2559B,getString(R.string.TetogramTags),tagCount==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,tagCount),false,()->presentFragment(new TagsActivity(currentAccount))));
-        String voiceLang=org.telegram.messenger.tetogram.VoiceTranscription.language();boolean voiceReady=org.telegram.messenger.tetogram.VoiceTranscription.installed(voiceLang);
-        if(VoiceUi.ENABLED)tiles.add(tile(ctx,R.drawable.msg_photo_text_regular,0xff4E9A57,getString(R.string.TetogramVoice),voiceReady?org.telegram.messenger.tetogram.ChatTranslation.languageName(voiceLang):getString(R.string.TetogramLabsOff),voiceReady,()->presentFragment(new VoiceSettingsActivity(currentAccount))));
-        boolean presence=org.telegram.messenger.tetogram.TetoPresence.connected(currentAccount)&&org.telegram.messenger.tetogram.TetoPresence.visible(currentAccount);
-        tiles.add(tile(ctx,R.drawable.msg_contacts,0xffE0598B,getString(R.string.TetogramPresence),getString(presence?R.string.TetogramPresenceOn:R.string.TetogramLabsOff),presence,()->presentFragment(new PresenceActivity(currentAccount))));
         items.add(UItem.asCustomShadow(grid(ctx,tiles),-2));
+
+        items.add(UItem.asHeader(getString(R.string.TetogramLabsGroupChats)));
+        int tagCount=org.telegram.messenger.tetogram.ChatTagsStore.load(currentAccount).tags.size();
+        row(items,R.drawable.menu_tag_filter,getString(R.string.TetogramTags),tagCount==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,tagCount),()->presentFragment(new TagsActivity(currentAccount)));
+        int bookmarks=org.telegram.messenger.tetogram.BookmarksStore.load(currentAccount).items.size();
+        row(items,R.drawable.msg_fave,getString(R.string.TetogramBookmarks),bookmarks==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,bookmarks),()->presentFragment(new BookmarksActivity(currentAccount,0)));
+        boolean ignore=org.telegram.messenger.tetogram.Ignore.enabled(currentAccount);
+        row(items,R.drawable.msg_block,getString(R.string.TetogramIgnoreTile),ignore?formatString(R.string.TetogramIgnoreTileOn,org.telegram.messenger.tetogram.Ignore.blocked(currentAccount).size()):getString(R.string.TetogramLabsOff),()->presentFragment(new IgnoreActivity(currentAccount)));
+        String voiceLang=org.telegram.messenger.tetogram.VoiceTranscription.language();boolean voiceReady=org.telegram.messenger.tetogram.VoiceTranscription.installed(voiceLang);
+        if(VoiceUi.ENABLED)row(items,R.drawable.msg_photo_text_regular,getString(R.string.TetogramVoice),voiceReady?org.telegram.messenger.tetogram.ChatTranslation.languageName(voiceLang):getString(R.string.TetogramLabsOff),()->presentFragment(new VoiceSettingsActivity(currentAccount)));
+
+        items.add(UItem.asHeader(getString(R.string.TetogramLabsGroupPeople)));
+        row(items,R.drawable.menu_profile_colors,getString(R.string.TetogramPersonSection),peopleState(),()->presentFragment(AppearanceActivity.people(currentAccount)));
+        boolean presence=org.telegram.messenger.tetogram.TetoPresence.connected(currentAccount)&&org.telegram.messenger.tetogram.TetoPresence.visible(currentAccount);
+        row(items,R.drawable.msg_contacts,getString(R.string.TetogramPresence),getString(presence?R.string.TetogramPresenceOn:R.string.TetogramLabsOff),()->presentFragment(new PresenceActivity(currentAccount)));
+
+        items.add(UItem.asHeader(getString(R.string.TetogramLabsGroupHistory)));
+        boolean deleted=LabsSettings.enabled(currentAccount),edits=LabsSettings.edits(currentAccount);
+        row(items,R.drawable.msg_delete,getString(R.string.TetogramLabsDeletedTitle),getString(deleted?R.string.TetogramLabsSaving:R.string.TetogramLabsOff),()->presentFragment(new LabsHistoryActivity(currentAccount,false)));
+        row(items,R.drawable.msg_edit,getString(R.string.TetogramLabsEditsTitle),getString(edits?R.string.TetogramLabsSaving:R.string.TetogramLabsOff),()->presentFragment(new LabsHistoryActivity(currentAccount,true)));
+        row(items,R.drawable.msg_stats,getString(R.string.TetogramStats),getString(R.string.TetogramLabsPickChat),this::pickStatsChat);
 
         items.add(UItem.asHeader(getString(R.string.TetogramLabsSystem)));
         LinearLayout perms=card(ctx);
@@ -138,7 +145,11 @@ public final class LabsActivity extends LabsPage {
         items.add(UItem.asButton(10,getString(R.string.TetogramLicenses),"GPL v2+"));
         items.add(UItem.asShadow(getString(R.string.TetogramIntro)));
     }
+    private final ArrayList<Runnable> rowActions=new ArrayList<>();
+    private static final int ROW=1000;
+    private void row(ArrayList<UItem> items,int icon,CharSequence title,CharSequence value,Runnable action){rowActions.add(action);items.add(UItem.asButton(ROW+rowActions.size()-1,icon,title,value));}
     @Override protected void click(UItem item,View view,int position,float x,float y){
+        if(item.id>=ROW&&item.id-ROW<rowActions.size()){rowActions.get(item.id-ROW).run();return;}
         if(item.id==8)showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramLabsWhatsNew)).setMessage(getString(R.string.TetogramLabsWhatsNewText)).setPositiveButton(getString(R.string.OK),null).create());
         else if(item.id==10)showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramInformation)).setMessage(getString(R.string.TetogramLicenseInfo)).setPositiveButton(getString(R.string.OK),null).create());
     }

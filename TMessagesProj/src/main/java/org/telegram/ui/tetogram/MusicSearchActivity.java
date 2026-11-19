@@ -67,7 +67,7 @@ public final class MusicSearchActivity extends LabsPage implements NotificationC
         items.add(UItem.asCustom(search,48));
         ArrayList<Playlists.Track> tracks=tracks();
         for(int i=0;i<results.size();i++){final MessageObject m=results.get(i);Playlists.Track t=PlaylistsStore.track(m);if(t==null)continue;final int index=i;
-            items.add(UItem.asCustom(MusicUi.trackRow(getContext(),t,MusicUi.isPlaying(t),v->playFrom(index),v->{ArrayList<Playlists.Track> one=new ArrayList<>();one.add(t);MusicUi.addToPlaylist(this,one);}),-2));}
+            items.add(UItem.asCustom(MusicUi.trackRow(getContext(),t,m,MusicUi.isPlaying(t),v->playFrom(index),v->{ArrayList<Playlists.Track> one=new ArrayList<>();one.add(t);MusicUi.addToPlaylist(this,one);}),-2));}
         if(loading)items.add(UItem.asShadow(getString(R.string.Loading)));
         else if(results.isEmpty())items.add(UItem.asShadow(getString(query.isEmpty()?R.string.TetogramMusicAllEmpty:R.string.TetogramBookmarksNothingFound)));
         else if(!endReached)items.add(UItem.asButton(MORE,getString(R.string.TetogramMusicLoadMore)));

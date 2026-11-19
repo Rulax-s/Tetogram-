@@ -14,7 +14,7 @@
     <string name="TetogramEditorHidePreview">Скрыть предпросмотр</string>
     <string name="TetogramEditorExpandPreview">Предпросмотр на весь экран</string>
     <string name="TetogramEditorChangeCategory">Категория редактора</string>
-    <string name="TetogramEditorWallpaperLink">Обои → настройки фона этой области</string>
+    <string name="TetogramEditorWallpaperLink">Настройки фона этой области</string>
     <string name="TetogramEditorColorsLink">Цвета и стиль этой области</string>
     <string name="TetogramEditorGlobalColors">Глобальные цвета приложения</string>
     <string name="TetogramEditorChooseChat">Индивидуальное оформление чата</string>

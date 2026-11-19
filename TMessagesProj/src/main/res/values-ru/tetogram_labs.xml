@@ -34,5 +34,8 @@
     <string name="TetogramLabsWhatsNew">Что нового</string>
     <string name="TetogramLabsBuild">сборка %1$d · на основе Telegram %2$s</string>
     <string name="TetogramLabsLocalOnly">Всё хранится только на этом устройстве</string>
-    <string name="TetogramLabsWhatsNewText">• Labs: обзор возможностей, статус разрешений и сохранённых данных.\n• Звонки на экране блокировки: спрашиваем один раз, статус — здесь.\n• Разделы: правки не откатываются, перетаскивание, число чатов, плавная прокрутка.\n• Редактор оформления: большой предпросмотр, нажатие на элемент, фоны из галереи, слайдеры, прозрачные пузыри с обводкой.\n• Свой цвет и обводка пузырей для каждого человека.\n• Чёткие видео-фоны.\n• Статистика переписки.</string>
+    <string name="TetogramLabsWhatsNewText">Перевод чатов, музыка и плейлисты, теги, закладки, «Друзья в Тетограме», обмен оформлением в чатах, скрытие заблокированных. Подробности — в истории изменений на GitHub.</string>
+    <string name="TetogramLabsGroupChats">Чаты</string>
+    <string name="TetogramLabsGroupPeople">Люди</string>
+    <string name="TetogramLabsGroupHistory">История</string>
 </resources>

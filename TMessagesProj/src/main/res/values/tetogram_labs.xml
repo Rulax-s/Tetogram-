@@ -34,5 +34,8 @@
     <string name="TetogramLabsWhatsNew">What’s new</string>
     <string name="TetogramLabsBuild">build %1$d · based on Telegram %2$s</string>
     <string name="TetogramLabsLocalOnly">Everything is stored only on this device</string>
-    <string name="TetogramLabsWhatsNewText">• Labs: overview with features, permission status and stored data.\n• Calls on the lock screen: asked once, status here.\n• Sections: edits never roll back, drag to reorder, chat counts, smoother scrolling.\n• Appearance studio: big preview, tap any element, gallery backgrounds, inline sliders, transparent bubbles with outline.\n• Per-person bubble colors and outlines.\n• Sharper video backgrounds.\n• Conversation statistics.</string>
+    <string name="TetogramLabsWhatsNewText">Chat translation, music and playlists, tags, bookmarks, Tetogram friends, sharing appearance in chats, hiding blocked people. Details are in the changelog on GitHub.</string>
+    <string name="TetogramLabsGroupChats">Chats</string>
+    <string name="TetogramLabsGroupPeople">People</string>
+    <string name="TetogramLabsGroupHistory">History</string>
 </resources>

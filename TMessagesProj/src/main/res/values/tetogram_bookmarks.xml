@@ -7,7 +7,7 @@
     <string name="TetogramBookmarkAdded">Added to bookmarks</string>
     <string name="TetogramBookmarkRemoved">Removed from bookmarks</string>
     <string name="TetogramBookmarksSearch">Search bookmarks</string>
-    <string name="TetogramBookmarksEmpty">No bookmarks yet. Long-press any message and choose “Add to bookmarks” to find it here quickly.</string>
+    <string name="TetogramBookmarksEmpty">No bookmarks yet. Long-press a message in a chat and choose “Bookmark”.</string>
     <string name="TetogramBookmarksNothingFound">Nothing found.</string>
     <string name="TetogramBookmarksInfo">Tap to open the message in its chat. Hold for a note or to remove. Bookmarks are stored only on this device.</string>
     <string name="TetogramBookmarksNoText">Media</string>

@@ -7,9 +7,9 @@
     <string name="TetogramBookmarkAdded">Добавлено в закладки</string>
     <string name="TetogramBookmarkRemoved">Убрано из закладок</string>
     <string name="TetogramBookmarksSearch">Поиск по закладкам</string>
-    <string name="TetogramBookmarksEmpty">Закладок пока нет. Зажмите любое сообщение и выберите «В закладки», чтобы быстро найти его здесь.</string>
+    <string name="TetogramBookmarksEmpty">Закладок пока нет. Удерживайте сообщение в чате и выберите «В закладки».</string>
     <string name="TetogramBookmarksNothingFound">Ничего не найдено.</string>
-    <string name="TetogramBookmarksInfo">Нажмите, чтобы открыть сообщение в чате. Удерживайте, чтобы добавить заметку или убрать. Закладки хранятся только на этом устройстве.</string>
+    <string name="TetogramBookmarksInfo">Нажмите, чтобы перейти к сообщению. Удерживайте, чтобы добавить заметку или убрать закладку.</string>
     <string name="TetogramBookmarksNoText">Медиа</string>
     <string name="TetogramBookmarksOpen">Открыть в чате</string>
     <string name="TetogramBookmarksAddNote">Добавить заметку</string>

@@ -22,6 +22,7 @@ import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.R;
 import org.telegram.messenger.tetogram.Playlists;
 import org.telegram.messenger.tetogram.PlaylistsStore;
+import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
@@ -33,16 +34,28 @@ public final class MusicUi {
     private MusicUi(){}
     public static int color(int index){return Theme.getColor(Theme.keys_avatar_nameInMessage[Math.abs(index)%Theme.keys_avatar_nameInMessage.length]);}
 
-    /** Square cover with the playlist colour and a note, or a custom icon. */
+    /** Playlist cover: the playlist's own colour as a soft tint with a matching icon (no gradients). */
     public static View cover(Context ctx,int colorIndex,int icon,int sizeDp){
-        ImageView v=new ImageView(ctx);v.setScaleType(ImageView.ScaleType.CENTER);v.setImageResource(icon);v.setColorFilter(0xffffffff);
-        GradientDrawable bg=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{color(colorIndex),Theme.multAlpha(color(colorIndex),0.65f)});bg.setCornerRadius(dp(sizeDp/5f));v.setBackground(bg);
+        int c=color(colorIndex);ImageView v=new ImageView(ctx);v.setScaleType(ImageView.ScaleType.CENTER);v.setImageResource(icon);v.setColorFilter(c);
+        GradientDrawable bg=new GradientDrawable();bg.setColor(Theme.multAlpha(c,Theme.isCurrentThemeDark()?0.22f:0.14f));bg.setCornerRadius(dp(Math.min(12,sizeDp/5f)));v.setBackground(bg);
         v.setLayoutParams(new LinearLayout.LayoutParams(dp(sizeDp),dp(sizeDp)));return v;
     }
+    /** Track artwork: the album cover from the file when known, otherwise a neutral note. */
+    private static View art(Context ctx,MessageObject m,boolean playing){
+        TLRPC.Document doc=m==null?null:m.getDocument();
+        TLRPC.PhotoSize thumb=doc==null?null:org.telegram.messenger.FileLoader.getClosestPhotoSizeWithSize(doc.thumbs,90);
+        if(thumb!=null){org.telegram.ui.Components.BackupImageView image=new org.telegram.ui.Components.BackupImageView(ctx);image.setRoundRadius(dp(8));
+            image.setImage(org.telegram.messenger.ImageLocation.getForDocument(thumb,doc),"42_42",(android.graphics.drawable.Drawable)null,m);image.setLayoutParams(new LinearLayout.LayoutParams(dp(42),dp(42)));return image;}
+        ImageView v=new ImageView(ctx);v.setScaleType(ImageView.ScaleType.CENTER);v.setImageResource(playing?R.drawable.ic_action_play:R.drawable.msg_filled_data_music);
+        v.setColorFilter(Theme.getColor(playing?Theme.key_windowBackgroundWhiteBlueText:Theme.key_windowBackgroundWhiteGrayIcon));
+        GradientDrawable bg=new GradientDrawable();bg.setColor(Theme.getColor(Theme.key_windowBackgroundGray));bg.setCornerRadius(dp(8));v.setBackground(bg);
+        v.setLayoutParams(new LinearLayout.LayoutParams(dp(42),dp(42)));return v;
+    }
     /** Title, performer · duration, optional marker on the right. */
-    public static LinearLayout trackRow(Context ctx,Playlists.Track t,boolean playing,View.OnClickListener tap,View.OnClickListener more){
+    public static LinearLayout trackRow(Context ctx,Playlists.Track t,boolean playing,View.OnClickListener tap,View.OnClickListener more){return trackRow(ctx,t,null,playing,tap,more);}
+    public static LinearLayout trackRow(Context ctx,Playlists.Track t,MessageObject message,boolean playing,View.OnClickListener tap,View.OnClickListener more){
         LinearLayout row=new LinearLayout(ctx);row.setOrientation(LinearLayout.HORIZONTAL);row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(dp(16),dp(6),dp(4),dp(6));row.setMinimumHeight(dp(58));
-        View art=cover(ctx,(int)(Math.abs(t.dialog+t.message)%7),playing?R.drawable.ic_action_play:R.drawable.msg_filled_data_music,42);row.addView(art);
+        row.addView(art(ctx,message,playing));
         LinearLayout texts=new LinearLayout(ctx);texts.setOrientation(LinearLayout.VERTICAL);LinearLayout.LayoutParams tp=new LinearLayout.LayoutParams(0,-2,1);tp.leftMargin=dp(12);row.addView(texts,tp);
         TextView title=new TextView(ctx);title.setText(t.title.isEmpty()?getString(R.string.AudioUnknownTitle):t.title);title.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);title.setSingleLine(true);title.setEllipsize(TextUtils.TruncateAt.END);ThemeBind.textColor(title,playing?Theme.key_windowBackgroundWhiteBlueText:Theme.key_windowBackgroundWhiteBlackText);if(playing)title.setTypeface(AndroidUtilities.bold());texts.addView(title);
         TextView sub=new TextView(ctx);sub.setText((t.performer.isEmpty()?getString(R.string.AudioUnknownArtist):t.performer)+" · "+Playlists.duration(t.duration));sub.setTextSize(TypedValue.COMPLEX_UNIT_SP,13);sub.setSingleLine(true);sub.setEllipsize(TextUtils.TruncateAt.END);ThemeBind.textColor(sub,Theme.key_windowBackgroundWhiteGrayText);texts.addView(sub);
@@ -91,9 +104,9 @@ public final class MusicUi {
     public static void addToPlaylist(BaseFragment f,List<Playlists.Track> tracks){
         Context ctx=f.getParentActivity();if(ctx==null||tracks.isEmpty())return;int a=f.getCurrentAccount();
         Playlists lib=PlaylistsStore.load(a);ArrayList<Playlists.Playlist> lists=new ArrayList<>(lib.playlists);
-        CharSequence[] names=new CharSequence[lists.size()+1];names[0]="＋ "+getString(R.string.TetogramMusicNew);
-        for(int i=0;i<lists.size();i++){Playlists.Playlist p=lists.get(i);boolean has=tracks.size()==1&&p.contains(tracks.get(0).dialog,tracks.get(0).message);names[i+1]=(has?"✓ ":"")+p.name;}
-        f.showDialog(new AlertDialog.Builder(ctx).setTitle(getString(R.string.TetogramMusicAddTo)).setItems(names,(d,n)->{
+        CharSequence[] names=new CharSequence[lists.size()+1];int[] icons=new int[names.length];names[0]=getString(R.string.TetogramMusicNew);icons[0]=R.drawable.msg_add;
+        for(int i=0;i<lists.size();i++){Playlists.Playlist p=lists.get(i);boolean has=tracks.size()==1&&p.contains(tracks.get(0).dialog,tracks.get(0).message);names[i+1]=p.name;icons[i+1]=has?R.drawable.msg_select:R.drawable.msg_filled_data_music;}
+        f.showDialog(new AlertDialog.Builder(ctx).setTitle(getString(R.string.TetogramMusicAddTo)).setItems(names,icons,(d,n)->{
             if(n==0){editPlaylist(f,null,id->{if(id!=0)addAll(f,a,id,tracks);});return;}
             addAll(f,a,lists.get(n-1).id,tracks);
         }).create());

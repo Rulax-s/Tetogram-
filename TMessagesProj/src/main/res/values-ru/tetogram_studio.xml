@@ -63,7 +63,7 @@
     <string name="TetogramPersonMenuGroup">Цвет участника</string>
     <string name="TetogramPersonMenuPrivate">Цвет его сообщений</string>
     <string name="TetogramPersonSection">Цвета людей</string>
-    <string name="TetogramPersonHowTo">Чтобы добавить человека, зажмите его сообщение и выберите «Цвет участника» или откройте его профиль → ⋮ → «Цвет его сообщений».</string>
+    <string name="TetogramPersonHowTo">Удерживайте сообщение человека и выберите «Цвет участника», или задайте цвет в меню его профиля.</string>
     <string name="TetogramStudioBgColor">Цвет</string>
     <string name="TetogramStudioBgGradient">Градиент</string>
     <string name="TetogramStudioBgMedia">Фото и видео</string>
@@ -88,6 +88,6 @@
     <string name="TetogramStudioApplyAnyway">Применить всё равно</string>
     <string name="TetogramAppearanceShareChat">Отправить в чат</string>
     <string name="TetogramAppearanceShareFile">Сохранить файлом</string>
-    <string name="TetogramAppearanceShareCaption">нажмите, чтобы открыть в Тетограме</string>
+    <string name="TetogramAppearanceShareCaption">Оформление «%1$s» для Тетограма. Нажмите, чтобы открыть.</string>
     <string name="TetogramAppearanceShared">Отправлено</string>
 </resources>
