@@ -1663,7 +1663,11 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                     lastPrintString = null;
                     printingStringType = -1;
                 }
-                if (draftVoice || draftMessage != null) {
+                if (printingString == null && !draftVoice && draftMessage == null && org.telegram.messenger.tetogram.Ignore.hides(currentAccount, message)) {
+                    checkMessage = false;
+                    messageNameString = null;
+                    messageString = getString(R.string.TetogramIgnoreHiddenMessage);
+                } else if (draftVoice || draftMessage != null) {
                     checkMessage = false;
                     messageNameString = getString(R.string.Draft);
                     if (draftMessage != null && TextUtils.isEmpty(draftMessage.message) && draftMessage.rich_message == null) {

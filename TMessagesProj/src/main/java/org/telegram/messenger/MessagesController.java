@@ -8746,6 +8746,7 @@ public class MessagesController extends BaseController implements NotificationCe
             return;
         }
         blockePeers.put(id, 1);
+        org.telegram.messenger.tetogram.Ignore.blockedChanged(currentAccount, id, true);
         if (user != null) {
             if (user.bot) {
                 getMediaDataController().removeInline(id);
@@ -8940,6 +8941,7 @@ public class MessagesController extends BaseController implements NotificationCe
         }
         totalBlockedCount--;
         blockePeers.delete(id);
+        org.telegram.messenger.tetogram.Ignore.blockedChanged(currentAccount, id, false);
         if (user != null) {
             req.id = getInputPeer(user);
         } else {
@@ -12255,12 +12257,12 @@ public class MessagesController extends BaseController implements NotificationCe
                         getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoadWithoutProcess, classGuid, resCount, isCache, isEnd, last_message_id);
                     } else {
                         org.telegram.messenger.tetogram.DeletedHistory.deliver(currentAccount, dialogId, objects, count, load_type==LOAD_FROM_UNREAD && max_id==0 ? first_unread : max_id, load_type, isCache, isEnd, mode, threadMessageId, page ->
-                            getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, page, isCache, finalFirst_unread_final, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode));
+                            getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, org.telegram.messenger.tetogram.Ignore.page(currentAccount, page), isCache, finalFirst_unread_final, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode));
                     }
                 }, classGuid, loaderLogger);
             } else {
                 org.telegram.messenger.tetogram.DeletedHistory.deliver(currentAccount, dialogId, objects, count, load_type==LOAD_FROM_UNREAD && max_id==0 ? first_unread : max_id, load_type, isCache, isEnd, mode, threadMessageId, page ->
-                            getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, page, isCache, tetogramFirstUnread, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode));
+                            getNotificationCenter().postNotificationName(NotificationCenter.messagesDidLoad, dialogId, count, org.telegram.messenger.tetogram.Ignore.page(currentAccount, page), isCache, tetogramFirstUnread, last_message_id, unread_count, last_date, load_type, isEnd, classGuid, loadIndex, max_id, mentionsCount, mode));
             }
 
             if (!messagesToReload.isEmpty()) {
@@ -19267,6 +19269,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 TL_update.TL_updatePeerBlocked finalUpdate = (TL_update.TL_updatePeerBlocked) baseUpdate;
                 getMessagesStorage().getStorageQueue().postRunnable(() -> AndroidUtilities.runOnUIThread(() -> {
                     long id = MessageObject.getPeerId(finalUpdate.peer_id);
+                    org.telegram.messenger.tetogram.Ignore.blockedChanged(currentAccount, id, finalUpdate.blocked);
                     if (finalUpdate.blocked) {
                         if (blockePeers.indexOfKey(id) < 0) {
                             blockePeers.put(id, 1);
@@ -22041,7 +22044,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 getNotificationCenter().postNotificationName(NotificationCenter.replaceMessagesObjects, dialogId, gramMessages);
             }
         }
-        getNotificationCenter().postNotificationName(NotificationCenter.didReceiveNewMessages, dialogId, messages, scheduled, mode);
+        getNotificationCenter().postNotificationName(NotificationCenter.didReceiveNewMessages, dialogId, org.telegram.messenger.tetogram.Ignore.fresh(currentAccount, messages), scheduled, mode);
 
         if (lastMessage == null || scheduled) {
             return false;

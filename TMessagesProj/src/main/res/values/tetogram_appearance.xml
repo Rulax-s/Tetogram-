@@ -39,9 +39,9 @@
   <string name="TetogramAppearanceResetConfirm">Reset all local appearance overrides for this account? Presets, sections, icons and message history will remain.</string>
   <string name="TetogramAppearanceConflict">Changes could not be saved. The account or saved revision may have changed. Reopen the editor to load current settings.</string>
   <string name="TetogramPreviewName">Preview chat</string>
-  <string name="TetogramPreviewMessage">This is a safe preview message 👋</string>
-  <string name="TetogramPreviewAnswer">Your message style appears here.</string>
-  <string name="TetogramAppearanceDisplayMode">Display mode</string>
+  <string name="TetogramPreviewMessage">Hi! How do you like the new look? 👋</string>
+  <string name="TetogramPreviewAnswer">Love it, keeping it</string>
+  <string name="TetogramAppearanceDisplayMode">Theme</string>
   <string name="TetogramAppearanceWallpapers">Wallpapers and video wallpapers</string>
   <string name="TetogramAppearancePreviewSurface">Preview surface</string>
   <string name="TetogramAppearanceDialogList">Chat list</string>
@@ -117,7 +117,7 @@
     <string name="TetogramAppearanceShortcutRemoved">The personalized shortcut is disabled. To remove its icon, hold it on the home screen and choose Remove. The installed app and its data remain available.</string>
     <string name="TetogramAppearanceShortcutUnsupported">The launcher did not accept this shortcut. Try adding it with another launcher.</string>
     <string name="TetogramAppearanceAnimationsEnabled">Enable appearance transitions and animated backgrounds</string>
-    <string name="TetogramAppearanceTransitionDuration">Transition duration multiplier</string>
+    <string name="TetogramAppearanceTransitionDuration">Animation length</string>
     <string name="TetogramAppearanceReduceOnBattery">Reduce effects in power saving mode</string>
     <string name="TetogramAppearanceNativeEffects">Telegram Lite Mode and native effects</string>
     <string name="TetogramAppearanceSenderNames">Sender name color in groups</string>
@@ -134,7 +134,7 @@
     <string name="TetogramAppearanceEyedropper">Pick a color from an image</string>
     <string name="TetogramAppearanceEyedropperInfo">Move the native Telegram pipette over the image and lift your finger to select a color. The image is not saved or uploaded.</string>
     <string name="TetogramAppearancePresetDraft">Editing a saved preset. Save updates the preset only; the current app appearance stays unchanged.</string>
-    <string name="TetogramAppearancePrimaryColor">Primary color (automatic palette)</string>
+    <string name="TetogramAppearancePrimaryColor">Main colour</string>
     <string name="TetogramAppearanceBubbleStyle">Message style</string>
     <string name="TetogramAppearanceSoftBubbles">Soft rounded bubbles</string>
     <string name="TetogramAppearanceMinimalBubbles">Minimal bubbles</string>

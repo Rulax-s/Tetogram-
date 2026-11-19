@@ -35,7 +35,12 @@ public final class AppearanceEditorPolicy {
     public static int preview(Category category){switch(category){case LIST:return 1;case PROFILE:return 2;case SECTIONS:return 4;default:return 0;}}
     public static boolean dirty(AppearanceConfig.Style saved,AppearanceConfig.Style draft){return !((saved==null?Collections.emptyMap():saved.values).equals(draft==null?Collections.emptyMap():draft.values));}
     /** Selecting another category/mode is a view operation, never a storage migration. */
-    public static AppearanceConfig.Style resetCategory(AppearanceConfig.Style style,Category category){AppearanceConfig.Style result=style.copy();for(String key:new ArrayList<>(result.values.keySet()))if(category(key)==category)result.values.remove(key);return result;}
+    public static AppearanceConfig.Style resetCategory(AppearanceConfig.Style style,Category category){AppearanceConfig.Style result=style.copy();for(String key:new ArrayList<>(result.values.keySet()))if(category(key)==category&&!AppearanceConfig.isPersonalKey(key))result.values.remove(key);return result;}
+    /** Editor dirtiness: color history and shortcut data are saved separately and never make a draft dirty. */
+    public static boolean dirtyAppearance(AppearanceConfig.Style saved,AppearanceConfig.Style draft){return !AppearanceConfig.sameAppearance(saved,draft);}
+    public enum Rebase { WRITE, CONFLICT }
+    /** Applying a draft on top of a newer stored document is safe only when this scope was not changed elsewhere. */
+    public static Rebase rebase(AppearanceConfig.Style baseline,AppearanceConfig.Style stored,boolean overwrite){return overwrite||AppearanceConfig.sameAppearance(baseline,stored)?Rebase.WRITE:Rebase.CONFLICT;}
     public static AppearanceConfig.Style resetWallpaper(AppearanceConfig.Style style,String domain){AppearanceConfig.Style result=style.copy();for(String key:new ArrayList<>(result.values.keySet()))if(AppearanceConfig.isSurfaceWallpaperKey(key,domain))result.values.remove(key);return result;}
     public static boolean sameMedia(AppearanceConfig.Resolved a,AppearanceConfig.Resolved b){for(String key:new String[]{"wallpaper.file","wallpaper.type","wallpaper.cover.file"})if(!Objects.equals(a.get(key),b.get(key)))return false;return true;}
 }

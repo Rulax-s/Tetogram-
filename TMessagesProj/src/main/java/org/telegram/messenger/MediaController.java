@@ -2930,7 +2930,11 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         return setPlaylist(messageObjects, current, mergeDialogId, loadMusic, params, 0);
     }
 
+    /** Tetogram playlists: keep the caller's order (first item plays first) for the next setPlaylist call. */
+    public static boolean tetogramKeepOrder;
     public boolean setPlaylist(ArrayList<MessageObject> messageObjects, MessageObject current, long mergeDialogId, boolean loadMusic, PlaylistGlobalSearchParams params, long topicId) {
+        final boolean keepOrder = tetogramKeepOrder;
+        tetogramKeepOrder = false;
         if (playingMessageObject == current) {
             int newIdx = playlist.indexOf(current);
             if (newIdx >= 0) {
@@ -2959,7 +2963,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
                 playlistMap.put(id, messageObject);
             }
         }
-        sortPlaylist();
+        if (!keepOrder) sortPlaylist();
         currentPlaylistNum = playlist.indexOf(current);
         if (currentPlaylistNum == -1) {
             clearPlaylist();
@@ -3712,6 +3716,7 @@ public class MediaController implements AudioManager.OnAudioFocusChangeListener,
         if (messageObject == null) {
             return false;
         }
+        if (messageObject.isMusic() && (playingMessageObject == null || playingMessageObject.getId() != messageObject.getId() || playingMessageObject.getDialogId() != messageObject.getDialogId())) org.telegram.messenger.tetogram.PlaylistsStore.played(messageObject);
         isSilent = silent;
         checkVolumeBarUI();
         if ((audioPlayer != null || videoPlayer != null) && isSamePlayingMessage(messageObject)) {

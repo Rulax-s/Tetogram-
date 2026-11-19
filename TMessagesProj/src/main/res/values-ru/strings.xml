@@ -265,7 +265,7 @@
     <string name="RemindDayYearAt">\'Напомнить\' d MMM yyyy \'в\' HH:mm</string>
     <string name="TetogramAbout">Tetogram %1$s\nНеофициальный клиент Telegram\nРазработка: проект Tetogram</string>
     <string name="TetogramIntro">Неофициальный клиент Telegram.\nИспользует Telegram API и вашу учётную запись Telegram.</string>
-    <string name="TetogramLabs">Tetogram Labs</string>
+    <string name="TetogramLabs">Тетолабс</string>
     <string name="TetogramLabsWarning">Экспериментальные возможности. Настройки этого экрана относятся только к текущему Telegram-аккаунту.</string>
     <string name="TetogramHistorySection">История сообщений</string>
     <string name="TetogramSaveDeleted">Сохранять удалённые сообщения</string>

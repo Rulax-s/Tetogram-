@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramTranslate">Translation</string>
+    <string name="TetogramTranslateAuto">Automatic</string>
+    <string name="TetogramTranslateChatLanguage">Chat language</string>
+    <string name="TetogramTranslateChatLanguageValue">Chat language: %1$s</string>
+    <string name="TetogramTranslateChats">Translated chats</string>
+    <string name="TetogramTranslateChatsInfo">Tap a chat to change its language or stop translating it.</string>
+    <string name="TetogramTranslateDeepl">DeepL (online, your key)</string>
+    <string name="TetogramTranslateDevice">On device</string>
+    <string name="TetogramTranslateGoogle">Google Cloud (online, your key)</string>
+    <string name="TetogramTranslateDeviceInfo">Text never leaves the phone. Each language downloads a model once, about 30 MB.</string>
+    <string name="TetogramTranslateOnlineInfo">Text goes to the chosen service with your key. Better quality, but the service sees the text.</string>
+    <string name="TetogramTranslateEngine">Engine</string>
+    <string name="TetogramTranslateFailed">Could not translate. Check the engine in translation settings.</string>
+    <string name="TetogramTranslateKey">API key</string>
+    <string name="TetogramTranslateKeyHint">Paste the key</string>
+    <string name="TetogramTranslateKeyInfo">The key is stored only on this phone.</string>
+    <string name="TetogramTranslateKeyMissing">Not set</string>
+    <string name="TetogramTranslateKeySet">Set</string>
+    <string name="TetogramTranslateNoChats">None yet. Turn translation on from the chat menu, or accept the suggestion when a chat is in another language.</string>
+    <string name="TetogramTranslateOff">Detecting…</string>
+    <string name="TetogramTranslateOptions">Options</string>
+    <string name="TetogramTranslateOriginal">Original</string>
+    <string name="TetogramTranslateSentText">Sent text</string>
+    <string name="TetogramTranslateOutgoing">Translate my messages</string>
+    <string name="TetogramTranslateOutgoingInfo">Before sending we show the translation into the chat language. You keep seeing your own text; long-press the message for what was sent.</string>
+    <string name="TetogramTranslatePreviewTitle">Send in %1$s?</string>
+    <string name="TetogramTranslateSendOriginal">Without translation</string>
+    <string name="TetogramTranslateSendTranslation">Send translation</string>
+    <string name="TetogramTranslateSettings">Translation settings</string>
+    <string name="TetogramTranslateStart">Translate this chat</string>
+    <string name="TetogramTranslateStop">Stop translating</string>
+    <string name="TetogramTranslateTarget">Translate into</string>
+    <string name="TetogramTranslateSuggest">This chat is in %1$s</string>
+    <string name="TetogramTranslateSuggestButton">Translate</string>
+    <string name="TetogramTranslateEnabled">Chat translation is on</string>
+    <string name="TetogramTranslateDisabled">Chat translation is off</string>
+    <string name="TetogramTranslateClear">Clear saved translations</string>
+    <string name="TetogramTranslateClearInfo">Translations are kept on this phone so chats open translated instantly.</string>
+</resources>

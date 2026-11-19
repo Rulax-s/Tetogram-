@@ -39,9 +39,9 @@
   <string name="TetogramAppearanceResetConfirm">Сбросить все локальные переопределения оформления этого аккаунта? Пресеты, разделы, иконки и история сообщений сохранятся.</string>
   <string name="TetogramAppearanceConflict">Не удалось сохранить изменения. Возможно, изменился аккаунт или сохранённая ревизия. Откройте редактор заново для загрузки актуальных настроек.</string>
   <string name="TetogramPreviewName">Пример чата</string>
-  <string name="TetogramPreviewMessage">Это безопасное сообщение предпросмотра 👋</string>
-  <string name="TetogramPreviewAnswer">Здесь отображается стиль вашего сообщения.</string>
-  <string name="TetogramAppearanceDisplayMode">Светлый или тёмный режим</string>
+  <string name="TetogramPreviewMessage">Привет! Как тебе новое оформление? 👋</string>
+  <string name="TetogramPreviewAnswer">Огонь, оставляю</string>
+  <string name="TetogramAppearanceDisplayMode">Тема</string>
   <string name="TetogramAppearanceWallpapers">Обои и видеообои</string>
   <string name="TetogramAppearancePreviewSurface">Экран предпросмотра</string>
   <string name="TetogramAppearanceDialogList">Список чатов</string>
@@ -66,7 +66,7 @@
   <string name="TetogramAppearanceFit">Вписать или заполнить видеокадр</string>
   <string name="TetogramAppearanceCoverFirst">Первый кадр как обложка</string>
   <string name="TetogramAppearanceCoverCurrent">Текущий кадр предпросмотра как обложка</string>
-  <string name="TetogramAppearanceVideoPreparation">FPS и разрешение применяются при подготовке выбранного видео или подтверждении его редактирования. Конвертация удаляет звук. Видео останавливается в Lite Mode, энергосбережении и при скрытии. До Android 12 размытие видео использует статичную обложку. Лимит исходника: 1 ГиБ.</string>
+  <string name="TetogramAppearanceVideoPreparation">Видео готовится один раз при выборе, звук удаляется. В режиме энергосбережения фон замирает. Файл до 1 ГиБ.</string>
   <string name="TetogramAppearanceFps">Ограничение FPS подготовленного видео (12–60)</string>
   <string name="TetogramAppearanceQuality">Максимальная сторона подготовленного видео, px (360–1920)</string>
   <string name="TetogramAppearanceMediaError">Не удалось прочитать или подготовить медиа. Сохранённые обои не изменились. Проверьте свободное место и поддержку формата либо выберите другой файл.</string>
@@ -82,7 +82,7 @@
   <string name="TetogramAppearanceOutlineWidth">Толщина контура строки (dp)</string>
   <string name="TetogramAppearanceOutlineColor">Цвет контура строки</string>
   <string name="TetogramAppearanceSeparators">Показывать разделители строк чатов</string>
-  <string name="TetogramAppearanceRowImageOnly">Для отдельного чата этот экран оформляет его строку в списке. Фон строки использует изображение; от видеопресета отображается статичная обложка без отдельного декодера для каждой строки. Для обоев переписки переключите предпросмотр на чат.</string>
+  <string name="TetogramAppearanceRowImageOnly">Здесь оформляется строка чата в списке. Для видеофона показывается его обложка. Обои переписки — в предпросмотре чата.</string>
     <string name="TetogramAppearanceCircleStyle">Оформление кружочка раздела</string>
     <string name="TetogramAppearanceCircleBackground">Фон кружочка</string>
     <string name="TetogramAppearanceCircleActive">Фон выбранного кружочка</string>
@@ -109,7 +109,7 @@
     <string name="TetogramAppearanceInGradient">Цвет градиента входящих</string>
     <string name="TetogramAppearanceOutGradient">Цвет градиента исходящих</string>
     <string name="TetogramAppearanceLauncher">Название и иконка приложения</string>
-    <string name="TetogramAppearanceLauncherLimits">Встроенные иконки меняют системный значок в лаунчере. Собственное имя, эмодзи или изображение создают дополнительный ярлык только после подтверждения лаунчера. Название приложения в настройках Android сохраняется. Поддержка зависит от лаунчера; удалить ярлык можно долгим нажатием на главном экране.</string>
+    <string name="TetogramAppearanceLauncherLimits">Встроенные иконки меняют значок приложения. Своё имя или картинка добавляют отдельный ярлык, если лаунчер это разрешит.</string>
     <string name="TetogramAppearanceLauncherName">Собственное название ярлыка</string>
     <string name="TetogramAppearanceLauncherNames">Предустановленные названия</string>
     <string name="TetogramAppearancePinShortcut">Добавить персонализированный ярлык</string>
@@ -117,7 +117,7 @@
     <string name="TetogramAppearanceShortcutRemoved">Персонализированный ярлык отключён. Чтобы убрать значок, зажмите его на главном экране и выберите удаление ярлыка. Установленное приложение и его данные остаются доступны.</string>
     <string name="TetogramAppearanceShortcutUnsupported">Лаунчер не принял этот ярлык. Попробуйте добавить его в другом лаунчере.</string>
     <string name="TetogramAppearanceAnimationsEnabled">Переходы оформления и анимированные фоны</string>
-    <string name="TetogramAppearanceTransitionDuration">Множитель длительности переходов</string>
+    <string name="TetogramAppearanceTransitionDuration">Длительность анимаций</string>
     <string name="TetogramAppearanceReduceOnBattery">Уменьшать эффекты при энергосбережении</string>
     <string name="TetogramAppearanceNativeEffects">Lite Mode и штатные эффекты Telegram</string>
     <string name="TetogramAppearanceSenderNames">Цвет имён отправителей в группах</string>
@@ -129,12 +129,12 @@
     <string name="TetogramAppearanceBottomRight">Радиус правого нижнего угла</string>
     <string name="TetogramAppearanceCircleActiveText">Цвет выбранного значка</string>
     <string name="TetogramAppearanceLowContrast">Низкий контраст основных элементов</string>
-    <string name="TetogramAppearanceLowContrastInfo">Эти цвета могут сделать текст или кнопки навигации плохо различимыми. Восстановите контрастность или измените цвета перед применением. Проверяются основные однотонные поверхности; изображения и видео дополнительно оценивайте в предпросмотре.</string>
+    <string name="TetogramAppearanceLowContrastInfo">С этими цветами текст или кнопки будет трудно различить. Верните контраст или поменяйте цвета.</string>
     <string name="TetogramAppearanceGlobal">Общее оформление</string>
     <string name="TetogramAppearanceEyedropper">Пипетка из изображения</string>
     <string name="TetogramAppearanceEyedropperInfo">Переместите штатную пипетку Telegram по изображению и отпустите палец для выбора цвета. Изображение не сохраняется и не загружается на сервер.</string>
     <string name="TetogramAppearancePresetDraft">Редактирование сохранённого пресета. «Сохранить» изменит только этот пресет; текущее оформление приложения останется прежним.</string>
-    <string name="TetogramAppearancePrimaryColor">Основной цвет (автопалитра)</string>
+    <string name="TetogramAppearancePrimaryColor">Основной цвет</string>
     <string name="TetogramAppearanceBubbleStyle">Стиль сообщений</string>
     <string name="TetogramAppearanceSoftBubbles">Мягкие скругления</string>
     <string name="TetogramAppearanceMinimalBubbles">Минимальные пузыри</string>

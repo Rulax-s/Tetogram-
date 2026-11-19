@@ -1057,7 +1057,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
                     } else {
                         cell.setCustomMessage(null);
                     }
-                    if (parentFragment != null && parentFragment.isTetogramAppearanceList()) cell.setTetogramAppearance(org.telegram.messenger.tetogram.AppearanceStore.resolve(currentAccount, parentFragment.tetogramAppearanceContext(this, dialog.id)));
+                    if (parentFragment != null && parentFragment.isTetogramAppearanceList()) cell.setTetogramAppearance(org.telegram.messenger.tetogram.AppearanceStore.resolveShared(currentAccount, parentFragment.tetogramAppearanceContext(this, dialog.id)));
                     cell.setDialog(dialog, dialogsType, folderId);
                     cell.checkHeight();
                     if (cell.collapsed != collapsedView) {

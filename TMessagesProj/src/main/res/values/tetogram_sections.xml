@@ -37,4 +37,16 @@
     <string name="TetogramSectionRulesInfo">Chat categories are opt-in. Manually added chats override automatic rules; explicit exclusions always win. Archived matches stay in the archive.</string>
     <string name="TetogramSectionFolderLocalLabel">Local</string>
     <string name="TetogramSectionFolderServerLabel">Telegram</string>
+    <string name="TetogramSectionsUnreadable">Section settings cannot be read. Chats and messages are not affected.</string>
+    <string name="TetogramSectionsRecover">Start over</string>
+    <string name="TetogramSectionsRecoverInfo">Tetogram will keep the unreadable settings as a separate copy and start with no sections. Telegram folders are not changed.</string>
+    <string name="TetogramSectionsRowInfo">chats: %1$d</string>
+    <string name="TetogramSectionsRowFolders">folders: %1$d</string>
+    <string name="TetogramSectionsRowUnread">unread: %1$d</string>
+    <string name="TetogramSectionsDragInfo">Hold and drag to change the order.</string>
+    <string name="TetogramSectionsPreview">Chats in this section now</string>
+    <string name="TetogramSectionsPreviewCount">Chats: %1$d</string>
+    <string name="TetogramSectionsPreviewEmpty">No chats match yet: add chats or turn on rules below.</string>
+    <string name="TetogramSectionsRemove">Remove from this section</string>
+    <string name="TetogramSectionsExcludeAlways">Exclude, even from rules</string>
 </resources>

@@ -26,7 +26,8 @@ public final class AppearanceArchive {
         }
     }
     public static void write(OutputStream output,AppearanceConfig.Preset preset,Media media,boolean images,boolean videos)throws IOException{
-        AppearanceConfig.Style style=preset.style.copy();
+        // Personal shortcut identity and color history never leave the device in a shared preset.
+        AppearanceConfig.Style style=AppearanceConfig.withoutPersonal(preset.style);
         for(String key:new ArrayList<>(style.values.keySet()))if(key.endsWith(".source.file"))style.values.remove(key);
         for(String domain:new String[]{"wallpaper","list.wallpaper","banner.wallpaper"}){
             String file=style.values.get(domain+".file"),cover=style.values.get(domain+".cover.file");

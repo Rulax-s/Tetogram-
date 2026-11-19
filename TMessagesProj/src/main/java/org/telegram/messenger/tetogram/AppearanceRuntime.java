@@ -36,6 +36,14 @@ public final class AppearanceRuntime {
     public static float globalNumber(String key,float fallback){return global.number(key,fallback);}
     public static void activate(int account){if(account!=UserConfig.selectedAccount)return;AppearanceConfig.Resolved next=AppearanceStore.resolve(account,AppearanceConfig.Context.direct(0,0));long uid=AppearanceStore.owner(account);if(activeOwner!=uid||!global.values.equals(next.values))generation++;activeOwner=uid;global=next;light=colors(global,false);dark=colors(global,true);}
     public static void changed(int account){changed(account,true);}
-    public static void changed(int account,boolean applyMode){activate(account);if(account==UserConfig.selectedAccount && Theme.getActiveTheme()!=null){String mode=global.get("mode");if(applyMode && ("dark".equals(mode)||"light".equals(mode)) && Theme.selectedAutoNightType != Theme.AUTO_NIGHT_TYPE_NONE){Theme.selectedAutoNightType=Theme.AUTO_NIGHT_TYPE_NONE;Theme.saveAutoNightThemeConfig();}if(applyMode && ("dark".equals(mode)||"light".equals(mode)) && Theme.isCurrentThemeDark()!= "dark".equals(mode)){Theme.ThemeInfo base=Theme.getTheme("dark".equals(mode)?"Dark Blue":"Day");if(base!=null)Theme.applyTheme(base);}Theme.refreshThemeColors(false,true);}NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.tetogramAppearanceChanged,account);}
+    public static void changed(int account,boolean applyMode){activate(account);if(account==UserConfig.selectedAccount && Theme.getActiveTheme()!=null){String mode=global.get("mode");if(applyMode)syncAutoNight(mode);if(applyMode && ("dark".equals(mode)||"light".equals(mode)) && Theme.isCurrentThemeDark()!= "dark".equals(mode)){Theme.ThemeInfo base=Theme.getTheme("dark".equals(mode)?"Dark Blue":"Day");if(base!=null)Theme.applyTheme(base);}Theme.refreshThemeColors(false,true);}NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.tetogramAppearanceChanged,account);}
+    /** A forced light/dark mode pauses Telegram's auto-night; inheriting again restores the user's own schedule. */
+    private static void syncAutoNight(String mode){
+        android.content.SharedPreferences prefs=ApplicationLoader.applicationContext.getSharedPreferences("tetogram_appearance_device",android.content.Context.MODE_PRIVATE);
+        int remembered=prefs.getInt("native_auto_night",AppearanceNight.UNSET);
+        int[] next=AppearanceNight.decide(mode,Theme.selectedAutoNightType,remembered);
+        if(next[1]!=remembered){if(next[1]==AppearanceNight.UNSET)prefs.edit().remove("native_auto_night").apply();else prefs.edit().putInt("native_auto_night",next[1]).apply();}
+        if(next[0]!=Theme.selectedAutoNightType){Theme.selectedAutoNightType=next[0];Theme.saveAutoNightThemeConfig();if(next[0]!=AppearanceNight.NONE)Theme.checkAutoNightThemeConditions(true);}
+    }
     public static void switchAccount(int account){global=new AppearanceConfig.Resolved();light=new SparseIntArray();dark=new SparseIntArray();AppearanceStore.load(account,(ok,c)->{if(ok)changed(account);});}
 }

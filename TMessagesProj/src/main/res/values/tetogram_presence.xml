@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramPresence">Tetogram friends</string>
+    <string name="TetogramPresenceBadge">in Tetogram</string>
+    <string name="TetogramPresenceOn">Visible</string>
+    <string name="TetogramPresenceInfo">Shows “online · in Tetogram” in the chat header while a friend is in Tetogram.</string>
+    <string name="TetogramPresenceServer">Presence server</string>
+    <string name="TetogramPresenceServerMissing">Not set up</string>
+    <string name="TetogramPresenceServerInfo">Presence server address. Usually there is no need to change it.</string>
+    <string name="TetogramPresenceVisible">Show others that I\'m in Tetogram</string>
+    <string name="TetogramPresenceVisibleInfo">Turn off to hide the mark from everyone. The server only knows your Telegram ID and when you were last here.</string>
+</resources>

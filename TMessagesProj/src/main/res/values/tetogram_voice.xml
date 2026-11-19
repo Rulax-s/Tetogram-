@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramVoice">Voice to text</string>
+    <string name="TetogramVoiceMenu">Transcribe on device</string>
+    <string name="TetogramVoiceTranscribing">Transcribing</string>
+    <string name="TetogramVoicePreparing">Getting the audio…</string>
+    <string name="TetogramVoiceRecognising">Recognising speech on the phone…</string>
+    <string name="TetogramVoiceNoFile">Could not download the voice message.</string>
+    <string name="TetogramVoiceNothing">No speech recognised.</string>
+    <string name="TetogramVoiceFailed">Could not recognise this message.</string>
+    <string name="TetogramVoiceModelTitle">Speech model</string>
+    <string name="TetogramVoiceModelText">To turn voice messages into text without internet, Tetogram needs a %1$s speech model (about %2$s MB). It is downloaded once from the open Vosk project.</string>
+    <string name="TetogramVoiceDownload">Download</string>
+    <string name="TetogramVoiceDownloading">Downloading speech model</string>
+    <string name="TetogramVoiceDownloadFailed">Download failed. Check the connection and try again.</string>
+    <string name="TetogramVoiceResult">Text of the voice message</string>
+    <string name="TetogramVoiceTranslate">Translate</string>
+    <string name="TetogramVoiceLanguage">Speech language</string>
+    <string name="TetogramVoiceNotDownloaded">Not downloaded · %1$s MB</string>
+    <string name="TetogramVoiceInfo">Long-press a voice or round video message and choose “Transcribe on device”. Audio never leaves the phone.</string>
+    <string name="TetogramVoiceDeleteText">Delete this speech model? You can download it again later.</string>
+    <string name="TetogramVoiceClear">Clear saved texts</string>
+    <string name="TetogramVoiceClearInfo">Recognised texts are kept on this phone so they open instantly next time.</string>
+</resources>

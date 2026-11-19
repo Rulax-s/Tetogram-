@@ -13,7 +13,14 @@ class EditorContracts(unittest.TestCase):
  def test_pinned_actions_and_preview_are_not_list_rows(self):
   src=source('ui/tetogram/AppearanceActivity.java');fill=src.split('@Override protected void fill(',1)[1].split('private void simpleSettings(',1)[0]
   self.assertNotIn('this::applyDraft',fill);self.assertNotIn('TetogramAppearanceSavePreset',fill);self.assertNotIn('UItem.asCustom(preview',fill)
-  self.assertIn('setTopContent(preview',fill);self.assertIn('setBottomActions(editorDock)',src);self.assertIn('AppearanceEditorPolicy.dirty(baseline,draft)',src)
+  self.assertIn('setTopContent(topPanel',fill);self.assertIn('setBottomActions(editorDock)',src);self.assertIn('AppearanceEditorPolicy.dirtyAppearance(baseline,draft)',src)
+ def test_saves_never_mutate_before_success_and_keep_personal_data(self):
+  src=source('ui/tetogram/AppearanceActivity.java')
+  for bad in ('config.scopes.clear()','config.presets.remove(','config.presets.put(','config.scopes.put(scope,draft.copy())'):self.assertNotIn(bad,src)
+  self.assertIn('AppearanceConfig.applyPreset(config.scopes.get(AppearanceConfig.GLOBAL),p.style)',src);self.assertIn('fresh.resetAppearance()',src);self.assertIn('fresh.putScope(scope,write)',src)
+  self.assertIn('AppearanceConfig.withoutPersonal(preset.style)',source('messenger/tetogram/AppearanceArchive.java'))
+  self.assertIn('AppearanceStore.resolveShared(',source('ui/Adapters/DialogsAdapter.java'))
+  self.assertIn('syncAutoNight(mode)',source('messenger/tetogram/AppearanceRuntime.java'));self.assertNotIn('Theme.selectedAutoNightType=Theme.AUTO_NIGHT_TYPE_NONE',source('messenger/tetogram/AppearanceRuntime.java'))
  def test_preview_media_has_one_owner(self):
   src=source('ui/tetogram/AppearancePreview.java');update=src.split('public void update(',1)[1].split('private boolean resumed',1)[0]
   self.assertNotIn('new AppearanceMediaView',update);self.assertNotIn('removeAllViews();media',update);self.assertIn('media.configure(',update)

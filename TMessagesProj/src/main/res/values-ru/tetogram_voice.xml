@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramVoice">Голос в текст</string>
+    <string name="TetogramVoiceMenu">Расшифровать на устройстве</string>
+    <string name="TetogramVoiceTranscribing">Расшифровка</string>
+    <string name="TetogramVoicePreparing">Получаю аудио…</string>
+    <string name="TetogramVoiceRecognising">Распознаю речь на телефоне…</string>
+    <string name="TetogramVoiceNoFile">Не удалось скачать голосовое сообщение.</string>
+    <string name="TetogramVoiceNothing">Речь не распознана.</string>
+    <string name="TetogramVoiceFailed">Не удалось распознать это сообщение.</string>
+    <string name="TetogramVoiceModelTitle">Модель речи</string>
+    <string name="TetogramVoiceModelText">Чтобы превращать голосовые в текст без интернета, нужна модель речи: %1$s (около %2$s МБ). Скачивается один раз из открытого проекта Vosk.</string>
+    <string name="TetogramVoiceDownload">Скачать</string>
+    <string name="TetogramVoiceDownloading">Скачиваю модель речи</string>
+    <string name="TetogramVoiceDownloadFailed">Не удалось скачать. Проверьте соединение и попробуйте ещё раз.</string>
+    <string name="TetogramVoiceResult">Текст голосового</string>
+    <string name="TetogramVoiceTranslate">Перевести</string>
+    <string name="TetogramVoiceLanguage">Язык речи</string>
+    <string name="TetogramVoiceNotDownloaded">Не скачана · %1$s МБ</string>
+    <string name="TetogramVoiceInfo">Удерживайте голосовое или кружок и выберите «Расшифровать на устройстве». Аудио не покидает телефон.</string>
+    <string name="TetogramVoiceDeleteText">Удалить эту модель речи? Её можно скачать снова.</string>
+    <string name="TetogramVoiceClear">Очистить сохранённые тексты</string>
+    <string name="TetogramVoiceClearInfo">Расшифровки хранятся на телефоне, чтобы в следующий раз открываться сразу.</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramIgnoreTitle">Hide blocked people</string>
+    <string name="TetogramIgnoreTile">Hide blocked</string>
+    <string name="TetogramIgnoreTileOn">%1$d hidden</string>
+    <string name="TetogramIgnoreEnable">Hide messages from blocked people in groups</string>
+    <string name="TetogramIgnoreInfo">Messages from people on your block list are hidden in groups, notifications and previews. Only this phone changes.</string>
+    <string name="TetogramIgnoreBlockList">Block list</string>
+    <string name="TetogramIgnoreSync">Refresh from Telegram</string>
+    <string name="TetogramIgnoreNeverSynced">not loaded yet</string>
+    <string name="TetogramIgnoreSyncedValue">%1$d · %2$s</string>
+    <string name="TetogramIgnoreSyncFailed">Could not load the block list. Check the connection and try again.</string>
+    <string name="TetogramIgnoreShowPeople">Still show these people</string>
+    <string name="TetogramIgnoreShowPeopleInfo">Checked people stay blocked in Telegram, but their messages are shown in groups.</string>
+    <string name="TetogramIgnoreChats">Chats where everyone is shown</string>
+    <string name="TetogramIgnoreAddChat">Add a chat</string>
+    <string name="TetogramIgnoreRemove">remove</string>
+    <string name="TetogramIgnoreChatsInfo">In these groups messages of blocked people are shown as usual.</string>
+    <string name="TetogramIgnoreHiddenName">Hidden</string>
+    <string name="TetogramIgnoreHiddenMessage">Hidden message</string>
+</resources>

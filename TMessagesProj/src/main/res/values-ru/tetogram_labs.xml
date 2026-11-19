@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramLabsDeletedTitle">Удалённые сообщения</string>
+    <string name="TetogramLabsEditsTitle">История правок</string>
+    <string name="TetogramLabsShow">Показ</string>
+    <string name="TetogramLabsStorage">Хранение</string>
+    <string name="TetogramLabsSavedNow">Сейчас сохранено</string>
+    <string name="TetogramLabsSavedValue">%1$s · %2$s</string>
+    <string name="TetogramLabsTelegramTheme">как в Telegram</string>
+    <string name="TetogramLabsThemeName">тема «%1$s»</string>
+    <string name="TetogramLabsOwnTheme">своё оформление</string>
+    <string name="TetogramLabsNone">не настроено</string>
+    <string name="TetogramLabsCount">%1$d</string>
+    <string name="TetogramLabsPickChat">выбрать чат</string>
+    <string name="TetogramLabsSaving">сохраняются</string>
+    <string name="TetogramLabsOff">выключено</string>
+    <string name="TetogramLabsFeatures">Возможности</string>
+    <string name="TetogramLabsSystem">Разрешения и система</string>
+    <string name="TetogramLabsLockCalls">Звонки на экране блокировки</string>
+    <string name="TetogramLabsLockCallsInfo">Android выключает это после каждого обновления APK</string>
+    <string name="TetogramLabsNotifications">Уведомления</string>
+    <string name="TetogramLabsNotificationsInfo">новые сообщения не будут показываться</string>
+    <string name="TetogramLabsGallery">Галерея для фонов</string>
+    <string name="TetogramLabsGalleryInfo">вкладка «Фон» не покажет ваши фото</string>
+    <string name="TetogramLabsBackground">Работа в фоне</string>
+    <string name="TetogramLabsBackgroundInfo">экономия батареи может задерживать сообщения</string>
+    <string name="TetogramLabsEnable">Включить</string>
+    <string name="TetogramLabsAllow">Разрешить</string>
+    <string name="TetogramLabsOpen">Открыть</string>
+    <string name="TetogramLabsOk">включено</string>
+    <string name="TetogramLabsData">Сохранено на устройстве</string>
+    <string name="TetogramLabsAppearanceMedia">Фоны и медиа оформления</string>
+    <string name="TetogramLabsDataInfo">Срок хранения и очистка — в плитках «Удалённые сообщения» и «История правок».</string>
+    <string name="TetogramLabsWhatsNew">Что нового</string>
+    <string name="TetogramLabsBuild">сборка %1$d · на основе Telegram %2$s</string>
+    <string name="TetogramLabsLocalOnly">Всё хранится только на этом устройстве</string>
+    <string name="TetogramLabsWhatsNewText">Перевод чатов, музыка и плейлисты, теги, закладки, «Друзья в Тетограме», обмен оформлением в чатах, скрытие заблокированных. Подробности — в истории изменений на GitHub.</string>
+    <string name="TetogramLabsGroupChats">Чаты</string>
+    <string name="TetogramLabsGroupPeople">Люди</string>
+    <string name="TetogramLabsGroupHistory">История</string>
+</resources>

@@ -37,4 +37,16 @@
     <string name="TetogramSectionRulesInfo">Категории чатов включаются по желанию. Добавленные вручную чаты имеют приоритет над правилами, явные исключения — над добавлением. Архивные чаты остаются в архиве.</string>
     <string name="TetogramSectionFolderLocalLabel">Локальная</string>
     <string name="TetogramSectionFolderServerLabel">Telegram</string>
+    <string name="TetogramSectionsUnreadable">Настройки разделов не читаются. Чаты и сообщения не затронуты.</string>
+    <string name="TetogramSectionsRecover">Начать заново</string>
+    <string name="TetogramSectionsRecoverInfo">Tetogram сохранит нечитаемые настройки отдельной копией и начнёт без разделов. Папки Telegram не изменятся.</string>
+    <string name="TetogramSectionsRowInfo">чатов: %1$d</string>
+    <string name="TetogramSectionsRowFolders">папок: %1$d</string>
+    <string name="TetogramSectionsRowUnread">непрочитанных: %1$d</string>
+    <string name="TetogramSectionsDragInfo">Удерживайте и перетаскивайте, чтобы изменить порядок.</string>
+    <string name="TetogramSectionsPreview">Сейчас в разделе</string>
+    <string name="TetogramSectionsPreviewCount">Чатов: %1$d</string>
+    <string name="TetogramSectionsPreviewEmpty">Пока ни один чат не подходит: добавьте чаты или включите правила ниже.</string>
+    <string name="TetogramSectionsRemove">Убрать из раздела</string>
+    <string name="TetogramSectionsExcludeAlways">Исключить, даже по правилам</string>
 </resources>

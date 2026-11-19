@@ -3723,6 +3723,9 @@ public class ChatActivity extends BaseFragment implements
             @Override
             public void onItemClick(final int id) {
                 if (id == 46001) { presentFragment(new org.telegram.ui.tetogram.HistoryActivity(currentAccount, dialog_id)); return; }
+                if (id == 46006) { presentFragment(new org.telegram.ui.tetogram.BookmarksActivity(currentAccount, dialog_id)); return; }
+                if (id == 46008) { org.telegram.ui.tetogram.TagsActivity.chatMenu(ChatActivity.this, currentAccount, dialog_id); return; }
+                if (id == 46007) { org.telegram.ui.tetogram.ChatTranslateUi.chatMenu(ChatActivity.this, currentAccount, dialog_id, ChatActivity.this::tetogramTranslationChanged); return; }
                 if (id == 46003) {
                     String appearanceScope = getTopicId() == 0 ? "chat:" + dialog_id : "topic:" + dialog_id + ":" + getTopicId();
                     presentFragment(new org.telegram.ui.tetogram.AppearanceActivity(currentAccount, appearanceScope, arguments.getString("tetogram_appearance_section"), arguments.getString("tetogram_appearance_folder"), dialog_id, getTopicId())); return;
@@ -4491,6 +4494,9 @@ public class ChatActivity extends BaseFragment implements
             trackRedHeaderItem(headerItem.lazilyAddSubItem(delete_business_link, R.drawable.msg_delete, getString(R.string.Delete)), true).setColors(Theme.getColor(Theme.key_text_RedRegular), Theme.getColor(Theme.key_text_RedRegular));
         }
         if (headerItem != null && chatMode == MODE_DEFAULT) headerItem.lazilyAddSubItem(46003, R.drawable.settings_chat, getString(R.string.TetogramAppearance));
+        if (headerItem != null && chatMode == MODE_DEFAULT) headerItem.lazilyAddSubItem(46006, R.drawable.msg_fave, getString(R.string.TetogramBookmarksChat));
+        if (headerItem != null && chatMode == MODE_DEFAULT) headerItem.lazilyAddSubItem(46007, R.drawable.msg_translate, getString(R.string.TetogramTranslate));
+        if (headerItem != null && chatMode == MODE_DEFAULT) headerItem.lazilyAddSubItem(46008, R.drawable.menu_tag_filter, getString(R.string.TetogramTags));
         if (headerItem != null && currentEncryptedChat == null && chatMode == MODE_DEFAULT) {
             headerItem.lazilyAddSubItem(46001, R.drawable.msg_delete, getString(R.string.TetogramDeletedMessages));
         }
@@ -25225,6 +25231,7 @@ public class ChatActivity extends BaseFragment implements
                 return;
             }
             updateMessageTranslation(messageObject, summary);
+            if (org.telegram.messenger.tetogram.ChatTranslation.active(currentAccount, dialog_id)) messageObject.updateTranslation(false);
             if (args.length > 2 && (boolean) args[2]) {
                 checkTranslation(true);
             }
@@ -25725,6 +25732,22 @@ public class ChatActivity extends BaseFragment implements
         AndroidUtilities.cancelRunOnUIThread(checkTranslationRunnable);
         AndroidUtilities.runOnUIThread(checkTranslationRunnable, force ? 0 : 150);
     }
+    private void tetogramTranslationHint() {
+        if (chatMode != MODE_DEFAULT || getParentActivity() == null) return;
+        String lang = org.telegram.messenger.tetogram.ChatTranslation.suggestion(currentAccount, dialog_id);
+        if (lang == null) return;
+        org.telegram.messenger.tetogram.ChatTranslation.suggested(dialog_id);
+        BulletinFactory.of(this).createSimpleBulletin(R.raw.chats_infotip, LocaleController.formatString(R.string.TetogramTranslateSuggest, org.telegram.messenger.tetogram.ChatTranslation.languageName(lang)), LocaleController.getString(R.string.TetogramTranslateSuggestButton), () -> {
+            org.telegram.messenger.tetogram.ChatTranslation.setActive(currentAccount, dialog_id, true);
+            tetogramTranslationChanged();
+        }).show();
+    }
+    private void tetogramTranslationChanged() {
+        boolean on = org.telegram.messenger.tetogram.ChatTranslation.active(currentAccount, dialog_id);
+        getNotificationCenter().postNotificationName(NotificationCenter.dialogTranslate, dialog_id, getMessagesController().getTranslateController().isTranslatingDialog(dialog_id));
+        checkTranslation(true);
+        BulletinFactory.of(this).createSimpleBulletin(R.raw.chats_infotip, LocaleController.getString(on ? R.string.TetogramTranslateEnabled : R.string.TetogramTranslateDisabled)).show();
+    }
     private Runnable checkTranslationRunnable = () -> {
         lastTranslationCheck = System.currentTimeMillis();
         if (chatListView != null && chatAdapter != null) {
@@ -25761,6 +25784,7 @@ public class ChatActivity extends BaseFragment implements
                                     getMessagesController().getTranslateController().checkTranslation(
                                         messageObject1, mid >= minId - 7 && mid <= maxId + 7
                                     );
+                                    org.telegram.messenger.tetogram.ChatTranslation.check(currentAccount, messageObject1, mid >= minId - 7 && mid <= maxId + 7);
                                 }
                             }
                             groupsChecked.add(group.groupId);
@@ -25770,8 +25794,10 @@ public class ChatActivity extends BaseFragment implements
                         getMessagesController().getTranslateController().checkTranslation(
                             messageObject, mid >= minId - 7 && mid <= maxId + 7
                         );
+                        org.telegram.messenger.tetogram.ChatTranslation.check(currentAccount, messageObject, mid >= minId - 7 && mid <= maxId + 7);
                     }
                 }
+                tetogramTranslationHint();
             }
         }
 
@@ -34745,6 +34771,35 @@ public class ChatActivity extends BaseFragment implements
             }
             case 46002: {
                 if (selectedObject != null && selectedObject.tetogramLocalDeleted) org.telegram.ui.tetogram.HistoryActivity.showInfo(this, selectedObject);
+                break;
+            }
+            case 46010: {
+                java.util.ArrayList<org.telegram.messenger.tetogram.Playlists.Track> tetogramTracks = new java.util.ArrayList<>();
+                if (selectedObjectGroup != null) { for (MessageObject m : selectedObjectGroup.messages) { org.telegram.messenger.tetogram.Playlists.Track t = org.telegram.messenger.tetogram.PlaylistsStore.track(m); if (t != null) tetogramTracks.add(t); } }
+                else { org.telegram.messenger.tetogram.Playlists.Track t = org.telegram.messenger.tetogram.PlaylistsStore.track(selectedObject); if (t != null) tetogramTracks.add(t); }
+                org.telegram.ui.tetogram.MusicUi.addToPlaylist(this, tetogramTracks);
+                break;
+            }
+            case 46009: {
+                org.telegram.ui.tetogram.VoiceUi.transcribe(this, selectedObject);
+                break;
+            }
+            case 46007: {
+                org.telegram.ui.tetogram.ChatTranslateUi.showOther(this, selectedObject);
+                break;
+            }
+            case 46005: {
+                if (selectedObject != null) {
+                    boolean wasBookmarked = org.telegram.messenger.tetogram.BookmarksStore.contains(currentAccount, selectedObject);
+                    boolean added = org.telegram.messenger.tetogram.BookmarksStore.toggle(currentAccount, selectedObject);
+                    boolean ok = added || wasBookmarked && !org.telegram.messenger.tetogram.BookmarksStore.contains(currentAccount, selectedObject);
+                    BulletinFactory.of(this).createSimpleBulletin(R.raw.saved_messages, LocaleController.getString(!ok ? R.string.TetogramStorageError : added ? R.string.TetogramBookmarkAdded : R.string.TetogramBookmarkRemoved)).show();
+                    if (ok && chatAdapter != null) { selectedObject.forceUpdate = true; chatAdapter.updateRowWithMessageObject(selectedObject, false, false); }
+                }
+                break;
+            }
+            case 46004: {
+                if (selectedObject != null && selectedObject.getFromChatId() != 0) presentFragment(new org.telegram.ui.tetogram.AppearancePersonActivity(currentAccount, selectedObject.getFromChatId(), selectedObject.getDialogId()));
                 break;
             }
             case 46003: {
@@ -46710,6 +46765,22 @@ public class ChatActivity extends BaseFragment implements
         final int type = getMessageType(message);
         if (chatMode == MODE_DEFAULT && org.telegram.messenger.tetogram.EditHistory.canOpen(message)) {
             items.add(LocaleController.getString(R.string.TetogramEditHistory)); options.add(46003); icons.add(R.drawable.msg_info);
+        }
+        if (chatMode == MODE_DEFAULT && message != null && !message.isOutOwner() && message.getFromChatId() != 0 && message.getFromChatId() != getUserConfig().getClientUserId()) {
+            items.add(LocaleController.getString(message.getDialogId() < 0 ? R.string.TetogramPersonMenuGroup : R.string.TetogramPersonMenuPrivate)); options.add(46004); icons.add(R.drawable.menu_profile_colors);
+        }
+        if (chatMode == MODE_DEFAULT && message != null && message.getId() > 0 && !message.tetogramLocalDeleted) {
+            boolean tetogramBookmarked = org.telegram.messenger.tetogram.BookmarksStore.contains(currentAccount, message);
+            items.add(LocaleController.getString(tetogramBookmarked ? R.string.TetogramBookmarkRemove : R.string.TetogramBookmarkAdd)); options.add(46005); icons.add(R.drawable.msg_fave);
+        }
+        if (message != null && message.isMusic() && message.getId() > 0) {
+            items.add(LocaleController.getString(R.string.TetogramMusicAddTo)); options.add(46010); icons.add(R.drawable.msg_filled_data_music);
+        }
+        if (message != null && org.telegram.ui.tetogram.VoiceUi.supports(message)) {
+            items.add(LocaleController.getString(R.string.TetogramVoiceMenu)); options.add(46009); icons.add(R.drawable.msg_photo_text_regular);
+        }
+        if (chatMode == MODE_DEFAULT && message != null && message.translated && message.tetogramTranslation != null) {
+            items.add(LocaleController.getString(message.isOutOwner() ? R.string.TetogramTranslateSentText : R.string.TetogramTranslateOriginal)); options.add(46007); icons.add(R.drawable.msg_translate);
         }
         if (message.tetogramLocalDeleted) {
             if (canReplyToTetogramDeleted(message)) {

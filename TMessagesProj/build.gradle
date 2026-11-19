@@ -74,6 +74,9 @@ dependencies {
     implementation 'com.googlecode.mp4parser:isoparser:1.0.6'
     implementation 'com.stripe:stripe-android:2.0.2'
     implementation 'com.google.mlkit:language-id:17.0.6'
+    // Tetogram: offline voice transcription (Apache 2.0); models are downloaded on demand.
+    implementation 'com.alphacephei:vosk-android:0.3.47@aar'
+    implementation 'net.java.dev.jna:jna:5.13.0@aar'
     implementation 'com.android.billingclient:billing:8.0.0'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.google.guava:guava:31.1-android'
@@ -109,7 +112,7 @@ dependencies {
     api project(":TMessagesProj_Modules:media3:media-lib-session")
     api project(':jlatexmath')
 
-//    implementation 'com.google.mlkit:translate:17.0.3'
+    implementation 'com.google.mlkit:translate:17.0.3'
 
     implementation 'com.google.android.recaptcha:recaptcha:18.7.1'
 

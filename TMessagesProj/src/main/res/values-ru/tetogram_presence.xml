@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramPresence">Друзья в Тетограме</string>
+    <string name="TetogramPresenceBadge">в Тетограме</string>
+    <string name="TetogramPresenceOn">Видно</string>
+    <string name="TetogramPresenceInfo">Покажет «в сети · в Тетограме» в шапке чата, пока друг сидит в Тетограме.</string>
+    <string name="TetogramPresenceServer">Сервер присутствия</string>
+    <string name="TetogramPresenceServerMissing">Не настроен</string>
+    <string name="TetogramPresenceServerInfo">Адрес сервера присутствия. Обычно менять не нужно.</string>
+    <string name="TetogramPresenceVisible">Показывать другим, что я в Тетограме</string>
+    <string name="TetogramPresenceVisibleInfo">Выключите, чтобы метку не видел никто. Сервер знает только ваш Telegram ID и время последнего входа.</string>
+</resources>

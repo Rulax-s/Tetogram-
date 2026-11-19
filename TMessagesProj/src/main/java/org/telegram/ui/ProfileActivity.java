@@ -8013,6 +8013,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         simpleActionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
+                if(id==46022){if(userId>0)presentFragment(new org.telegram.ui.tetogram.AppearancePersonActivity(currentAccount,userId,0));return;}
+                if(id==46021){long target=org.telegram.messenger.tetogram.AppearanceProfilePolicy.target(userId,chatId);if(target!=0)presentFragment(new org.telegram.ui.tetogram.ChatStatsActivity(currentAccount,target));return;}
                 if(id==46020){long target=org.telegram.messenger.tetogram.AppearanceProfilePolicy.target(userId,chatId);if(target!=0)presentFragment(new org.telegram.ui.tetogram.AppearanceActivity(currentAccount,"profile:"+target,null,null,0,0));return;}
                 if (id != -1) {
                     // the profile's buttons and the items of its menu are in this header, the old bar keeps their handling
@@ -12351,6 +12353,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         Context context = actionBar.getContext();
         otherItem.removeAllSubItems();
         if(org.telegram.messenger.tetogram.AppearanceProfilePolicy.target(userId,chatId)!=0)otherItem.addSubItem(46020,R.drawable.menu_profile_colors,getString(R.string.TetogramLocalProfileAppearance));
+        if(org.telegram.messenger.tetogram.AppearanceProfilePolicy.target(userId,chatId)!=0)otherItem.addSubItem(46021,R.drawable.msg_stats,getString(R.string.TetogramStats));
+        if(userId>0&&userId!=getUserConfig().getClientUserId())otherItem.addSubItem(46022,R.drawable.menu_profile_colors,getString(R.string.TetogramPersonMenuPrivate));
         animatingItem = null;
 
         editItemVisible = false;

@@ -9,10 +9,11 @@ public final class SectionUnread {
  public static Snapshot snapshot(int a,SectionConfig config){
   Snapshot out=new Snapshot();MessagesController m=MessagesController.getInstance(a);ArrayList<SectionUnreadPolicy.Chat> states=new ArrayList<>();HashMap<Long,TLRPC.Dialog> dialogs=new HashMap<>();
   for(TLRPC.Dialog d:m.getAllDialogs())if(!(d instanceof TLRPC.TL_dialogFolder) && !dialogs.containsKey(d.id)){
-   dialogs.put(d.id,d);SectionUnreadPolicy.Chat c=new SectionUnreadPolicy.Chat(d.id,m.getDialogUnreadCount(d),d.unread_mark,m.isDialogMuted(d.id,0));c.category=SectionDialogs.category(a,d);c.archived=d.folder_id!=0;c.mentioned=d.unread_mentions_count>0;states.add(c);
+   dialogs.put(d.id,d);SectionUnreadPolicy.Chat c=new SectionUnreadPolicy.Chat(d.id,m.getDialogUnreadCount(d),d.unread_mark,m.isDialogMuted(d.id,0));c.category=config.showBadges?SectionDialogs.category(a,d):0;c.archived=d.folder_id!=0;c.mentioned=d.unread_mentions_count>0;states.add(c);
    if(SectionUnreadPolicy.matches(c,config.unreadIncludeMuted)){out.unreadDialogs.add(d);out.any=true;}
   }
   out.counts.put(SectionUnreadPolicy.SYSTEM_ID,SectionUnreadPolicy.count(states,id->{TLRPC.Dialog d=dialogs.get(id);return d!=null;},config.unreadIncludeMuted));
+  if(!config.showBadges)return out; // badges hidden: only the system section's visibility is needed
   HashMap<String,Set<Long>> folderMembers=new HashMap<>();
   for(SectionConfig.Section section:config.sections)for(String key:section.tabs)if(!folderMembers.containsKey(key)){
    HashSet<Long> members=new HashSet<>();SectionConfig.Folder local=config.folders.get(key);MessagesController.DialogFilter server=SectionDialogs.server(a,key);

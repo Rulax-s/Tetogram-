@@ -1913,6 +1913,10 @@ public class AndroidUtilities {
             if (pathString.matches(Pattern.quote(new File(ApplicationLoader.applicationContext.getCacheDir(), "voip_logs").getAbsolutePath()) + "/\\d+\\.log")) {
                 return false;
             }
+            // Tetogram: allow sending appearance presets packed into cache/tetogram_share/<name>.tetotheme
+            if (pathString.matches(Pattern.quote(new File(ApplicationLoader.applicationContext.getCacheDir(), "tetogram_share").getAbsolutePath()) + "/[^/]+\\.tetotheme") && !pathString.contains("..")) {
+                return false;
+            }
             int tries = 0;
             while (true) {
                 if (pathString != null && pathString.length() > 4096) {
@@ -4419,6 +4423,7 @@ public class AndroidUtilities {
         if (f == null || !f.exists()) {
             f = FileLoader.getInstance(message.currentAccount).getPathToMessage(message.messageOwner);
         }
+        if (org.telegram.ui.tetogram.AppearanceShare.open(activity, message, f)) return true;
         String mimeType = message.type == MessageObject.TYPE_FILE || message.type == MessageObject.TYPE_TEXT ? message.getMimeType() : null;
         return openForView(f, message.getFileName(), mimeType, activity, resourcesProvider, restrict);
     }

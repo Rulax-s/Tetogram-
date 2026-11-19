@@ -395,7 +395,7 @@ public class MessageDrawable extends Drawable {
             color = getColor(isOut ? Theme.key_chat_outBubble : Theme.key_chat_inBubble);
         }
 
-        boolean drawWithShadow = shadow && !"false".equals(appearanceValue("shadow")) && gradientShader == null && !isSelected && !isCrossfadeBackground && !isCompact();
+        boolean drawWithShadow = shadow && !tetogramShadowOff() && gradientShader == null && !isSelected && !isCrossfadeBackground && !isCompact();
         int shadowColor = getColor(isOut ? Theme.key_chat_outBubbleShadow : Theme.key_chat_inBubbleShadow);
         if (backgroundStyleRevision[idx2][idx] != appearanceRevision() || lastDrawWithShadow != drawWithShadow || currentBackgroundDrawableRadius[idx2][idx] != newRad || (drawWithShadow && shadowDrawableColor[idx] != shadowColor) || backgroundDrawableColor[idx2][idx] != color) {
             backgroundStyleRevision[idx2][idx] = appearanceRevision();
@@ -484,7 +484,7 @@ public class MessageDrawable extends Drawable {
     }
 
     public Drawable getShadowDrawable() {
-        if (isCrossfadeBackground || isCompact() || "false".equals(appearanceValue("shadow"))) {
+        if (isCrossfadeBackground || isCompact() || tetogramShadowOff()) {
             return null;
         }
         if (gradientShader == null && !isSelected && crossfadeFromDrawable == null) {
@@ -725,7 +725,7 @@ public class MessageDrawable extends Drawable {
             rad = heightHalf;
         }
         int drawType=currentType;
-        if("false".equals(appearanceValue("tail"))&&drawType==TYPE_TEXT)drawType=TYPE_MEDIA;
+        if(tetogramTailOff()&&drawType==TYPE_TEXT)drawType=TYPE_MEDIA;
         int topLeft=appearanceRadius("TopLeft",rad,bounds),topRight=appearanceRadius("TopRight",rad,bounds);
         if (isOut) {
             // LEFT-BOTTOM <- RIGHT-BOTTOM
@@ -898,9 +898,15 @@ public class MessageDrawable extends Drawable {
     private String appearanceValue(String suffix){String key=(isOut?"bubble.out":"bubble.in")+Character.toUpperCase(suffix.charAt(0))+suffix.substring(1);return resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalValue(key):resourcesProvider.getAppearanceValue(key);}
     private long appearanceRevision(){return resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.generation():resourcesProvider.getAppearanceRevision();}
     private float appearanceNumber(String suffix,float fallback){String value=appearanceValue(suffix);if(value==null)return fallback;try{float n=Float.parseFloat(value);return Float.isNaN(n)||Float.isInfinite(n)?fallback:n;}catch(Exception e){return fallback;}}
-    private int appearanceRadius(String suffix,int fallback,Rect bounds){if(overrideRoundRadius!=0||overrideRounding>0)return fallback;float n=appearanceNumber(suffix,-1);return n<0?fallback:Math.min(Math.max(0,(Math.min(bounds.width(),bounds.height())-dp(4))/2),dp(Math.min(32,n)));}
-    private float cacheRadius(){float n=bubbleRadius();for(String corner:APPEARANCE_CORNERS)n=Math.max(n,Math.max(0,Math.min(32,appearanceNumber(corner,0))));return n;}
-    private void drawAppearanceOutline(Canvas canvas,Path path){float width=Math.max(0,Math.min(4,appearanceNumber("OutlineWidth",0)));if(width<=0)return;Integer color=resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalNamedColor((isOut?"bubble.out":"bubble.in")+"Outline"):resourcesProvider.getAppearanceColor((isOut?"bubble.out":"bubble.in")+"Outline");appearanceStroke.setStyle(Paint.Style.STROKE);appearanceStroke.setStrokeWidth(AndroidUtilities.dpf2(width));appearanceStroke.setColor(color==null?getColor(isOut?Theme.key_chat_outBubbleShadow:Theme.key_chat_inBubbleShadow):color);appearanceStroke.setAlpha(Math.round(Color.alpha(appearanceStroke.getColor())*(alpha/255f)));canvas.drawPath(path,appearanceStroke);}
+    // Tetogram: parsed once per appearance revision/provider/day-night instead of building keys and parsing on every frame.
+    private long tetogramRevision=Long.MIN_VALUE;private Theme.ResourcesProvider tetogramProvider;private boolean tetogramDark,tetogramCached,tetogramShadowOffValue,tetogramTailOffValue;private float tetogramOutlineWidth;private Integer tetogramOutlineColor;private final float[] tetogramCorners=new float[4];
+    private void tetogramAppearance(){long revision=appearanceRevision();boolean dark=resourcesProvider==null?Theme.isCurrentThemeDark():resourcesProvider.isDark();if(tetogramCached&&revision==tetogramRevision&&tetogramProvider==resourcesProvider&&dark==tetogramDark)return;tetogramCached=true;tetogramRevision=revision;tetogramProvider=resourcesProvider;tetogramDark=dark;tetogramShadowOffValue="false".equals(appearanceValue("shadow"));tetogramTailOffValue="false".equals(appearanceValue("tail"));tetogramOutlineWidth=Math.max(0,Math.min(4,appearanceNumber("OutlineWidth",0)));String outline=(isOut?"bubble.out":"bubble.in")+"Outline";tetogramOutlineColor=resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalNamedColor(outline):resourcesProvider.getAppearanceColor(outline);for(int i=0;i<4;i++)tetogramCorners[i]=appearanceNumber(APPEARANCE_CORNERS[i],-1);}
+    private boolean tetogramShadowOff(){tetogramAppearance();return tetogramShadowOffValue;}
+    private boolean tetogramTailOff(){tetogramAppearance();return tetogramTailOffValue;}
+    private float tetogramCorner(String suffix){tetogramAppearance();for(int i=0;i<4;i++)if(APPEARANCE_CORNERS[i].equals(suffix))return tetogramCorners[i];return -1;}
+    private int appearanceRadius(String suffix,int fallback,Rect bounds){if(overrideRoundRadius!=0||overrideRounding>0)return fallback;float n=tetogramCorner(suffix);return n<0?fallback:Math.min(Math.max(0,(Math.min(bounds.width(),bounds.height())-dp(4))/2),dp(Math.min(32,n)));}
+    private float cacheRadius(){float n=bubbleRadius();tetogramAppearance();for(float corner:tetogramCorners)n=Math.max(n,Math.max(0,Math.min(32,corner<0?0:corner)));return n;}
+    private void drawAppearanceOutline(Canvas canvas,Path path){tetogramAppearance();float width=tetogramOutlineWidth;if(width<=0)return;Integer color=tetogramOutlineColor;appearanceStroke.setStyle(Paint.Style.STROKE);appearanceStroke.setStrokeWidth(AndroidUtilities.dpf2(width));appearanceStroke.setColor(color==null?getColor(isOut?Theme.key_chat_outBubbleShadow:Theme.key_chat_inBubbleShadow):color);appearanceStroke.setAlpha(Math.round(Color.alpha(appearanceStroke.getColor())*(alpha/255f)));canvas.drawPath(path,appearanceStroke);}
     private int appearanceColor(String key) {Integer value=resourcesProvider==null?org.telegram.messenger.tetogram.AppearanceRuntime.globalNamedColor(key):resourcesProvider.getAppearanceColor(key);return value==null?0:value;}
     private int cacheWidth(){return dp(org.telegram.messenger.tetogram.AppearanceGeometry.cacheWidth(cacheRadius()));}
     private int cacheHeight(){return dp(org.telegram.messenger.tetogram.AppearanceGeometry.cacheHeight(cacheRadius()));}

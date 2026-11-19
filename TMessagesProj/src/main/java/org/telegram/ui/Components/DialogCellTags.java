@@ -91,6 +91,24 @@ public class DialogCellTags {
             return tag;
         }
 
+        /** Tetogram local tag; ids are negative so they never collide with folder ids. */
+        public static Tag fromTetogram(View view, org.telegram.messenger.tetogram.ChatTags.Tag local) {
+            Tag tag = new Tag();
+            tag.filterId = -1 - local.id;
+            tag.colorId = local.color;
+            CharSequence text = local.name.toUpperCase();
+            tag.text = new Text(text, 10, AndroidUtilities.bold());
+            tag.text.setText(Emoji.replaceEmoji(text, tag.text.getFontMetricsInt(), false));
+            tag.width = dp(2 * padDp) + (int) tag.text.getCurrentWidth();
+            tag.textHeight = (int) tag.text.getHeight();
+            tag.colorKey = Theme.keys_avatar_nameInMessage[local.color % Theme.keys_avatar_nameInMessage.length];
+            tag.hasColorKey = true;
+            tag.color = Theme.getColor(tag.colorKey);
+            tag.tetogramName = local.name;
+            return tag;
+        }
+        String tetogramName;
+
         public void draw(Canvas canvas) {
             if (hasColorKey) {
                 color = Theme.getColor(colorKey);
@@ -108,9 +126,9 @@ public class DialogCellTags {
         final MessagesController controller = MessagesController.getInstance(currentAccount);
 
         if (!(controller.folderTags && account.getUserConfig().isPremium())) {
-            final boolean wasEmpty = tags.isEmpty();
-            tags.clear();
-            return !wasEmpty;
+            boolean removed = false;
+            for (int i = tags.size() - 1; i >= 0; --i) if (tags.get(i).filterId >= 0) { tags.remove(i); removed = true; }
+            return tetogramUpdate(currentAccount, dialogsType, dialogId) || removed;
         }
 
         ArrayList<MessagesController.DialogFilter> allFilters = controller.dialogFilters;
@@ -149,6 +167,7 @@ public class DialogCellTags {
                 }
             }
 
+            if (tag.filterId < 0) continue;
             if (filter == null) {
                 changed = true;
                 tags.remove(i);
@@ -178,7 +197,25 @@ public class DialogCellTags {
 
         filters.clear();
 
-        return changed;
+        return tetogramUpdate(currentAccount, dialogsType, dialogId) || changed;
+    }
+
+    /** Puts the chat's Tetogram tags after the folder tags; true when anything changed. */
+    private boolean tetogramUpdate(int currentAccount, int dialogsType, long dialogId) {
+        java.util.List<org.telegram.messenger.tetogram.ChatTags.Tag> local = dialogsType == DialogsActivity.DIALOGS_TYPE_DEFAULT || dialogsType == DialogsActivity.DIALOGS_TYPE_FOLDER1 || dialogsType == DialogsActivity.DIALOGS_TYPE_FOLDER2
+            ? org.telegram.messenger.tetogram.ChatTagsStore.load(currentAccount).of(dialogId) : java.util.Collections.emptyList();
+        int first = 0;
+        while (first < tags.size() && tags.get(first).filterId >= 0) first++;
+        boolean same = tags.size() - first == local.size();
+        for (int i = 0; same && i < local.size(); ++i) {
+            Tag t = tags.get(first + i);
+            org.telegram.messenger.tetogram.ChatTags.Tag l = local.get(i);
+            same = t.filterId == -1 - l.id && t.colorId == l.color && l.name.equals(t.tetogramName);
+        }
+        if (same) return false;
+        while (tags.size() > first) tags.remove(tags.size() - 1);
+        for (org.telegram.messenger.tetogram.ChatTags.Tag l : local) tags.add(Tag.fromTetogram(parentView, l));
+        return true;
     }
 
     public boolean isEmpty() {

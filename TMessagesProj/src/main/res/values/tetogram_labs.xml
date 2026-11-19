@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramLabsDeletedTitle">Deleted messages</string>
+    <string name="TetogramLabsEditsTitle">Edit history</string>
+    <string name="TetogramLabsShow">Display</string>
+    <string name="TetogramLabsStorage">Storage</string>
+    <string name="TetogramLabsSavedNow">Saved now</string>
+    <string name="TetogramLabsSavedValue">%1$s · %2$s</string>
+    <string name="TetogramLabsTelegramTheme">as in Telegram</string>
+    <string name="TetogramLabsThemeName">theme “%1$s”</string>
+    <string name="TetogramLabsOwnTheme">your own theme</string>
+    <string name="TetogramLabsNone">not set up</string>
+    <string name="TetogramLabsCount">%1$d</string>
+    <string name="TetogramLabsPickChat">choose a chat</string>
+    <string name="TetogramLabsSaving">saving</string>
+    <string name="TetogramLabsOff">off</string>
+    <string name="TetogramLabsFeatures">Features</string>
+    <string name="TetogramLabsSystem">Permissions and system</string>
+    <string name="TetogramLabsLockCalls">Calls on the lock screen</string>
+    <string name="TetogramLabsLockCallsInfo">Android turns this off after every APK update</string>
+    <string name="TetogramLabsNotifications">Notifications</string>
+    <string name="TetogramLabsNotificationsInfo">new messages will not be shown</string>
+    <string name="TetogramLabsGallery">Gallery for backgrounds</string>
+    <string name="TetogramLabsGalleryInfo">the background tab cannot show your photos</string>
+    <string name="TetogramLabsBackground">Background work</string>
+    <string name="TetogramLabsBackgroundInfo">battery saving can delay messages</string>
+    <string name="TetogramLabsEnable">Enable</string>
+    <string name="TetogramLabsAllow">Allow</string>
+    <string name="TetogramLabsOpen">Open</string>
+    <string name="TetogramLabsOk">on</string>
+    <string name="TetogramLabsData">Saved on this device</string>
+    <string name="TetogramLabsAppearanceMedia">Backgrounds and appearance media</string>
+    <string name="TetogramLabsDataInfo">Open “Deleted messages” or “Edit history” to change retention or clear them.</string>
+    <string name="TetogramLabsWhatsNew">What’s new</string>
+    <string name="TetogramLabsBuild">build %1$d · based on Telegram %2$s</string>
+    <string name="TetogramLabsLocalOnly">Everything is stored only on this device</string>
+    <string name="TetogramLabsWhatsNewText">Chat translation, music and playlists, tags, bookmarks, Tetogram friends, sharing appearance in chats, hiding blocked people. Details are in the changelog on GitHub.</string>
+    <string name="TetogramLabsGroupChats">Chats</string>
+    <string name="TetogramLabsGroupPeople">People</string>
+    <string name="TetogramLabsGroupHistory">History</string>
+</resources>

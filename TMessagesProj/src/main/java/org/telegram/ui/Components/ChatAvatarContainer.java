@@ -1245,6 +1245,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
                     isOnline[0] = false;
                     newStatus = LocaleController.formatUserStatus(currentAccount, user, isOnline, allowShorterStatus ? statusMadeShorter : null);
                     useOnlineColor = isOnline[0];
+                    if (isOnline[0] && org.telegram.messenger.tetogram.TetoPresence.online(currentAccount, user.id)) newStatus = TextUtils.concat(newStatus, " · ", getString(R.string.TetogramPresenceBadge));
                 }
                 newSubtitle = newStatus;
             } else {

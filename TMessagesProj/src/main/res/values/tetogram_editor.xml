@@ -52,4 +52,11 @@
     <string name="TetogramEditorHoldToInherit">Hold to inherit</string>
     <string name="TetogramEditorShortcutAccountScope">This account keeps its own shortcut draft. The Android shortcut belongs to this device and opens the last selected account; it is created only after confirmation.</string>
     <string name="TetogramEditorChatRow">This chat’s row in the list</string>
+  <string name="TetogramEditorChangedElsewhere">Changed in another screen</string>
+  <string name="TetogramEditorChangedElsewhereInfo">This appearance was changed and saved elsewhere while you were editing. Replace it with your version?</string>
+  <string name="TetogramEditorOverwrite">Replace</string>
+  <string name="TetogramEditorPresetMissing">This preset was deleted in another screen.</string>
+  <string name="TetogramEditorRecover">Start with a clean appearance</string>
+  <string name="TetogramEditorRecoverInfo">The saved appearance file cannot be read. Tetogram will keep it and its media as a separate copy and start with the standard appearance. Chats, presets in other accounts and messages are not affected.</string>
+  <string name="TetogramEditorExactValue">Enter exact value</string>
 </resources>

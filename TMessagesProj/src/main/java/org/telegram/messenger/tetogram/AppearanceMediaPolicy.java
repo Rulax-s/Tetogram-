@@ -14,4 +14,24 @@ public final class AppearanceMediaPolicy {
     public static long endUs(long start,long end,long duration){if(start<0||duration<=0||start>=duration)throw new IllegalArgumentException("Invalid video interval");long result=end<0?duration:Math.min(end,duration);if(result<=start)throw new IllegalArgumentException("Empty video interval");return result;}
     public static boolean importDirectory(String name){if(name==null||!name.startsWith("import-"))return false;try{return java.util.UUID.fromString(name.substring(7)).toString().equalsIgnoreCase(name.substring(7));}catch(IllegalArgumentException e){return false;}}
     public static boolean discard(String file,java.util.Set<String> live,boolean pending){return AppearanceConfig.isMediaName(file)&&!pending&&!live.contains(file);}
+    /**
+     * Wallpaper output size. The crop editor reports a send-compressed size (often 720p) for muted videos; keep its
+     * aspect ratio (it includes the crop) but scale back to the source resolution, limited by the quality setting.
+     */
+    public static int[] target(int resultWidth,int resultHeight,int originalWidth,int originalHeight,int requestedQuality){
+        if(resultWidth<=0||resultHeight<=0){resultWidth=originalWidth;resultHeight=originalHeight;}
+        if(resultWidth<=0||resultHeight<=0)throw new IllegalArgumentException("Invalid video bounds");
+        int longest=Math.max(resultWidth,resultHeight),source=Math.max(originalWidth,originalHeight);
+        int limit=Math.min(quality(requestedQuality),source>0?source:longest);
+        double scale=limit/(double)longest;
+        return new int[]{Math.max(2,((int)Math.round(resultWidth*scale))&~1),Math.max(2,((int)Math.round(resultHeight*scale))&~1)};
+    }
+    /** About 0.1 bit per pixel per frame (6 Mbit/s for 1080p30), never far above the source and within encoder limits. */
+    public static int bitrate(int width,int height,int fps,int originalBitrate){
+        long wanted=(long)width*height*Math.max(12,Math.min(60,fps))/10;
+        if(originalBitrate>0)wanted=Math.min(wanted,Math.max(originalBitrate,1_500_000L));
+        return (int)Math.max(1_500_000L,Math.min(16_000_000L,wanted));
+    }
+    /** Static cover size: large enough for a phone screen when the video is paused or Lite Mode is on. */
+    public static final int COVER_SIZE=1280;
 }

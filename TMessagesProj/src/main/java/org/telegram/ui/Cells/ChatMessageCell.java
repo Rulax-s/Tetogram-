@@ -5797,6 +5797,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         return (int) (forwardNameX + forwardNameCenterX);
     }
 
+    /** Shared Tetogram appearance files show their preview picture as a large card. */
+    private static final int TETOGRAM_CARD_W=140,TETOGRAM_CARD_H=196;
+    private static boolean tetogramThemeCard(MessageObject m){TLRPC.Document d=m==null?null:m.getDocument();return d!=null&&MessageObject.isDocumentHasThumb(d)&&org.telegram.ui.tetogram.AppearanceShare.isShared(FileLoader.getDocumentFileName(d));}
     private long tetogramLayoutRevision=Long.MIN_VALUE;
     private int tetogramEditCount;
     private float tetogramBubbleRadius(){boolean outgoing=currentMessageObject!=null&&currentMessageObject.isOutOwner();return resourcesProvider==null?Math.max(0,Math.min(32,org.telegram.messenger.tetogram.AppearanceRuntime.globalNumber(outgoing?"bubble.outRadius":"bubble.inRadius",SharedConfig.bubbleRadius))):resourcesProvider.getBubbleRadius(outgoing);}
@@ -8702,6 +8705,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                             maxWidth = Math.max(maxTextWidth, backgroundWidth - dp(86 + 52));
                         }
                     }
+                    if (tetogramThemeCard(messageObject)) maxWidth -= dp(TETOGRAM_CARD_W - 86);
                     createDocumentLayout(maxWidth, messageObject);
                     if (currentPosition != null) {
                         captionFullWidth = backgroundWidth - dp(41);
@@ -8732,8 +8736,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                     }
                     availableTimeWidth = maxWidth;
                     if (drawPhotoImage) {
-                        photoWidth = dp(86);
-                        photoHeight = dp(86);
+                        boolean tetogramCard = tetogramThemeCard(messageObject);
+                        photoWidth = dp(tetogramCard ? TETOGRAM_CARD_W : 86);
+                        photoHeight = dp(tetogramCard ? TETOGRAM_CARD_H : 86);
                         availableTimeWidth -= photoWidth;
                     } else {
                         photoWidth = dp(56);
@@ -11430,8 +11435,8 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                     currentPhotoObjectThumb = null;
                     currentPhotoObjectThumbStripped = currentMessageObject.strippedThumb;
                 }
-                currentPhotoFilter = "86_86_b";
-                photoImage.setImage(ImageLocation.getForObject(currentPhotoObject, messageObject.photoThumbsObject), "86_86", ImageLocation.getForObject(currentPhotoObjectThumb, messageObject.photoThumbsObject), currentPhotoFilter, currentPhotoObjectThumbStripped, 0, null, messageObject, 1);
+                currentPhotoFilter = tetogramThemeCard(messageObject) ? TETOGRAM_CARD_W + "_" + TETOGRAM_CARD_H + "_b" : "86_86_b";
+                photoImage.setImage(ImageLocation.getForObject(currentPhotoObject, messageObject.photoThumbsObject), tetogramThemeCard(messageObject) ? TETOGRAM_CARD_W + "_" + TETOGRAM_CARD_H : "86_86", ImageLocation.getForObject(currentPhotoObjectThumb, messageObject.photoThumbsObject), currentPhotoFilter, currentPhotoObjectThumbStripped, 0, null, messageObject, 1);
             }
             return width;
         }
@@ -15729,6 +15734,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             currentTimeString = TextUtils.concat(getString(R.string.TetogramDeleted), " · ", currentTimeString);
         }
         if (org.telegram.messenger.tetogram.EditHistoryPolicy.visible(org.telegram.messenger.tetogram.EditHistory.cachedCount(messageObject),org.telegram.messenger.tetogram.LabsSettings.editMark(currentAccount),!messageObject.isEphemeral())) currentTimeString=TextUtils.concat(getString(R.string.TetogramEditBadge)," · ",currentTimeString);
+        if (messageObject.getId() > 0 && org.telegram.messenger.tetogram.BookmarksStore.contains(currentAccount, messageObject)) currentTimeString = TextUtils.concat("★ ", currentTimeString);
         timeTextWidth = timeWidth = (int) Math.ceil(Theme.chat_timePaint.measureText(currentTimeString, 0, currentTimeString == null ? 0 : currentTimeString.length()));
         if (messageObject.tetogramLocalDeleted && org.telegram.messenger.tetogram.LabsSettings.mark(currentAccount)) { timeWidth += dp(6); timeTextWidth += dp(6); }
         if (currentMessageObject.scheduled && currentMessageObject.messageOwner.date == 0x7FFFFFFE || currentMessageObject.notime) {
@@ -16774,6 +16780,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                     }
                 }
                 CharSequence stringFinalName = name;
+                if (org.telegram.messenger.tetogram.Ignore.hidesReply(currentAccount, messageObject)) { stringFinalName = getString(R.string.TetogramIgnoreHiddenName); stringFinalText = getString(R.string.TetogramIgnoreHiddenMessage); needReplyImage = false; }
                 try {
                     stringFinalName = Emoji.replaceEmoji(stringFinalName, Theme.chat_replyNamePaint.getFontMetricsInt(), false);
                 } catch (Exception ignore) {}
@@ -17225,6 +17232,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             Theme.chat_msgTextCodePaint.setColor(getThemedColor(Theme.key_chat_messageTextIn));
             Theme.chat_msgTextCode2Paint.setColor(getThemedColor(Theme.key_chat_messageTextIn));
             Theme.chat_msgTextCode3Paint.setColor(getThemedColor(Theme.key_chat_messageTextIn));
+            { Integer tetogramText = org.telegram.ui.tetogram.PersonBubble.text(currentMessageObject, resourcesProvider, getThemedColor(Theme.key_chat_messageTextIn)); if (tetogramText != null) { Theme.chat_msgTextPaint.setColor(tetogramText); Theme.chat_msgGameTextPaint.setColor(tetogramText); } }
             Theme.chat_msgGameTextPaint.linkColor =
             Theme.chat_replyTextPaint.linkColor =
             Theme.chat_quoteTextPaint.linkColor =
@@ -18061,6 +18069,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 }
             }
         }
+        if ((drawBackground || transitionParams.animateDrawBackground) && currentBackgroundDrawable != null && currentPosition == null && !mediaBackground) org.telegram.ui.tetogram.PersonBubble.draw(canvas, currentBackgroundDrawable, currentMessageObject, resourcesProvider, false, fromParent ? alphaInternal * getAlpha() : alphaInternal);
         if (currentMessageObject != null && currentMessageObject.isRoundVideo()) {
             currentBackgroundDrawable.setRoundingRadius(0);
         }
