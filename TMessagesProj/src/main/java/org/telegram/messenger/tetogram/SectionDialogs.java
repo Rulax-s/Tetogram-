@@ -6,7 +6,17 @@ import org.telegram.tgnet.TLRPC;
 public final class SectionDialogs {
  private SectionDialogs(){}
  public static MessagesController.DialogFilter server(int account,String key){if(key!=null && key.startsWith("tg:"))for(MessagesController.DialogFilter f:MessagesController.getInstance(account).getDialogFilters())if(key.equals("tg:"+f.id) && !f.isDefault())return f;return null;}
+ // Contact/bot/group/channel kind barely changes; recomputing it for every dialog on every read event and badge tick is wasted work.
+ private static final long CATEGORY_TTL_MS=60_000;
+ private static final HashMap<Integer,HashMap<Long,Integer>> CATEGORIES=new HashMap<>();
+ private static final HashMap<Integer,Long> CATEGORIES_AT=new HashMap<>();
  public static int category(int a,TLRPC.Dialog d){
+  long now=System.currentTimeMillis();Long at=CATEGORIES_AT.get(a);HashMap<Long,Integer> cache=CATEGORIES.get(a);
+  if(cache==null||at==null||now-at>CATEGORY_TTL_MS){cache=new HashMap<>();CATEGORIES.put(a,cache);CATEGORIES_AT.put(a,now);}
+  Integer cached=cache.get(d.id);if(cached!=null)return cached;
+  int value=computeCategory(a,d);if(value!=0)cache.put(d.id,value);return value;
+ }
+ private static int computeCategory(int a,TLRPC.Dialog d){
   MessagesController m=MessagesController.getInstance(a);int category=0;
   if(DialogObject.isEncryptedDialog(d.id)){TLRPC.EncryptedChat e=m.getEncryptedChat(DialogObject.getEncryptedChatId(d.id));TLRPC.User u=e==null?null:m.getUser(e.user_id);if(u!=null)category=u.bot?16:u.self || u.contact || ContactsController.getInstance(a).isContact(u.id)?1:2;}
   else if(d.id>0){TLRPC.User u=m.getUser(d.id);if(u!=null)category=u.bot?16:u.self || u.contact || ContactsController.getInstance(a).isContact(u.id)?1:2;}

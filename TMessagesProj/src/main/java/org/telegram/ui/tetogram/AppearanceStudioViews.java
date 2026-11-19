@@ -91,6 +91,7 @@ final class AppearanceStudioViews {
         private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG),ring=new Paint(Paint.ANTI_ALIAS_FLAG);
         private final TextPaint label=new TextPaint(Paint.ANTI_ALIAS_FLAG);
         private final RectF rect=new RectF();
+        private LinearGradient shader;private int shaderWidth=-1;
         CardView(Context context,ThemeCard card){
             super(context);this.card=card;
             label.setTextSize(dp(11.5f));label.setTextAlign(Paint.Align.CENTER);
@@ -101,7 +102,8 @@ final class AppearanceStudioViews {
         @Override protected void onDraw(Canvas c){
             float w=getWidth(),cardH=dp(92),pad=dp(2);
             rect.set(pad,pad,w-pad,cardH-pad);
-            paint.setShader(new LinearGradient(0,0,w,cardH,card.wallTop,card.wallBottom,Shader.TileMode.CLAMP));
+            if(shader==null||shaderWidth!=getWidth()){shader=new LinearGradient(0,0,w,cardH,card.wallTop,card.wallBottom,Shader.TileMode.CLAMP);shaderWidth=getWidth();}
+            paint.setShader(shader);
             c.drawRoundRect(rect,dp(14),dp(14),paint);paint.setShader(null);
             if(card.selected){ring.setColor(accent());c.drawRoundRect(rect,dp(14),dp(14),ring);}
             else{ring.setColor(ColorUtils.setAlphaComponent(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText),60));ring.setStrokeWidth(dp(1));c.drawRoundRect(rect,dp(14),dp(14),ring);ring.setStrokeWidth(dp(2.5f));}

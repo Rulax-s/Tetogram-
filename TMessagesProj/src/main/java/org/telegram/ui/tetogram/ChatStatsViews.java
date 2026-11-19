@@ -55,6 +55,7 @@ final class ChatStatsViews {
         private final Paint bg=new Paint(Paint.ANTI_ALIAS_FLAG),bubble=new Paint(Paint.ANTI_ALIAS_FLAG);
         private final TextPaint titlePaint=new TextPaint(Paint.ANTI_ALIAS_FLAG),subPaint=new TextPaint(Paint.ANTI_ALIAS_FLAG),bigPaint=new TextPaint(Paint.ANTI_ALIAS_FLAG),valuePaint=new TextPaint(Paint.ANTI_ALIAS_FLAG),labelPaint=new TextPaint(Paint.ANTI_ALIAS_FLAG);
         private final RectF rect=new RectF();
+        private LinearGradient shader;private int shaderAccent,shaderWidth,shaderHeight;
         Hero(Context context,String title,String subtitle,String big,String bigLabel,String[] values,String[] labels){
             super(context);this.title=title;this.subtitle=subtitle;this.big=big;this.bigLabel=bigLabel;this.values=values;this.labels=labels;
             titlePaint.setTypeface(AndroidUtilities.bold());titlePaint.setTextSize(dp(18));titlePaint.setColor(Color.WHITE);
@@ -69,7 +70,8 @@ final class ChatStatsViews {
         @Override protected void onDraw(Canvas c){
             float pad=dp(14);rect.set(pad,dp(10),getWidth()-pad,getHeight()-dp(10));
             int a=accent();
-            bg.setShader(new LinearGradient(rect.left,rect.top,rect.right,rect.bottom,new int[]{shiftHue(a,-25),a,shiftHue(a,45)},null,Shader.TileMode.CLAMP));
+            if(shader==null||shaderAccent!=a||shaderWidth!=getWidth()||shaderHeight!=getHeight()){shader=new LinearGradient(rect.left,rect.top,rect.right,rect.bottom,new int[]{shiftHue(a,-25),a,shiftHue(a,45)},null,Shader.TileMode.CLAMP);shaderAccent=a;shaderWidth=getWidth();shaderHeight=getHeight();}
+            bg.setShader(shader);
             c.drawRoundRect(rect,dp(22),dp(22),bg);
             c.save();c.clipRect(rect);
             bubble.setColor(0x1affffff);

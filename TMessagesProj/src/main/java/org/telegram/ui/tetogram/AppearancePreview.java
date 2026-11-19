@@ -24,19 +24,25 @@ public final class AppearancePreview extends FrameLayout {
     public void updateSurface(AppearanceConfig.Resolved value,boolean dark,int surface){if(this.surface!=surface){this.surface=surface;currentStyle=null;}update(value,dark);}
     public void update(AppearanceConfig.Resolved value,boolean dark){
         if(nativeGeneration==ThemeBind.generation()&&currentStyle!=null&&currentDark==dark&&currentStyle.values.equals(value.values)&&currentStyle.origins.equals(value.origins))return;
+        // Wallpaper-only changes (slider drags) keep the existing message/list cells; only background and media update.
+        java.util.Map<String,String> scene=sceneValues(value);boolean sameScene=lastScene!=null&&scene.equals(lastScene)&&currentDark==dark&&nativeGeneration==ThemeBind.generation()&&lastSceneSurface==surface;
         currentStyle=value;currentDark=dark;nativeGeneration=ThemeBind.generation();
         setBackground(AppearanceBackgrounds.colors(value,dark));if(getBackground()==null)setBackgroundColor(AppearanceRuntime.baseColor(dark,surface==1||surface==4||surface==5?Theme.key_windowBackgroundWhite:Theme.key_chat_wallpaper));
         String origin=value.origins.get("wallpaper.file");boolean rowOnly=(surface==1||surface==4||surface==5)&&origin!=null&&(origin.startsWith("chat:")||origin.startsWith("topic:"));
         media.configure(UserConfig.getInstance(account).getClientUserId(),value);media.setVisibility(!rowOnly&&AppearanceConfig.isMediaName(value.get("wallpaper.file"))?VISIBLE:GONE);
-        resources.update(value,dark);boolean flat=(surface==1||surface==4||surface==5)&&AppearanceListStyle.uniform(value);listTint.setBackgroundColor(flat?AppearanceListStyle.tint(resources.getColor(Theme.key_windowBackgroundWhite),value.number("list.rowOpacity",1)):0);scene.removeAllViews();profileAvatar=null;buildScene(value,dark);
+        if(sameScene)return;
+        lastScene=scene;lastSceneSurface=surface;
+        resources.update(value,dark);boolean flat=(surface==1||surface==4||surface==5)&&AppearanceListStyle.uniform(value);listTint.setBackgroundColor(flat?AppearanceListStyle.tint(resources.getColor(Theme.key_windowBackgroundWhite),value.number("list.rowOpacity",1)):0);this.scene.removeAllViews();profileAvatar=null;buildScene(value,dark);
     }
     private boolean resumed;
+    private java.util.Map<String,String> lastScene;private int lastSceneSurface=-1;
+    private static java.util.Map<String,String> sceneValues(AppearanceConfig.Resolved value){java.util.HashMap<String,String> out=new java.util.HashMap<>();for(java.util.Map.Entry<String,String> e:value.values.entrySet()){String k=e.getKey();if(k.startsWith("wallpaper.")||k.contains("chat_wallpaper"))continue;out.put(k,e.getValue());}return out;}
     // ---- Element picking (editor preview only) ----
     public interface ElementListener{void picked(String element);}
     private ElementListener elementListener;
     private long sampleSender;
     /** Incoming sample messages come from this sender so per-person colors show up; 0 keeps the neutral sample. */
-    public void setSampleSender(long id){if(sampleSender==id)return;sampleSender=id;if(currentStyle!=null){AppearanceConfig.Resolved style=currentStyle;currentStyle=null;update(style,currentDark);}}
+    public void setSampleSender(long id){if(sampleSender==id)return;sampleSender=id;lastScene=null;if(currentStyle!=null){AppearanceConfig.Resolved style=currentStyle;currentStyle=null;update(style,currentDark);}}
     private String highlighted;
     private final java.util.ArrayList<View> regionViews=new java.util.ArrayList<>();
     private final java.util.ArrayList<String> regionNames=new java.util.ArrayList<>();
@@ -44,7 +50,7 @@ public final class AppearancePreview extends FrameLayout {
     private final android.graphics.RectF bounds=new android.graphics.RectF();
     private float downX,downY;
     /** Enables the chat header/input chrome and tap-to-pick; the preview still never opens real screens. */
-    public void setElementListener(ElementListener listener){boolean changed=(elementListener==null)!=(listener==null);elementListener=listener;if(changed&&currentStyle!=null){AppearanceConfig.Resolved style=currentStyle;currentStyle=null;update(style,currentDark);}}
+    public void setElementListener(ElementListener listener){boolean changed=(elementListener==null)!=(listener==null);elementListener=listener;if(changed)lastScene=null;if(changed&&currentStyle!=null){AppearanceConfig.Resolved style=currentStyle;currentStyle=null;update(style,currentDark);}}
     public void setHighlighted(String element){if(java.util.Objects.equals(highlighted,element))return;highlighted=element;invalidate();}
     private void region(View view,String name){regionViews.add(view);regionNames.add(name);}
     private String defaultElement(){return surface==2?AppearanceElements.BANNER:surface==1||surface==4||surface==5?AppearanceElements.LIST_BACKGROUND:AppearanceElements.WALLPAPER;}

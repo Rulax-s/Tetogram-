@@ -17,10 +17,19 @@ public final class PersonBubble {
     static{STROKE.setStyle(Paint.Style.STROKE);}
     private PersonBubble(){}
 
+    /** Per-sender result, including "no style", valid for one provider and appearance revision (UI thread only). */
+    private static final class Entry{Theme.ResourcesProvider provider;long revision;AppearancePeople.Style style;}
+    private static final android.util.LongSparseArray<Entry> CACHE=new android.util.LongSparseArray<>();
     public static AppearancePeople.Style style(MessageObject message,Theme.ResourcesProvider provider){
         if(message==null||message.messageOwner==null||message.isOutOwner())return null;
         long sender=message.getFromChatId();if(sender==0)return null;
-        return AppearancePeople.read(key->provider==null?AppearanceRuntime.globalValue(key):provider.getAppearanceValue(key),sender);
+        long revision=provider==null?AppearanceRuntime.generation():provider.getAppearanceRevision();
+        Entry entry=CACHE.get(sender);
+        if(entry!=null&&entry.provider==provider&&entry.revision==revision)return entry.style;
+        if(entry==null){if(CACHE.size()>=512)CACHE.clear();entry=new Entry();CACHE.put(sender,entry);}
+        entry.provider=provider;entry.revision=revision;
+        entry.style=AppearancePeople.read(key->provider==null?AppearanceRuntime.globalValue(key):provider.getAppearanceValue(key),sender);
+        return entry.style;
     }
 
     /** Called after the native background; the canvas still has the cell's background transform. */

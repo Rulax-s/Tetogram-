@@ -68,14 +68,14 @@ public final class LabsActivity extends LabsPage {
 
     // ---- state shown on the tiles ----
     private String appearanceState(){
-        AppearanceConfig c=AppearanceStore.snapshot(currentAccount);AppearanceConfig.Style global=AppearanceConfig.withoutPersonal(c.scopes.get(AppearanceConfig.GLOBAL));
+        AppearanceConfig c=fillConfig();AppearanceConfig.Style global=AppearanceConfig.withoutPersonal(c.scopes.get(AppearanceConfig.GLOBAL));
         if(global.values.isEmpty())return getString(R.string.TetogramLabsTelegramTheme);
         for(AppearanceConfig.Preset p:AppearancePresets.builtins())if(AppearanceConfig.sameAppearance(global,p.style))return formatString(R.string.TetogramLabsThemeName,p.name);
         for(AppearanceConfig.Preset p:c.presets.values())if(AppearanceConfig.sameAppearance(global,p.style))return formatString(R.string.TetogramLabsThemeName,p.name);
         return getString(R.string.TetogramLabsOwnTheme);
     }
     private String sectionsState(){try{int n=SectionsStore.load(currentAccount).sections.size();return n==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,n);}catch(Exception e){return getString(R.string.TetogramStorageError);}}
-    private String peopleState(){AppearanceConfig c=AppearanceStore.snapshot(currentAccount);HashSet<Long> people=new HashSet<>();for(AppearanceConfig.Style s:c.scopes.values())people.addAll(AppearancePeople.people(s));return people.isEmpty()?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,people.size());}
+    private String peopleState(){AppearanceConfig c=fillConfig();HashSet<Long> people=new HashSet<>();for(AppearanceConfig.Style s:c.scopes.values())people.addAll(AppearancePeople.people(s));return people.isEmpty()?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,people.size());}
 
     // ---- permissions ----
     private boolean lockScreenCalls(){if(Build.VERSION.SDK_INT<34)return true;NotificationManager nm=(NotificationManager)ApplicationLoader.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);return nm==null||nm.canUseFullScreenIntent();}
@@ -83,8 +83,11 @@ public final class LabsActivity extends LabsPage {
     private void open(Intent intent){Activity a=getParentActivity();if(a==null)return;try{a.startActivity(intent);}catch(Exception e){try{a.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+a.getPackageName())));}catch(Exception ignored){}}}
     private Uri pkg(){return Uri.parse("package:"+ApplicationLoader.applicationContext.getPackageName());}
 
+    /** One copy of the appearance document per list rebuild instead of one per tile. */
+    private AppearanceConfig filled;
+    private AppearanceConfig fillConfig(){if(filled==null)filled=AppearanceStore.snapshot(currentAccount);return filled;}
     @Override protected void fill(ArrayList<UItem> items,UniversalAdapter adapter){
-        Context ctx=getContext();
+        filled=null;Context ctx=getContext();
         items.add(UItem.asCustomShadow(header(ctx),-2));
         items.add(UItem.asHeader(getString(R.string.TetogramLabsFeatures)));
         ArrayList<View> tiles=new ArrayList<>();
