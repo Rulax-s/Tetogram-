@@ -7449,6 +7449,8 @@ public class ChatActivityEnterView extends FrameLayout implements
         }
     }
 
+    /** Text chosen in Tetogram's translation preview for the next send; null asks again. */
+    private CharSequence tetogramOutgoing;
     protected boolean sendMessageInternal(boolean notify, int scheduleDate, int scheduleRepeatPeriod, long payStars, boolean allowConfirm) {
         final boolean allowConfirmFinal = allowConfirm && !animatorEphemeralMessageVisibility.getValue();
 
@@ -7552,7 +7554,16 @@ public class ChatActivityEnterView extends FrameLayout implements
                 sendRichDraft(notify, scheduleDate, scheduleRepeatPeriod, payStars);
                 return;
             }
-            CharSequence message = messageEditText == null ? "" : messageEditText.getTextToUse();
+            final CharSequence tetogramTyped = messageEditText == null ? "" : messageEditText.getTextToUse();
+            final CharSequence tetogramChosen = tetogramOutgoing; tetogramOutgoing = null;
+            if (tetogramChosen == null && !isInScheduleMode() && org.telegram.ui.tetogram.ChatTranslateUi.askBeforeSend(parentFragment, currentAccount, dialog_id, tetogramTyped, (text, translated) -> {
+                tetogramOutgoing = text;
+                if (translated) org.telegram.messenger.tetogram.ChatTranslation.rememberSent(currentAccount, dialog_id, text.toString(), tetogramTyped.toString());
+                sendMessageInternal(notify, scheduleDate, scheduleRepeatPeriod, payStars, false);
+            })) {
+                return;
+            }
+            CharSequence message = tetogramChosen != null ? tetogramChosen : tetogramTyped;
             if (parentFragment != null) {
                 TLRPC.Chat chat = parentFragment.getCurrentChat();
                 if (chat != null && chat.slowmode_enabled && !ChatObject.hasAdminRights(chat)) {

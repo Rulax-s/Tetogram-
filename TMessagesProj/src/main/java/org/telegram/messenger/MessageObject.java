@@ -3831,12 +3831,15 @@ public class MessageObject {
 
     public boolean translated = false;
     public boolean summarized = false;
+    /** Tetogram's own translation (or the user's original text) shown instead of the message text; null when off. */
+    public String tetogramTranslation;
     public boolean updateTranslation(boolean force) {
         boolean replyUpdated = replyMessageObject != null && replyMessageObject != this && replyMessageObject.updateTranslation(force);
         TranslateController translateController = MessagesController.getInstance(currentAccount).getTranslateController();
         final TLRPC.TL_textWithEntities translatedText = messageOwner != null ? (messageOwner.voiceTranscriptionOpen ? messageOwner.translatedVoiceTranscription : messageOwner.translatedText) : null;
         final TLRPC.TL_textWithEntities summarizedText = messageOwner != null && messageOwner.summarizedOpen ? messageOwner.summaryText : null;
         final TLRPC.TL_textWithEntities summarizeTranslatedText = messageOwner != null && messageOwner.summarizedOpen ? messageOwner.translatedSummaryText : null;
+        final CharSequence tetogramShown = messageOwner != null && type != TYPE_ARTICLE && translatedText == null && summarizedText == null ? org.telegram.messenger.tetogram.ChatTranslation.display(this) : null;
         if (
             summarizeTranslatedText != null &&
             messageOwner != null &&
@@ -3889,7 +3892,15 @@ public class MessageObject {
                 generateCaption();
             }
             return replyUpdated || true;
+        } else if (tetogramShown != null) {
+            String shown = tetogramShown.toString();
+            if (!force && translated && !summarized && shown.equals(tetogramTranslation)) return replyUpdated;
+            translated = true; summarized = false; tetogramTranslation = shown; caption = null;
+            applyNewText(shown);
+            generateCaption();
+            return true;
         } else if (messageOwner != null && (force || translated || summarized)) {
+            if (tetogramTranslation != null) { tetogramTranslation = null; caption = null; }
             translated = false;
             summarized = false;
             if (type == TYPE_ARTICLE) {
@@ -3993,6 +4004,7 @@ public class MessageObject {
     }
     public String getDisplayText() { return hasTetogramLocalReply()?messageOwner.message.substring(tetogramReplyBodyStart):messageOwner.message; }
     public ArrayList<TLRPC.MessageEntity> getDisplayEntities() {
+        if(translated && tetogramTranslation != null)return new ArrayList<>();
         if(!hasTetogramLocalReply())return getEntities();
         return org.telegram.messenger.tetogram.LocalReplyProtocol.bodyEntities(messageOwner.entities,tetogramReplyBodyStart,messageOwner.message.length());
     }
@@ -7926,7 +7938,7 @@ public class MessageObject {
             return;
         }
         captionLinksHidden = hideLinks;
-        String text = getDisplayText();
+        String text = translated && tetogramTranslation != null ? tetogramTranslation : getDisplayText();
         ArrayList<TLRPC.MessageEntity> entities = getDisplayEntities();
         boolean forceManualEntities = false;
         if (type == TYPE_STORY) {
@@ -8294,6 +8306,7 @@ public class MessageObject {
 
     public ArrayList<TLRPC.MessageEntity> getEntities() {
         if (messageOwner == null) return null;
+        if (translated && tetogramTranslation != null) return new ArrayList<>();
         if (summarized) {
             if (translated && messageOwner.translatedSummaryText != null) {
                 return messageOwner.translatedSummaryText.entities;

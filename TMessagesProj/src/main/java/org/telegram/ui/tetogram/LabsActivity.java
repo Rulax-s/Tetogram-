@@ -102,6 +102,8 @@ public final class LabsActivity extends LabsPage {
         tiles.add(tile(ctx,R.drawable.msg_fave,0xffE2A33B,getString(R.string.TetogramBookmarks),bookmarks==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,bookmarks),false,()->presentFragment(new BookmarksActivity(currentAccount,0))));
         boolean ignore=org.telegram.messenger.tetogram.Ignore.enabled(currentAccount);
         tiles.add(tile(ctx,R.drawable.msg_block,0xff8E5A5A,getString(R.string.TetogramIgnoreTile),ignore?formatString(R.string.TetogramIgnoreTileOn,org.telegram.messenger.tetogram.Ignore.blocked(currentAccount).size()):getString(R.string.TetogramLabsOff),ignore,()->presentFragment(new IgnoreActivity(currentAccount))));
+        int translated=org.telegram.messenger.tetogram.ChatTranslation.chats(currentAccount).size();
+        tiles.add(tile(ctx,R.drawable.msg_translate,0xff3C8DBC,getString(R.string.TetogramTranslate),translated==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,translated),translated>0,()->presentFragment(new TranslateSettingsActivity(currentAccount))));
         items.add(UItem.asCustomShadow(grid(ctx,tiles),-2));
 
         items.add(UItem.asHeader(getString(R.string.TetogramLabsSystem)));
@@ -170,7 +172,8 @@ public final class LabsActivity extends LabsPage {
     private View grid(Context ctx,ArrayList<View> tiles){
         LinearLayout column=new LinearLayout(ctx);column.setOrientation(LinearLayout.VERTICAL);column.setPadding(dp(16),dp(4),dp(16),dp(8));
         for(int i=0;i<tiles.size();i+=2){LinearLayout row=new LinearLayout(ctx);row.setOrientation(LinearLayout.HORIZONTAL);LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-1,-2);if(i>0)rp.topMargin=dp(10);column.addView(row,rp);
-            for(int j=i;j<Math.min(i+2,tiles.size());j++){LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);if(j>i)lp.leftMargin=dp(10);row.addView(tiles.get(j),lp);}}
+            for(int j=i;j<Math.min(i+2,tiles.size());j++){LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);if(j>i)lp.leftMargin=dp(10);row.addView(tiles.get(j),lp);}
+            if(i+1>=tiles.size()){LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,1,1);lp.leftMargin=dp(10);row.addView(new View(ctx),lp);}}
         return column;
     }
     private LinearLayout card(Context ctx){LinearLayout card=new LinearLayout(ctx);card.setOrientation(LinearLayout.VERTICAL);return card;}

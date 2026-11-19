@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramTranslate">Перевод</string>
+    <string name="TetogramTranslateAuto">Автоматически</string>
+    <string name="TetogramTranslateChatLanguage">Язык чата</string>
+    <string name="TetogramTranslateChatLanguageValue">Язык чата: %1$s</string>
+    <string name="TetogramTranslateChats">Переводимые чаты</string>
+    <string name="TetogramTranslateChatsInfo">Нажмите на чат, чтобы сменить его язык или выключить перевод.</string>
+    <string name="TetogramTranslateDeepl">DeepL (онлайн, ваш ключ)</string>
+    <string name="TetogramTranslateDevice">На устройстве</string>
+    <string name="TetogramTranslateGoogle">Google Cloud (онлайн, ваш ключ)</string>
+    <string name="TetogramTranslateDeviceInfo">Текст не покидает телефон. Языковая модель (около 30 МБ) скачивается один раз — при первом переводе с этого языка.</string>
+    <string name="TetogramTranslateOnlineInfo">Текст сообщений отправляется в выбранный сервис с вашим API-ключом. Качество выше, но сервис видит текст.</string>
+    <string name="TetogramTranslateEngine">Движок</string>
+    <string name="TetogramTranslateFailed">Не удалось перевести сообщение. Проверьте движок в Тетолабс → Перевод.</string>
+    <string name="TetogramTranslateKey">API-ключ</string>
+    <string name="TetogramTranslateKeyHint">Вставьте ключ</string>
+    <string name="TetogramTranslateKeyInfo">Ключ хранится только на этом телефоне.</string>
+    <string name="TetogramTranslateKeyMissing">Не задан</string>
+    <string name="TetogramTranslateKeySet">Задан</string>
+    <string name="TetogramTranslateNoChats">Пока нет. Откройте чат → ⋮ → Перевод или примите подсказку, когда чат на другом языке.</string>
+    <string name="TetogramTranslateOff">Определяю…</string>
+    <string name="TetogramTranslateOptions">Параметры</string>
+    <string name="TetogramTranslateOriginal">Оригинал</string>
+    <string name="TetogramTranslateSentText">Отправленный текст</string>
+    <string name="TetogramTranslateOutgoing">Переводить мои сообщения</string>
+    <string name="TetogramTranslateOutgoingInfo">В переводимых чатах ваш текст переводится на язык чата и показывается перед отправкой. У себя вы по-прежнему видите то, что написали; долгое нажатие → «Отправленный текст» покажет перевод.</string>
+    <string name="TetogramTranslatePreviewTitle">Отправить на языке: %1$s?</string>
+    <string name="TetogramTranslateSendOriginal">Без перевода</string>
+    <string name="TetogramTranslateSendTranslation">Отправить перевод</string>
+    <string name="TetogramTranslateSettings">Настройки перевода</string>
+    <string name="TetogramTranslateStart">Переводить этот чат</string>
+    <string name="TetogramTranslateStop">Не переводить</string>
+    <string name="TetogramTranslateTarget">Переводить на</string>
+    <string name="TetogramTranslateSuggest">Чат на языке: %1$s</string>
+    <string name="TetogramTranslateSuggestButton">Переводить</string>
+    <string name="TetogramTranslateEnabled">Перевод чата включён</string>
+    <string name="TetogramTranslateDisabled">Перевод чата выключен</string>
+</resources>
