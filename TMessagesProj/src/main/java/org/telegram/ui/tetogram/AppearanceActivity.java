@@ -70,10 +70,12 @@ public final class AppearanceActivity extends LabsPage implements NotificationCe
     private String selectedElement;
     /** Global editor opened on the Bubbles tab, where the People list lives. */
     public static AppearanceActivity people(int account){AppearanceActivity editor=new AppearanceActivity(account);editor.selectCategory(Category.CHATS);return editor;}
-    public AppearanceActivity(int account){this(account,"edit",AppearanceConfig.GLOBAL,null,null,0,0);}
+    public AppearanceActivity(int account){this(account,"edit",AppearanceConfig.GLOBAL,null,null,0,0);overview=true;}
+    /** Overview: preview, themes and one row per area; an area opens on the same screen and Back returns here. */
+    private boolean overview,fromOverview;
     public AppearanceActivity(int account,String scope,String section,String folder,long dialog,long topic){this(account,"edit",scope,section,folder,dialog,topic);}
     private AppearanceActivity(int account,String page,String scope,String section,String folder,long dialog,long topic){super(account);this.owner=UserConfig.getInstance(account).getClientUserId();this.page=page;this.scope=scope;this.section=section;this.folder=folder;this.dialog=dialog;this.topic=topic;previewKind=scope.startsWith("profile:")?2:section!=null?4:folder!=null?5:dialog<0?3:0;previewDialogs=previewKind==4||previewKind==5;category=scope.startsWith("profile:")?Category.PROFILE:section!=null||folder!=null?Category.SECTIONS:dialog!=0?Category.CHATS:Category.COLORS;wallpaperSurface=previewKind==2?2:previewDialogs?1:0;previewDark=Theme.isCurrentThemeDark();}
-    @Override protected CharSequence title(){return getString("edit".equals(page)?categoryTitle(category):R.string.TetogramAppearance);}
+    @Override protected CharSequence title(){return getString("edit".equals(page)&&!overview?categoryTitle(category):R.string.TetogramAppearance);}
     private boolean valid(){return !destroyed && owner>0 && owner==getUserConfig().getClientUserId();}
     @Override public View createView(Context context){
         if(preview!=null)preview.setResumed(false);preview=null;previewHost=null;previewResolved=null;topPanel=null;previewHeader=null;tabsHost=null;tabsState=null;
@@ -109,21 +111,24 @@ public final class AppearanceActivity extends LabsPage implements NotificationCe
     @Override public void onRequestPermissionsResultFragment(int requestCode,String[] permissions,int[] grantResults){super.onRequestPermissionsResultFragment(requestCode,permissions,grantResults);if(requestCode==BasePermissionsActivity.REQUEST_CODE_EXTERNAL_STORAGE&&getParentActivity()!=null&&AndroidPermissions.gallery(getParentActivity())){galleryRequested=true;MediaController.loadGalleryPhotosAlbums(getClassGuid());refresh();}}
     private int categoryTitle(Category c){switch(c){case COLORS:return R.string.TetogramEditorColors;case WALLPAPERS:return R.string.TetogramAppearanceWallpapers;case LIST:return R.string.TetogramAppearanceDialogList;case CHATS:return R.string.TetogramEditorChats;case PROFILE:return R.string.TetogramEditorProfiles;case SECTIONS:return R.string.TetogramEditorSections;default:return R.string.TetogramEditorAdvanced;}}
     private void openCategory(Category c){AppearanceActivity editor=new AppearanceActivity(currentAccount,AppearanceConfig.GLOBAL,null,null,0,0);editor.selectCategory(c);presentFragment(editor);}
-    private void selectCategory(Category c){backgroundMode=-1;if(c==Category.WALLPAPERS)wallpaperSurface=category==Category.PROFILE||previewKind==2&&!scope.startsWith("chat:")&&!scope.startsWith("topic:")?2:category==Category.LIST||category==Category.SECTIONS||previewKind==1||previewKind==4||previewKind==5?1:0;if(wallpaperSurface==2&&!scope.equals(AppearanceConfig.GLOBAL)&&!scope.startsWith("profile:"))wallpaperSurface=0;category=c;previewKind=c==Category.WALLPAPERS?wallpaperSurface:AppearanceEditorPolicy.preview(c);if(scope.startsWith("profile:"))previewKind=2;if(c==Category.CHATS&&dialog<0)previewKind=3;if(c==Category.SECTIONS&&folder!=null)previewKind=5;previewDialogs=previewKind==1||previewKind==4||previewKind==5;search="";if(searchInput!=null)searchInput.setText("");refresh();}
+    private void selectCategory(Category c){overview=false;backgroundMode=-1;if(c==Category.WALLPAPERS)wallpaperSurface=category==Category.PROFILE||previewKind==2&&!scope.startsWith("chat:")&&!scope.startsWith("topic:")?2:category==Category.LIST||category==Category.SECTIONS||previewKind==1||previewKind==4||previewKind==5?1:0;if(wallpaperSurface==2&&!scope.equals(AppearanceConfig.GLOBAL)&&!scope.startsWith("profile:"))wallpaperSurface=0;category=c;previewKind=c==Category.WALLPAPERS?wallpaperSurface:AppearanceEditorPolicy.preview(c);if(scope.startsWith("profile:"))previewKind=2;if(c==Category.CHATS&&dialog<0)previewKind=3;if(c==Category.SECTIONS&&folder!=null)previewKind=5;previewDialogs=previewKind==1||previewKind==4||previewKind==5;search="";if(searchInput!=null)searchInput.setText("");refresh();}
     private TextView editorText(CharSequence label){TextView view=new TextView(getContext());view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP,16);view.setText(label);view.setGravity(Gravity.CENTER);view.setPadding(AndroidUtilities.dp(12),AndroidUtilities.dp(12),AndroidUtilities.dp(12),AndroidUtilities.dp(12));ThemeBind.textColor(view,Theme.key_windowBackgroundWhiteBlueText);view.setBackground(Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector),2));return view;}
     private void setupEditorChrome(FrameLayout root){
         undoAction=simpleActionBar.createMenu().addItem(9101,R.drawable.tetogram_editor_undo);undoAction.setContentDescription(getString(R.string.TetogramAppearanceUndo));simpleActionBar.createMenu().addItem(9102,R.drawable.ic_ab_other);
-        simpleActionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick(){@Override public void onItemClick(int id){if(id==-1)finishFragment();else if(id==9101){if(!undo.isEmpty()){draft=undo.pop();refresh();}}else if(id==9102)editorActions();}});
+        simpleActionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick(){@Override public void onItemClick(int id){if(id==-1){if(backToOverview())return;finishFragment();}else if(id==9101){if(!undo.isEmpty()){draft=undo.pop();refresh();}}else if(id==9102)editorActions();}});
         editorDock=new LinearLayout(getContext());editorDock.setOrientation(LinearLayout.VERTICAL);editorDock.setPadding(0,AndroidUtilities.dp(8),0,AndroidUtilities.dp(6));
-        tabsHost=new FrameLayout(getContext());editorDock.addView(tabsHost,new LinearLayout.LayoutParams(-1,AndroidUtilities.dp(40)));LinearLayout actionsRow=new LinearLayout(getContext());actionsRow.setOrientation(LinearLayout.HORIZONTAL);actionsRow.setPadding(AndroidUtilities.dp(8),AndroidUtilities.dp(4),AndroidUtilities.dp(8),0);editorDock.addView(actionsRow,new LinearLayout.LayoutParams(-1,-2));ThemeBind.backgroundColor(editorDock,Theme.key_windowBackgroundWhite);
+        tabsHost=null;LinearLayout actionsRow=new LinearLayout(getContext());actionsRow.setOrientation(LinearLayout.HORIZONTAL);actionsRow.setPadding(AndroidUtilities.dp(8),AndroidUtilities.dp(4),AndroidUtilities.dp(8),0);editorDock.addView(actionsRow,new LinearLayout.LayoutParams(-1,-2));ThemeBind.backgroundColor(editorDock,Theme.key_windowBackgroundWhite);
         TextView cancel=editorText(getString(R.string.Cancel));cancel.setOnClickListener(v->finishFragment());actionsRow.addView(cancel,new LinearLayout.LayoutParams(0,-2,1));applyButton=editorText(getString(R.string.TetogramAppearanceApply));applyButton.setEnabled(false);applyButton.setAlpha(.45f);applyButton.setOnClickListener(v->{if(valid()&&!saving&&!mediaBusy&&AppearanceEditorPolicy.dirtyAppearance(baseline,draft))applyDraft();});actionsRow.addView(applyButton,new LinearLayout.LayoutParams(0,-2,1));setBottomActions(editorDock);
     }
     private boolean hasChanges(){return "edit".equals(page)&&draft!=null&&baseline!=null&&AppearanceEditorPolicy.dirtyAppearance(baseline,draft);}
-    @Override public boolean canBeginSlide(){return !hasChanges()&&!saving&&!mediaBusy&&super.canBeginSlide();}
-    @Override public boolean onBackPressed(boolean invoked){if(!leaving&&valid()&&(hasChanges()||saving||mediaBusy)){if(invoked)requestExit();return false;}return super.onBackPressed(invoked);}
+    @Override public boolean canBeginSlide(){return !(!overview&&fromOverview)&&!hasChanges()&&!saving&&!mediaBusy&&super.canBeginSlide();}
+    private boolean backToOverview(){if(overview||!fromOverview)return false;overview=true;fromOverview=false;advanced=false;selectedElement=null;category=Category.COLORS;previewKind=0;previewDialogs=false;refresh();return true;}
+    private void openArea(Category c){if(saving||mediaBusy)return;if(c==Category.PROFILE&&scope.equals(AppearanceConfig.GLOBAL)){AppearanceActivity editor=new AppearanceActivity(currentAccount,"profile:"+owner,null,null,0,0);editor.selectCategory(Category.PROFILE);presentFragment(editor);return;}fromOverview=true;advanced=false;selectCategory(c);}
+    @Override public boolean onBackPressed(boolean invoked){if(!overview&&fromOverview){if(invoked)backToOverview();return false;}if(!leaving&&valid()&&(hasChanges()||saving||mediaBusy)){if(invoked)requestExit();return false;}return super.onBackPressed(invoked);}
     @Override public void finishFragment(){if(!leaving&&valid()&&(hasChanges()||saving||mediaBusy)){requestExit();return;}super.finishFragment();}
     private void requestExit(){if(saving||mediaBusy){error(getString(R.string.TetogramAppearancePreparingMedia));return;}showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramEditorUnsaved)).setMessage(getString(R.string.TetogramEditorUnsavedInfo)).setPositiveButton(getString(R.string.TetogramAppearanceApply),(d,n)->applyDraft()).setNeutralButton(getString(R.string.TetogramEditorDiscard),(d,n)->{leaving=true;finishFragment();}).setNegativeButton(getString(R.string.Cancel),null).create());}
     private void editorActions(){ArrayList<CharSequence> labels=new ArrayList<>();ArrayList<Runnable> runs=new ArrayList<>();
+        if(editingPresetId==null){labels.add(LocaleController.formatString(R.string.TetogramStudioWhere,scopeShortLabel()));runs.add(this::chooseScope);}
         labels.add(getString(R.string.TetogramAppearanceSavePreset));runs.add(()->input(getString(R.string.TetogramAppearancePresetName),"",name->{AppearanceConfig.Preset preset=new AppearanceConfig.Preset();preset.name=name;preset.style=AppearanceConfig.withoutPersonal(draft);saveConfig(fresh->{fresh.presets.put(preset.id,preset);return true;},this::refresh,false);}));
         labels.add(getString(hidePreview?R.string.TetogramEditorShowPreview:R.string.TetogramEditorHidePreview));runs.add(()->{hidePreview=!hidePreview;if(preview!=null)preview.setResumed(!hidePreview&&foreground&&!mediaBusy);refresh();});
         labels.add(getString(R.string.TetogramEditorExpandPreview));runs.add(()->presentFragment(new AppearancePreviewPage(currentAccount,previewStyle(),previewDark,previewKind,section)));
@@ -145,7 +150,7 @@ public final class AppearanceActivity extends LabsPage implements NotificationCe
         }
         if(topPanel==null){
             topPanel=new LinearLayout(getContext());topPanel.setOrientation(LinearLayout.VERTICAL);ThemeBind.backgroundColor(topPanel,Theme.key_windowBackgroundGray);
-            previewHeader=new FrameLayout(getContext());topPanel.addView(previewHeader,new LinearLayout.LayoutParams(-1,AndroidUtilities.dp(48)));
+            previewHeader=null;LinearLayout.LayoutParams gap=new LinearLayout.LayoutParams(-1,AndroidUtilities.dp(4));topPanel.addView(new View(getContext()),gap);
             AndroidUtilities.removeFromParent(previewHost);
             previewHost.setClipToOutline(true);previewHost.setOutlineProvider(new android.view.ViewOutlineProvider(){@Override public void getOutline(View view,android.graphics.Outline outline){outline.setRoundRect(0,0,view.getWidth(),view.getHeight(),AndroidUtilities.dp(20));}});
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,0,1);lp.leftMargin=lp.rightMargin=AndroidUtilities.dp(12);lp.bottomMargin=AndroidUtilities.dp(8);topPanel.addView(previewHost,lp);
@@ -494,6 +499,20 @@ public final class AppearanceActivity extends LabsPage implements NotificationCe
         dot.setBackground(shape);dot.setOnClickListener(click);dot.setSelected(selected);return dot;
     }
     /** Theme thumbnails: tapping one previews it in the draft; Apply saves it, personal data is kept. */
+    private void overviewItems(ArrayList<UItem> items){
+        if(mediaBusy)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePreparingMedia)));
+        items.add(UItem.asShadow(getString(R.string.TetogramStudioOverviewHint)));
+        themeCarousel(items);
+        items.add(UItem.asHeader(getString(R.string.TetogramStudioCustomize)));
+        area(items,R.drawable.msg_photos,getString(R.string.TetogramStudioTabBackground),Category.WALLPAPERS);
+        area(items,R.drawable.msg_msgbubble3,getString(R.string.TetogramStudioTabBubbles),Category.CHATS);
+        area(items,R.drawable.msg_palette,getString(R.string.TetogramStudioTabColors),Category.COLORS);
+        area(items,R.drawable.msg_list,getString(R.string.TetogramAppearanceDialogList),Category.LIST);
+        area(items,R.drawable.msg_openprofile,getString(R.string.TetogramStudioTabProfile),Category.PROFILE);
+        area(items,R.drawable.msg_folders,getString(R.string.TetogramStudioTabSections),Category.SECTIONS);
+        area(items,R.drawable.msg_settings,getString(R.string.TetogramStudioEffectsRow),Category.ADVANCED);
+    }
+    private void area(ArrayList<UItem> items,int icon,CharSequence title,Category c){if(!AppearanceEditorPolicy.supports(scope,c))return;actions.add(()->openArea(c));items.add(UItem.asButton(actions.size(),icon,title));}
     private void themeCarousel(ArrayList<UItem> items){
         if(editingPresetId!=null||scope.startsWith("profile:"))return;
         ArrayList<AppearanceConfig.Preset> presets=new ArrayList<>(AppearancePresets.builtins());presets.addAll(config.presets.values());
@@ -554,9 +573,11 @@ public final class AppearanceActivity extends LabsPage implements NotificationCe
             return;
         }
         if(category==Category.WALLPAPERS&&!rowMedia()&&AppearanceConfig.isMediaName(resolved().get(mediaKey("file"))))button(items,getString(R.string.TetogramWallpaperPosition),getString(R.string.TetogramWallpaperGestures),this::positionWallpaper);
-        items.add(UItem.asShadow(editingPresetId==null?scopeLabel(scope)+" · "+getString(scope.equals(AppearanceConfig.GLOBAL)?R.string.TetogramEditorGlobalImpact:R.string.TetogramEditorLocalImpact):getString(R.string.TetogramAppearancePresetDraft)+"\n"+(config.presets.get(editingPresetId)==null?"":config.presets.get(editingPresetId).name)));
+        if(editingPresetId!=null)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePresetDraft)+"\n"+(config.presets.get(editingPresetId)==null?"":config.presets.get(editingPresetId).name)));
+        else if(!scope.equals(AppearanceConfig.GLOBAL))items.add(UItem.asShadow(scopeLabel(scope)+" · "+getString(R.string.TetogramEditorLocalImpact)));
         if(!hidePreview){updatePreview();int windowDp=Math.round((fragmentView!=null&&fragmentView.getHeight()>0?fragmentView.getHeight():AndroidUtilities.displaySize.y)/AndroidUtilities.density);setTopContent(topPanel,Math.max(260,Math.min(520,Math.round(windowDp*0.5f))));}else setTopContent(null,0);
-        LinearLayout switches=new LinearLayout(getContext());switches.setOrientation(LinearLayout.HORIZONTAL);
+        if(overview){overviewItems(items);return;}
+        if(advanced)button(items,getString(R.string.TetogramStudioFewerParameters),()->{advanced=false;refresh();});
         for(int mode=0;mode<2;mode++){final boolean useAdvanced=mode==1;TextView tab=editorText(getString(useAdvanced?R.string.TetogramEditorModeAdvanced:R.string.TetogramEditorModeSimple));tab.setTextSize(14);tab.setAlpha(advanced==useAdvanced?1:.5f);tab.setOnClickListener(v->{advanced=useAdvanced;refresh();});switches.addView(tab,new LinearLayout.LayoutParams(0,-2,1));}items.add(UItem.asCustom(switches,-2));
         if(mediaBusy)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePreparingMedia)));
         if(searchInput!=null&&advanced)items.add(UItem.asCustom(searchInput,48));filterParameters=advanced;

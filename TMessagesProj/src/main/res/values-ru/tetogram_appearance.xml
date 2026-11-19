@@ -39,9 +39,9 @@
   <string name="TetogramAppearanceResetConfirm">Сбросить все локальные переопределения оформления этого аккаунта? Пресеты, разделы, иконки и история сообщений сохранятся.</string>
   <string name="TetogramAppearanceConflict">Не удалось сохранить изменения. Возможно, изменился аккаунт или сохранённая ревизия. Откройте редактор заново для загрузки актуальных настроек.</string>
   <string name="TetogramPreviewName">Пример чата</string>
-  <string name="TetogramPreviewMessage">Это безопасное сообщение предпросмотра 👋</string>
-  <string name="TetogramPreviewAnswer">Здесь отображается стиль вашего сообщения.</string>
-  <string name="TetogramAppearanceDisplayMode">Светлый или тёмный режим</string>
+  <string name="TetogramPreviewMessage">Привет! Как тебе новое оформление? 👋</string>
+  <string name="TetogramPreviewAnswer">Огонь, оставляю</string>
+  <string name="TetogramAppearanceDisplayMode">Тема</string>
   <string name="TetogramAppearanceWallpapers">Обои и видеообои</string>
   <string name="TetogramAppearancePreviewSurface">Экран предпросмотра</string>
   <string name="TetogramAppearanceDialogList">Список чатов</string>
@@ -117,7 +117,7 @@
     <string name="TetogramAppearanceShortcutRemoved">Персонализированный ярлык отключён. Чтобы убрать значок, зажмите его на главном экране и выберите удаление ярлыка. Установленное приложение и его данные остаются доступны.</string>
     <string name="TetogramAppearanceShortcutUnsupported">Лаунчер не принял этот ярлык. Попробуйте добавить его в другом лаунчере.</string>
     <string name="TetogramAppearanceAnimationsEnabled">Переходы оформления и анимированные фоны</string>
-    <string name="TetogramAppearanceTransitionDuration">Множитель длительности переходов</string>
+    <string name="TetogramAppearanceTransitionDuration">Длительность анимаций</string>
     <string name="TetogramAppearanceReduceOnBattery">Уменьшать эффекты при энергосбережении</string>
     <string name="TetogramAppearanceNativeEffects">Lite Mode и штатные эффекты Telegram</string>
     <string name="TetogramAppearanceSenderNames">Цвет имён отправителей в группах</string>
@@ -134,7 +134,7 @@
     <string name="TetogramAppearanceEyedropper">Пипетка из изображения</string>
     <string name="TetogramAppearanceEyedropperInfo">Переместите штатную пипетку Telegram по изображению и отпустите палец для выбора цвета. Изображение не сохраняется и не загружается на сервер.</string>
     <string name="TetogramAppearancePresetDraft">Редактирование сохранённого пресета. «Сохранить» изменит только этот пресет; текущее оформление приложения останется прежним.</string>
-    <string name="TetogramAppearancePrimaryColor">Основной цвет (автопалитра)</string>
+    <string name="TetogramAppearancePrimaryColor">Основной цвет</string>
     <string name="TetogramAppearanceBubbleStyle">Стиль сообщений</string>
     <string name="TetogramAppearanceSoftBubbles">Мягкие скругления</string>
     <string name="TetogramAppearanceMinimalBubbles">Минимальные пузыри</string>

@@ -17,7 +17,7 @@
     <string name="TetogramStudioTabMore">Ещё</string>
     <string name="TetogramStudioThemes">Темы</string>
     <string name="TetogramStudioPresets">Пресеты, импорт и экспорт</string>
-    <string name="TetogramStudioTapHint">Нажмите на любую часть предпросмотра — пузырь, шапку, фон или поле ввода, — и здесь появятся её цвета.</string>
+    <string name="TetogramStudioTapHint">Нажмите на элемент в предпросмотре, чтобы изменить его цвет.</string>
     <string name="TetogramStudioElementElsewhere">Эта часть меняется в другом месте: откройте «Для: …» и выберите, где применить.</string>
     <string name="TetogramStudioElementWallpaper">Фон переписки</string>
     <string name="TetogramStudioElementIncoming">Входящие сообщения</string>
@@ -84,10 +84,15 @@
     <string name="TetogramStudioStyleGlass">Прозрачный с обводкой</string>
     <string name="TetogramStudioStyleRound">Круглые без хвостика</string>
     <string name="TetogramStudioRadius">Скругление</string>
-    <string name="TetogramStudioAllParameters">Углы по отдельности и все параметры</string>
+    <string name="TetogramStudioAllParameters">Ещё настройки</string>
     <string name="TetogramStudioApplyAnyway">Применить всё равно</string>
     <string name="TetogramAppearanceShareChat">Отправить в чат</string>
     <string name="TetogramAppearanceShareFile">Сохранить файлом</string>
     <string name="TetogramAppearanceShareCaption">Оформление «%1$s» для Тетограма. Нажмите, чтобы открыть.</string>
     <string name="TetogramAppearanceShared">Отправлено</string>
+    <string name="TetogramStudioWhere">Где применять: %1$s</string>
+    <string name="TetogramStudioFewerParameters">Меньше настроек</string>
+    <string name="TetogramStudioOverviewHint">Нажмите на пузырь, фон или шапку в предпросмотре, чтобы изменить их.</string>
+    <string name="TetogramStudioCustomize">Настроить</string>
+    <string name="TetogramStudioEffectsRow">Анимации и эффекты</string>
 </resources>

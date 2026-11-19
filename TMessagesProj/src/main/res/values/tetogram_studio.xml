@@ -17,7 +17,7 @@
     <string name="TetogramStudioTabMore">More</string>
     <string name="TetogramStudioThemes">Themes</string>
     <string name="TetogramStudioPresets">Presets, import and export</string>
-    <string name="TetogramStudioTapHint">Tap any part of the preview — a bubble, the header, the background or the input field — to change its colors here.</string>
+    <string name="TetogramStudioTapHint">Tap an element in the preview to change its colour.</string>
     <string name="TetogramStudioElementElsewhere">This part is changed in another place: open “For: …” and choose where to apply.</string>
     <string name="TetogramStudioElementWallpaper">Chat background</string>
     <string name="TetogramStudioElementIncoming">Incoming messages</string>
@@ -84,10 +84,15 @@
     <string name="TetogramStudioStyleGlass">Transparent with outline</string>
     <string name="TetogramStudioStyleRound">Round, no tail</string>
     <string name="TetogramStudioRadius">Rounding</string>
-    <string name="TetogramStudioAllParameters">Separate corners and all parameters</string>
+    <string name="TetogramStudioAllParameters">More settings</string>
     <string name="TetogramStudioApplyAnyway">Apply anyway</string>
     <string name="TetogramAppearanceShareChat">Send to a chat</string>
     <string name="TetogramAppearanceShareFile">Save as a file</string>
     <string name="TetogramAppearanceShareCaption">“%1$s” appearance for Tetogram. Tap to open.</string>
     <string name="TetogramAppearanceShared">Sent</string>
+    <string name="TetogramStudioWhere">Apply to: %1$s</string>
+    <string name="TetogramStudioFewerParameters">Fewer settings</string>
+    <string name="TetogramStudioOverviewHint">Tap a bubble, the background or the header in the preview to change it.</string>
+    <string name="TetogramStudioCustomize">Customize</string>
+    <string name="TetogramStudioEffectsRow">Animations and effects</string>
 </resources>
