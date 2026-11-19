@@ -6898,6 +6898,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     @Override
     protected void onPause() {
         super.onPause();
+        org.telegram.messenger.tetogram.TetoPresence.onBackground();
         isResumed = false;
         WidgetMedia.onAppPaused(true);
         PipCoordinator.getInstance().onActivityPause(this);
@@ -7212,6 +7213,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         LauncherIconController.refreshSeasonalIcon();
         org.telegram.messenger.tetogram.AndroidPermissions.diagnose(this);
         super.onResume();
+        org.telegram.messenger.tetogram.TetoPresence.onForeground();
         WidgetMedia.onAppPaused(false);
         isResumed = true;
         PipCoordinator.getInstance().onActivityResume(this);

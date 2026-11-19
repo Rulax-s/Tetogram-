@@ -108,6 +108,8 @@ public final class LabsActivity extends LabsPage {
         tiles.add(tile(ctx,R.drawable.menu_tag_filter,0xffC2559B,getString(R.string.TetogramTags),tagCount==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,tagCount),false,()->presentFragment(new TagsActivity(currentAccount))));
         String voiceLang=org.telegram.messenger.tetogram.VoiceTranscription.language();boolean voiceReady=org.telegram.messenger.tetogram.VoiceTranscription.installed(voiceLang);
         if(VoiceUi.ENABLED)tiles.add(tile(ctx,R.drawable.msg_photo_text_regular,0xff4E9A57,getString(R.string.TetogramVoice),voiceReady?org.telegram.messenger.tetogram.ChatTranslation.languageName(voiceLang):getString(R.string.TetogramLabsOff),voiceReady,()->presentFragment(new VoiceSettingsActivity(currentAccount))));
+        boolean presence=org.telegram.messenger.tetogram.TetoPresence.connected(currentAccount)&&org.telegram.messenger.tetogram.TetoPresence.visible(currentAccount);
+        tiles.add(tile(ctx,R.drawable.msg_contacts,0xffE0598B,getString(R.string.TetogramPresence),getString(presence?R.string.TetogramPresenceOn:R.string.TetogramLabsOff),presence,()->presentFragment(new PresenceActivity(currentAccount))));
         items.add(UItem.asCustomShadow(grid(ctx,tiles),-2));
 
         items.add(UItem.asHeader(getString(R.string.TetogramLabsSystem)));

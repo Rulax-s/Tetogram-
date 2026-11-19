@@ -1,0 +1,16 @@
+name = "tetogram-presence"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[[durable_objects.bindings]]
+name = "PRESENCE"
+class_name = "Presence"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Presence"]
+
+[vars]
+# Bot username without @, e.g. "TetogramPresenceBot"
+BOT_USERNAME = ""
+# Secrets (set with `npx wrangler secret put NAME`, never commit them): BOT_TOKEN, WEBHOOK_SECRET, ADMIN_KEY
