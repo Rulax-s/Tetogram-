@@ -34773,6 +34773,13 @@ public class ChatActivity extends BaseFragment implements
                 if (selectedObject != null && selectedObject.tetogramLocalDeleted) org.telegram.ui.tetogram.HistoryActivity.showInfo(this, selectedObject);
                 break;
             }
+            case 46010: {
+                java.util.ArrayList<org.telegram.messenger.tetogram.Playlists.Track> tetogramTracks = new java.util.ArrayList<>();
+                if (selectedObjectGroup != null) { for (MessageObject m : selectedObjectGroup.messages) { org.telegram.messenger.tetogram.Playlists.Track t = org.telegram.messenger.tetogram.PlaylistsStore.track(m); if (t != null) tetogramTracks.add(t); } }
+                else { org.telegram.messenger.tetogram.Playlists.Track t = org.telegram.messenger.tetogram.PlaylistsStore.track(selectedObject); if (t != null) tetogramTracks.add(t); }
+                org.telegram.ui.tetogram.MusicUi.addToPlaylist(this, tetogramTracks);
+                break;
+            }
             case 46009: {
                 org.telegram.ui.tetogram.VoiceUi.transcribe(this, selectedObject);
                 break;
@@ -46765,6 +46772,9 @@ public class ChatActivity extends BaseFragment implements
         if (chatMode == MODE_DEFAULT && message != null && message.getId() > 0 && !message.tetogramLocalDeleted) {
             boolean tetogramBookmarked = org.telegram.messenger.tetogram.BookmarksStore.contains(currentAccount, message);
             items.add(LocaleController.getString(tetogramBookmarked ? R.string.TetogramBookmarkRemove : R.string.TetogramBookmarkAdd)); options.add(46005); icons.add(R.drawable.msg_fave);
+        }
+        if (message != null && message.isMusic() && message.getId() > 0) {
+            items.add(LocaleController.getString(R.string.TetogramMusicAddTo)); options.add(46010); icons.add(R.drawable.msg_filled_data_music);
         }
         if (message != null && org.telegram.ui.tetogram.VoiceUi.supports(message)) {
             items.add(LocaleController.getString(R.string.TetogramVoiceMenu)); options.add(46009); icons.add(R.drawable.msg_photo_text_regular);

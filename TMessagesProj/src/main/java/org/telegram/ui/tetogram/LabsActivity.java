@@ -102,6 +102,8 @@ public final class LabsActivity extends LabsPage {
         tiles.add(tile(ctx,R.drawable.msg_fave,0xffE2A33B,getString(R.string.TetogramBookmarks),bookmarks==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,bookmarks),false,()->presentFragment(new BookmarksActivity(currentAccount,0))));
         boolean ignore=org.telegram.messenger.tetogram.Ignore.enabled(currentAccount);
         tiles.add(tile(ctx,R.drawable.msg_block,0xff8E5A5A,getString(R.string.TetogramIgnoreTile),ignore?formatString(R.string.TetogramIgnoreTileOn,org.telegram.messenger.tetogram.Ignore.blocked(currentAccount).size()):getString(R.string.TetogramLabsOff),ignore,()->presentFragment(new IgnoreActivity(currentAccount))));
+        int playlists=org.telegram.messenger.tetogram.PlaylistsStore.load(currentAccount).playlists.size();
+        tiles.add(tile(ctx,R.drawable.msg_filled_data_music,0xffE5533D,getString(R.string.TetogramMusic),playlists==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,playlists),false,()->presentFragment(new MusicActivity(currentAccount))));
         int translated=org.telegram.messenger.tetogram.ChatTranslation.chats(currentAccount).size();
         tiles.add(tile(ctx,R.drawable.msg_translate,0xff3C8DBC,getString(R.string.TetogramTranslate),translated==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,translated),translated>0,()->presentFragment(new TranslateSettingsActivity(currentAccount))));
         int tagCount=org.telegram.messenger.tetogram.ChatTagsStore.load(currentAccount).tags.size();
