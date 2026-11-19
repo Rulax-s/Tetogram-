@@ -73,3 +73,7 @@ Brand/season реального APK-icon — device-wide состояние Laun
 - **Производительность:** поиск с задержкой 220 мс и кэшем списка ключей; одна резолюция на перестройку списка; строки чатов разбирают числа один раз на конфигурацию и не создают объекты в `onDraw`; `DialogsAdapter` использует мемоизированный `AppearanceStore.resolveShared`; радиус пузырей разбирается один раз.
 
 Тесты: `AppearancePersonalDataTest`, `AppearanceNightTest`, `AppearanceNumbersTest` и source contract в `check-appearance-editor.py`. Android UI NOT RUN.
+
+## Обмен оформлением в чатах (v48)
+
+Экспорт → «Отправить в чат» создаёт `<название>.tetotheme` (формат AppearanceArchive v1, без личных ключей launcher./palette./person.) и отправляет его документом. В Тетограме `AndroidUtilities.openForView` перехватывает скачанный `.tetotheme` (`AppearanceShare.open`) и открывает `AppearanceActivity.openShared`: импорт в предпросмотр, без автоприменения. В обычном Telegram это просто zip-файл.

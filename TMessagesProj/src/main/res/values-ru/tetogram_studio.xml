@@ -86,4 +86,8 @@
     <string name="TetogramStudioRadius">Скругление</string>
     <string name="TetogramStudioAllParameters">Углы по отдельности и все параметры</string>
     <string name="TetogramStudioApplyAnyway">Применить всё равно</string>
+    <string name="TetogramAppearanceShareChat">Отправить в чат</string>
+    <string name="TetogramAppearanceShareFile">Сохранить файлом</string>
+    <string name="TetogramAppearanceShareCaption">нажмите, чтобы открыть в Тетограме</string>
+    <string name="TetogramAppearanceShared">Отправлено</string>
 </resources>

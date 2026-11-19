@@ -86,4 +86,8 @@
     <string name="TetogramStudioRadius">Rounding</string>
     <string name="TetogramStudioAllParameters">Separate corners and all parameters</string>
     <string name="TetogramStudioApplyAnyway">Apply anyway</string>
+    <string name="TetogramAppearanceShareChat">Send to a chat</string>
+    <string name="TetogramAppearanceShareFile">Save as a file</string>
+    <string name="TetogramAppearanceShareCaption">tap to open in Tetogram</string>
+    <string name="TetogramAppearanceShared">Sent</string>
 </resources>

@@ -888,7 +888,34 @@ case "section.badgeText":return getString(R.string.TetogramAppearanceCircleBadge
         if(showDialog(dialog[0],d->{active[0]=false;image.setImageDrawable(null);frame.removeView(pipette);mediaBusy=false;if(!bitmap.isRecycled())bitmap.recycle();if(preview!=null)preview.setResumed(valid()&&foreground);refresh();})==null){active[0]=false;image.setImageDrawable(null);if(!bitmap.isRecycled())bitmap.recycle();mediaBusy=false;refresh();}
     }
     private void importPreset(){try{startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),IMPORT_PRESET);}catch(Exception e){error(getString(R.string.TetogramAppearanceArchiveError));}}
-    private void exportPreset(AppearanceConfig.Preset preset){showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearanceExport)).setMessage(getString(R.string.TetogramAppearanceExportPrivacy)).setItems(new CharSequence[]{getString(R.string.TetogramAppearanceExportColors),getString(R.string.TetogramAppearanceExportImages),getString(R.string.TetogramAppearanceExportVideos)},(d,n)->{exporting=preset.duplicate(preset.name);exportImages=n>=1;exportVideos=n==2;try{startActivityForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/zip").putExtra(Intent.EXTRA_TITLE,"Tetogram-appearance.zip").addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),EXPORT_PRESET);}catch(Exception e){exporting=null;error(getString(R.string.TetogramAppearanceArchiveError));}}).create());}
+    private void exportPreset(AppearanceConfig.Preset preset){showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearanceExport)).setMessage(getString(R.string.TetogramAppearanceExportPrivacy)).setItems(new CharSequence[]{getString(R.string.TetogramAppearanceExportColors),getString(R.string.TetogramAppearanceExportImages),getString(R.string.TetogramAppearanceExportVideos)},(d,n)->{boolean images=n>=1,videos=n==2;
+        showDialog(new AlertDialog.Builder(getContext()).setTitle(getString(R.string.TetogramAppearanceExport)).setItems(new CharSequence[]{getString(R.string.TetogramAppearanceShareChat),getString(R.string.TetogramAppearanceShareFile)},(d2,where)->{
+            if(where==0){shareToChat(preset,images,videos);return;}
+            exporting=preset.duplicate(preset.name);exportImages=images;exportVideos=videos;try{startActivityForResult(new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/zip").putExtra(Intent.EXTRA_TITLE,"Tetogram-appearance.zip").addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),EXPORT_PRESET);}catch(Exception e){exporting=null;error(getString(R.string.TetogramAppearanceArchiveError));}}).create());}).create());}
+    /** Packs the preset into a ".tetotheme" file and sends it to the chats the user picks. */
+    private void shareToChat(AppearanceConfig.Preset preset,boolean images,boolean videos){
+        File dir=new File(ApplicationLoader.applicationContext.getCacheDir(),"tetogram_share");dir.mkdirs();
+        String base=(preset.name==null||preset.name.trim().isEmpty()?"Tetogram":preset.name.trim()).replaceAll("[\\\\/:*?\"<>|\\s]+","_");if(base.length()>40)base=base.substring(0,40);
+        File out=new File(dir,base+AppearanceShare.EXTENSION);out.delete();
+        mediaBusy=true;if(preview!=null)preview.setResumed(false);refresh();
+        mediaJob=AppearanceMedia.exportPreset(currentAccount,owner,android.net.Uri.fromFile(out),preset.duplicate(preset.name),images,videos,ok->{mediaBusy=false;if(preview!=null)preview.setResumed(valid()&&foreground);refresh();
+            if(!ok||!out.isFile()){error(getString(R.string.TetogramAppearanceArchiveError));return;}
+            AppearanceShare.pickChatAndSend(this,out,preset.name);});
+    }
+    /** Opens a shared appearance file in the editor preview; nothing changes until the user taps Apply. */
+    public static void openShared(BaseFragment from,int account,android.net.Uri uri){
+        long owner=UserConfig.getInstance(account).getClientUserId();if(owner<=0)return;
+        AppearanceStore.load(account,(ok,c)->{
+            if(!ok||from.getParentActivity()==null)return;
+            AppearanceMedia.importPreset(account,owner,uri,imported->{
+                if(imported==null){org.telegram.ui.Components.BulletinFactory.of(from).createSimpleBulletin(R.raw.error,getString(R.string.TetogramAppearanceArchiveError)).show();return;}
+                AppearanceActivity editor=new AppearanceActivity(account,"edit",AppearanceConfig.GLOBAL,null,null,0,0);
+                editor.config=c.copy();editor.expectedRevision=c.revision;editor.draft=AppearanceConfig.applyPreset(c.scopes.get(AppearanceConfig.GLOBAL),imported.preset.style);
+                editor.previewDark="dark".equals(editor.draft.values.get("mode"));editor.pendingMedia.addAll(imported.files);
+                if(!from.presentFragment(editor))for(File f:imported.files)AppearanceMedia.discard(f);
+            });
+        });
+    }
 
     private void editSelectedMedia(AppearanceMedia.Asset source){
         mediaBusy=false;if(!valid()){if(source!=null)AppearanceMedia.discard(source.file);return;}if(source==null){error(getString(R.string.TetogramAppearanceMediaError));refresh();return;}
