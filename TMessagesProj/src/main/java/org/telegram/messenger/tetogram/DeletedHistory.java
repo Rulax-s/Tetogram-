@@ -239,6 +239,15 @@ public final class DeletedHistory {
             boolean ok=success; AndroidUtilities.runOnUIThread(()->done.run(ok));
         });
     }
+    /** {saved deleted messages, approximate bytes} for this account's local archive; read-only, on the storage queue. */
+    public static void stats(int a,Callback<long[]> done){
+        long owner=uid(a);
+        MessagesStorage.getInstance(a).getStorageQueue().postRunnable(()->{
+            long[] out={0,0};
+            try{SQLiteCursor c=db(a).queryFinalized("SELECT COUNT(*),COALESCE(SUM(LENGTH(data)),0) FROM tetogram_deleted_v1 WHERE account="+owner+" AND deleted>0");if(c.next()){out[0]=c.longValue(0);out[1]=c.longValue(1);}c.dispose();}catch(Exception e){FileLog.e("Tetogram history stats failed");}
+            AndroidUtilities.runOnUIThread(()->done.run(out));
+        });
+    }
     public static void maintain(int a) {
         MessagesStorage.getInstance(a).getStorageQueue().postRunnable(()-> {try {db(a);}catch(Exception e){FileLog.e("Tetogram retention cleanup failed",e);}});
         EditHistory.maintain(a);

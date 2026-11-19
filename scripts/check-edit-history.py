@@ -12,7 +12,7 @@ class EditIntegration(unittest.TestCase):
   self.assertIn('SELECT data,send_state FROM messages_v2 WHERE uid=? AND mid=?',src('messenger/tetogram/EditHistory.java'))
  def test_consent_defaults_off_and_is_not_reused_from_deleted_history(self):
   self.assertIn('getBoolean("save_edits",false)',src('messenger/tetogram/LabsSettings.java'))
-  ui=src('ui/tetogram/LabsActivity.java');self.assertIn('edit_consent_v1',ui);self.assertIn('TetogramEditsConsent',ui);self.assertNotIn('getString(R.string.TetogramEditUnavailable)',ui)
+  ui=src('ui/tetogram/LabsHistoryActivity.java');self.assertIn('edit_consent_v1',ui);self.assertIn('TetogramEditsConsent',ui);self.assertNotIn('getString(R.string.TetogramEditUnavailable)',ui)
  def test_existing_privacy_rules_and_account_scope_are_reused(self):
   store=src('messenger/tetogram/EditHistory.java');self.assertIn('DeletedHistory.eligible(a,m,true)',store);self.assertIn('getStorageQueue().postRunnable',store);self.assertIn('uid!=owner(a)',store)
   self.assertIn('account=? AND did=? AND mid=?',store);self.assertNotIn('new SQLiteDatabase',store)

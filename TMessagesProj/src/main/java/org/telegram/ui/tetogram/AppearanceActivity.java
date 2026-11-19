@@ -68,6 +68,8 @@ public final class AppearanceActivity extends LabsPage implements NotificationCe
     // Studio layout: preview with its own header on top, category tabs above the pinned actions.
     private LinearLayout topPanel;private FrameLayout previewHeader,tabsHost;private String tabsState;
     private String selectedElement;
+    /** Global editor opened on the Bubbles tab, where the People list lives. */
+    public static AppearanceActivity people(int account){AppearanceActivity editor=new AppearanceActivity(account);editor.selectCategory(Category.CHATS);return editor;}
     public AppearanceActivity(int account){this(account,"edit",AppearanceConfig.GLOBAL,null,null,0,0);}
     public AppearanceActivity(int account,String scope,String section,String folder,long dialog,long topic){this(account,"edit",scope,section,folder,dialog,topic);}
     private AppearanceActivity(int account,String page,String scope,String section,String folder,long dialog,long topic){super(account);this.owner=UserConfig.getInstance(account).getClientUserId();this.page=page;this.scope=scope;this.section=section;this.folder=folder;this.dialog=dialog;this.topic=topic;previewKind=scope.startsWith("profile:")?2:section!=null?4:folder!=null?5:dialog<0?3:0;previewDialogs=previewKind==4||previewKind==5;category=scope.startsWith("profile:")?Category.PROFILE:section!=null||folder!=null?Category.SECTIONS:dialog!=0?Category.CHATS:Category.COLORS;wallpaperSurface=previewKind==2?2:previewDialogs?1:0;previewDark=Theme.isCurrentThemeDark();}
