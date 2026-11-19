@@ -7298,6 +7298,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 return;
             }
             if (!MessagesController.getGlobalNotificationsSettings().getBoolean("askedAboutMiuiLockscreen", false)) {
+                // Tetogram: ask once. Upstream remembered only "Not now", so Back or Settings without granting re-asked on every resume.
+                MessagesController.getGlobalNotificationsSettings().edit().putBoolean("askedAboutMiuiLockscreen", true).apply();
                 showDialog(new AlertDialog.Builder(getParentActivity())
                     .setTopAnimation(R.raw.permission_request_apk, AlertsCreator.PERMISSIONS_REQUEST_TOP_ICON_SIZE, false, getThemedColor(Theme.key_dialogTopBackground))
                     .setTopBackgroundColorKey(Theme.key_dialogTopBackground, getResourceProvider())
@@ -7326,6 +7328,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 return;
             }
             if (!MessagesController.getGlobalNotificationsSettings().getBoolean("askedAboutFSILockscreen", false)) {
+                // Tetogram: ask once. Upstream remembered only "Not now", so Back or Settings without granting re-asked on every resume.
+                MessagesController.getGlobalNotificationsSettings().edit().putBoolean("askedAboutFSILockscreen", true).apply();
                 showDialog(new AlertDialog.Builder(getParentActivity())
                     .setTopAnimation(R.raw.permission_request_apk, AlertsCreator.PERMISSIONS_REQUEST_TOP_ICON_SIZE, false, getThemedColor(Theme.key_dialogTopBackground))
                     .setTopBackgroundColorKey(Theme.key_dialogTopBackground, getResourceProvider())
