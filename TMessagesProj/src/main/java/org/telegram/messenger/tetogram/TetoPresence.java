@@ -29,7 +29,7 @@ import org.telegram.messenger.UserConfig;
 public final class TetoPresence {
     private TetoPresence(){}
     /** Filled in once the owner deploys the server (see server/presence/README.md); can be changed in settings. */
-    public static final String DEFAULT_SERVER="";
+    public static final String DEFAULT_SERVER="https://tetogram-presence.rulaxgames.workers.dev";
     public static final long BEAT_MS=120_000L,STATUS_TTL_MS=60_000L;
 
     private static final DispatchQueue QUEUE=new DispatchQueue("tetogramPresence");

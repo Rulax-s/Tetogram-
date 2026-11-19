@@ -4,6 +4,8 @@
 
 Хватает бесплатного тарифа Cloudflare Workers.
 
+Рабочий экземпляр: `https://tetogram-presence.rulaxgames.workers.dev` (вшит в приложение по умолчанию).
+
 ## Запуск (один раз, ~5 минут)
 
 1. Зарегистрируйтесь на dash.cloudflare.com (бесплатно).
@@ -22,3 +24,5 @@
 
 Все запросы — `POST` с заголовком `X-Tetogram: 1`.
 `/beat {uid, visible}`; `/status {ids[≤100]}` → `{online}`.
+
+Без компьютера: создать API-токен по шаблону «Edit Cloudflare Workers» и выполнить `wrangler deploy` с `CLOUDFLARE_API_TOKEN` и `CLOUDFLARE_ACCOUNT_ID` в любой среде с Node.js.
