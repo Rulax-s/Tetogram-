@@ -578,7 +578,6 @@ public final class AppearanceActivity extends LabsPage implements NotificationCe
         if(!hidePreview){updatePreview();int windowDp=Math.round((fragmentView!=null&&fragmentView.getHeight()>0?fragmentView.getHeight():AndroidUtilities.displaySize.y)/AndroidUtilities.density);setTopContent(topPanel,Math.max(260,Math.min(520,Math.round(windowDp*0.5f))));}else setTopContent(null,0);
         if(overview){overviewItems(items);return;}
         if(advanced)button(items,getString(R.string.TetogramStudioFewerParameters),()->{advanced=false;refresh();});
-        for(int mode=0;mode<2;mode++){final boolean useAdvanced=mode==1;TextView tab=editorText(getString(useAdvanced?R.string.TetogramEditorModeAdvanced:R.string.TetogramEditorModeSimple));tab.setTextSize(14);tab.setAlpha(advanced==useAdvanced?1:.5f);tab.setOnClickListener(v->{advanced=useAdvanced;refresh();});switches.addView(tab,new LinearLayout.LayoutParams(0,-2,1));}items.add(UItem.asCustom(switches,-2));
         if(mediaBusy)items.add(UItem.asShadow(getString(R.string.TetogramAppearancePreparingMedia)));
         if(searchInput!=null&&advanced)items.add(UItem.asCustom(searchInput,48));filterParameters=advanced;
         elementPanel(items);
