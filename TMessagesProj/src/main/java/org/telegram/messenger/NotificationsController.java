@@ -1082,7 +1082,8 @@ public class NotificationsController extends BaseController implements Notificat
         });
     }
 
-    public void processNewMessages(ArrayList<MessageObject> messageObjects, boolean isLast, boolean isFcm, CountDownLatch countDownLatch) {
+    public void processNewMessages(ArrayList<MessageObject> tetogramIncoming, boolean isLast, boolean isFcm, CountDownLatch countDownLatch) {
+        final ArrayList<MessageObject> messageObjects = org.telegram.messenger.tetogram.Ignore.fresh(currentAccount, tetogramIncoming);
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("NotificationsController: processNewMessages msgs.size()=" + (messageObjects == null ? "null" : messageObjects.size()) + " isLast=" + isLast + " isFcm=" + isFcm + ")");
         }

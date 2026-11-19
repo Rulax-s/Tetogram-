@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramIgnoreTitle">Скрытие заблокированных</string>
+    <string name="TetogramIgnoreTile">Скрытие</string>
+    <string name="TetogramIgnoreTileOn">скрыто: %1$d</string>
+    <string name="TetogramIgnoreEnable">Скрывать сообщения заблокированных в группах</string>
+    <string name="TetogramIgnoreInfo">Сообщения людей из вашего чёрного списка Telegram пропадают из групп и комментариев, уведомлений и превью в списке чатов. В ответах на них вместо цитаты — «Скрытое сообщение». Ничего не удаляется, не отправляется жалоб и не помечается прочитанным; меняется только этот телефон.</string>
+    <string name="TetogramIgnoreBlockList">Чёрный список</string>
+    <string name="TetogramIgnoreSync">Обновить из Telegram</string>
+    <string name="TetogramIgnoreNeverSynced">ещё не загружен</string>
+    <string name="TetogramIgnoreSyncedValue">%1$d · %2$s</string>
+    <string name="TetogramIgnoreSyncFailed">Не удалось загрузить чёрный список. Проверьте соединение и попробуйте ещё раз.</string>
+    <string name="TetogramIgnoreShowPeople">Всё равно показывать</string>
+    <string name="TetogramIgnoreShowPeopleInfo">Отмеченные остаются заблокированными в Telegram, но их сообщения в группах видны.</string>
+    <string name="TetogramIgnoreChats">Чаты без скрытия</string>
+    <string name="TetogramIgnoreAddChat">Добавить чат</string>
+    <string name="TetogramIgnoreRemove">убрать</string>
+    <string name="TetogramIgnoreChatsInfo">В этих группах сообщения заблокированных видны как обычно.</string>
+    <string name="TetogramIgnoreHiddenName">Скрыто</string>
+    <string name="TetogramIgnoreHiddenMessage">Скрытое сообщение</string>
+</resources>

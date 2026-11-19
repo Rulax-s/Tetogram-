@@ -16774,6 +16774,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                     }
                 }
                 CharSequence stringFinalName = name;
+                if (org.telegram.messenger.tetogram.Ignore.hidesReply(currentAccount, messageObject)) { stringFinalName = getString(R.string.TetogramIgnoreHiddenName); stringFinalText = getString(R.string.TetogramIgnoreHiddenMessage); needReplyImage = false; }
                 try {
                     stringFinalName = Emoji.replaceEmoji(stringFinalName, Theme.chat_replyNamePaint.getFontMetricsInt(), false);
                 } catch (Exception ignore) {}

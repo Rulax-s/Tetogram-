@@ -95,6 +95,8 @@ public final class LabsActivity extends LabsPage {
         boolean deleted=LabsSettings.enabled(currentAccount),edits=LabsSettings.edits(currentAccount);
         tiles.add(tile(ctx,R.drawable.msg_delete,0xffD9822B,getString(R.string.TetogramLabsDeletedTitle),getString(deleted?R.string.TetogramLabsSaving:R.string.TetogramLabsOff),deleted,()->presentFragment(new LabsHistoryActivity(currentAccount,false))));
         tiles.add(tile(ctx,R.drawable.msg_edit,0xff7A8696,getString(R.string.TetogramLabsEditsTitle),getString(edits?R.string.TetogramLabsSaving:R.string.TetogramLabsOff),edits,()->presentFragment(new LabsHistoryActivity(currentAccount,true))));
+        boolean ignore=org.telegram.messenger.tetogram.Ignore.enabled(currentAccount);
+        tiles.add(tile(ctx,R.drawable.msg_block,0xff8E5A5A,getString(R.string.TetogramIgnoreTile),ignore?formatString(R.string.TetogramIgnoreTileOn,org.telegram.messenger.tetogram.Ignore.blocked(currentAccount).size()):getString(R.string.TetogramLabsOff),ignore,()->presentFragment(new IgnoreActivity(currentAccount))));
         items.add(UItem.asCustomShadow(grid(ctx,tiles),-2));
 
         items.add(UItem.asHeader(getString(R.string.TetogramLabsSystem)));

@@ -7214,6 +7214,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     public void onResume() {
         super.onResume();
         refreshTetogramSectionsOpeningMode();
+        org.telegram.messenger.tetogram.Ignore.maybeSync(currentAccount);
         org.telegram.messenger.tetogram.AppearanceStore.load(currentAccount,(ok,c)->{if(ok&&!isPaused)tetogramRefreshAppearance();});
         if(isTetogramSectionList() && filterTabsView!=null)updateFilterTabs(true,false);
         AndroidUtilities.cancelRunOnUIThread(tetogramBadgeTick);if(isTetogramSectionList())AndroidUtilities.runOnUIThread(tetogramBadgeTick);
