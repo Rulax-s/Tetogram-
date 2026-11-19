@@ -9611,6 +9611,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
         boolean isVoice = false;
         int duration = 0;
         Bitmap cover = null;
+        if (extL.equals("tetotheme")) cover = org.telegram.ui.tetogram.AppearanceShare.cover(f.getAbsolutePath());
         if (extL.equals("mp3") || extL.equals("m4a")) {
             AudioInfo audioInfo = AudioInfo.getAudioInfo(f);
             if (audioInfo != null) {
@@ -9761,7 +9762,8 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                 }
             }
             if (cover != null) {
-                TLRPC.PhotoSize thumb = ImageLoader.scaleAndSaveImage(cover, 132, 132, 55, isEncrypted);
+                int coverSize = extL.equals("tetotheme") ? 320 : 132;
+                TLRPC.PhotoSize thumb = ImageLoader.scaleAndSaveImage(cover, coverSize, coverSize, extL.equals("tetotheme") ? 80 : 55, isEncrypted);
                 if (thumb != null) {
                     document.thumbs.add(thumb);
                     document.flags |= 1;

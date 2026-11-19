@@ -897,10 +897,18 @@ case "section.badgeText":return getString(R.string.TetogramAppearanceCircleBadge
         File dir=new File(ApplicationLoader.applicationContext.getCacheDir(),"tetogram_share");dir.mkdirs();
         String base=(preset.name==null||preset.name.trim().isEmpty()?"Tetogram":preset.name.trim()).replaceAll("[\\\\/:*?\"<>|\\s]+","_");if(base.length()>40)base=base.substring(0,40);
         File out=new File(dir,base+AppearanceShare.EXTENSION);out.delete();
-        mediaBusy=true;if(preview!=null)preview.setResumed(false);refresh();
-        mediaJob=AppearanceMedia.exportPreset(currentAccount,owner,android.net.Uri.fromFile(out),preset.duplicate(preset.name),images,videos,ok->{mediaBusy=false;if(preview!=null)preview.setResumed(valid()&&foreground);refresh();
-            if(!ok||!out.isFile()){error(getString(R.string.TetogramAppearanceArchiveError));return;}
-            AppearanceShare.pickChatAndSend(this,out,preset.name);});
+        if(config==null)return;
+        AppearanceConfig look=config.copy();look.scopes.put(AppearanceConfig.GLOBAL,AppearanceConfig.applyPreset(config.scopes.get(AppearanceConfig.GLOBAL),preset.style));
+        AppearanceConfig.Resolved style=look.resolve(AppearanceConfig.Context.direct(0,0));String mode=style.get("mode");boolean dark="dark".equals(mode)||!"light".equals(mode)&&Theme.isCurrentThemeDark();
+        mediaBusy=true;refresh();
+        AppearanceShare.renderCover(this,style,dark,cover->{
+            if(!valid()){if(cover!=null)cover.recycle();return;}
+            AppearanceShare.setCover(out.getAbsolutePath(),cover);
+            if(preview!=null)preview.setResumed(false);
+            mediaJob=AppearanceMedia.exportPreset(currentAccount,owner,android.net.Uri.fromFile(out),preset.duplicate(preset.name),images,videos,ok->{mediaBusy=false;if(preview!=null)preview.setResumed(valid()&&foreground);refresh();
+                if(!ok||!out.isFile()){error(getString(R.string.TetogramAppearanceArchiveError));return;}
+                AppearanceShare.pickChatAndSend(this,out,preset.name);});
+        });
     }
     /** Opens a shared appearance file in the editor preview; nothing changes until the user taps Apply. */
     public static void openShared(BaseFragment from,int account,android.net.Uri uri){
