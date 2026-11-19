@@ -104,6 +104,10 @@ public final class LabsActivity extends LabsPage {
         tiles.add(tile(ctx,R.drawable.msg_block,0xff8E5A5A,getString(R.string.TetogramIgnoreTile),ignore?formatString(R.string.TetogramIgnoreTileOn,org.telegram.messenger.tetogram.Ignore.blocked(currentAccount).size()):getString(R.string.TetogramLabsOff),ignore,()->presentFragment(new IgnoreActivity(currentAccount))));
         int translated=org.telegram.messenger.tetogram.ChatTranslation.chats(currentAccount).size();
         tiles.add(tile(ctx,R.drawable.msg_translate,0xff3C8DBC,getString(R.string.TetogramTranslate),translated==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,translated),translated>0,()->presentFragment(new TranslateSettingsActivity(currentAccount))));
+        int tagCount=org.telegram.messenger.tetogram.ChatTagsStore.load(currentAccount).tags.size();
+        tiles.add(tile(ctx,R.drawable.menu_tag_filter,0xffC2559B,getString(R.string.TetogramTags),tagCount==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,tagCount),false,()->presentFragment(new TagsActivity(currentAccount))));
+        String voiceLang=org.telegram.messenger.tetogram.VoiceTranscription.language();boolean voiceReady=org.telegram.messenger.tetogram.VoiceTranscription.installed(voiceLang);
+        tiles.add(tile(ctx,R.drawable.msg_photo_text_regular,0xff4E9A57,getString(R.string.TetogramVoice),voiceReady?org.telegram.messenger.tetogram.ChatTranslation.languageName(voiceLang):getString(R.string.TetogramLabsOff),voiceReady,()->presentFragment(new VoiceSettingsActivity(currentAccount))));
         items.add(UItem.asCustomShadow(grid(ctx,tiles),-2));
 
         items.add(UItem.asHeader(getString(R.string.TetogramLabsSystem)));

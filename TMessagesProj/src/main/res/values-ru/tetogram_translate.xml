@@ -36,4 +36,6 @@
     <string name="TetogramTranslateSuggestButton">Переводить</string>
     <string name="TetogramTranslateEnabled">Перевод чата включён</string>
     <string name="TetogramTranslateDisabled">Перевод чата выключен</string>
+    <string name="TetogramTranslateClear">Очистить сохранённые переводы</string>
+    <string name="TetogramTranslateClearInfo">Переводы хранятся на телефоне, чтобы чаты сразу открывались переведёнными.</string>
 </resources>

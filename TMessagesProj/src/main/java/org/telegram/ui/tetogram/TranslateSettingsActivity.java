@@ -17,7 +17,7 @@ import org.telegram.ui.Components.UItem;
 import org.telegram.ui.Components.UniversalAdapter;
 
 public final class TranslateSettingsActivity extends LabsPage {
-    private static final int DEVICE=1,GOOGLE=2,DEEPL=3,KEY=4,TARGET=5,OUTGOING=6,CHAT=1000;
+    private static final int DEVICE=1,GOOGLE=2,DEEPL=3,KEY=4,TARGET=5,OUTGOING=6,CLEAR=7,CHAT=1000;
     private final ArrayList<Long> chats=new ArrayList<>();
     public TranslateSettingsActivity(int account){super(account);}
     @Override protected CharSequence title(){return getString(R.string.TetogramTranslate);}
@@ -35,6 +35,8 @@ public final class TranslateSettingsActivity extends LabsPage {
         items.add(UItem.asButton(TARGET,getString(R.string.TetogramTranslateTarget),ChatTranslation.languageName(ChatTranslation.target())));
         items.add(UItem.asCheck(OUTGOING,getString(R.string.TetogramTranslateOutgoing)).setChecked(ChatTranslation.translateOutgoing()));
         items.add(UItem.asShadow(getString(R.string.TetogramTranslateOutgoingInfo)));
+        int saved=ChatTranslation.storedCount();
+        if(saved>0){items.add(UItem.asButton(CLEAR,getString(R.string.TetogramTranslateClear),String.valueOf(saved)));items.add(UItem.asShadow(getString(R.string.TetogramTranslateClearInfo)));}
         chats.clear();chats.addAll(ChatTranslation.chats(currentAccount));
         items.add(UItem.asHeader(getString(R.string.TetogramTranslateChats)));
         if(chats.isEmpty())items.add(UItem.asShadow(getString(R.string.TetogramTranslateNoChats)));
@@ -46,6 +48,7 @@ public final class TranslateSettingsActivity extends LabsPage {
         else if(item.id==GOOGLE||item.id==DEEPL){String e=item.id==GOOGLE?ChatTranslation.GOOGLE:ChatTranslation.DEEPL;ChatTranslation.setEngine(e);update();if(ChatTranslation.key(e).isEmpty())key(e);}
         else if(item.id==KEY)key(ChatTranslation.engine());
         else if(item.id==TARGET)ChatTranslateUi.pickLanguage(this,getString(R.string.TetogramTranslateTarget),true,lang->{ChatTranslation.setTarget(lang);update();});
+        else if(item.id==CLEAR){ChatTranslation.clearStored();update();}
         else if(item.id==OUTGOING){ChatTranslation.setTranslateOutgoing(!ChatTranslation.translateOutgoing());update();}
         else if(item.id>=CHAT&&item.id-CHAT<chats.size()){long id=chats.get(item.id-CHAT);
             showDialog(new AlertDialog.Builder(getContext()).setTitle(name(id)).setItems(new CharSequence[]{getString(R.string.TetogramTranslateChatLanguage),getString(R.string.TetogramTranslateStop)},(d,n)->{

@@ -88,6 +88,35 @@ public final class ChatTranslation {
     private static final LruCache<String,String> CACHE=new LruCache<>(2000);
     private static final HashSet<String> PENDING=new HashSet<>();
     private static final HashMap<String,Long> FAILED=new HashMap<>();
+    // Finished translations survive restarts: a small file in the app's private storage, newest 3000 kept.
+    private static final int MAX_STORED=3000;
+    private static LinkedHashMap<String,String> stored;
+    private static boolean saveScheduled;
+    private static java.io.File storedFile(){return new java.io.File(ApplicationLoader.getFilesDirFixed(),"tetogram_translations.json");}
+    private static synchronized LinkedHashMap<String,String> stored(){
+        if(stored!=null)return stored;stored=new LinkedHashMap<>(256,0.75f,true);
+        java.io.File f=storedFile();if(!f.exists())return stored;
+        try(InputStream in=new java.io.FileInputStream(f)){ByteArrayOutputStream b=new ByteArrayOutputStream();byte[] buf=new byte[8192];int n;while((n=in.read(buf))>0)b.write(buf,0,n);
+            JSONObject o=new JSONObject(b.toString("UTF-8"));JSONArray keys=o.names();if(keys!=null)for(int i=0;i<keys.length();i++){String k=keys.getString(i);stored.put(k,o.getString(k));}}
+        catch(Exception e){FileLog.e("Tetogram translation cache unreadable, starting empty");}
+        return stored;
+    }
+    private static synchronized String storedGet(String key){return stored().get(key);}
+    private static synchronized void storedPut(String key,String value){
+        LinkedHashMap<String,String> map=stored();map.put(key,value);
+        while(map.size()>MAX_STORED){String first=map.keySet().iterator().next();map.remove(first);}
+        if(saveScheduled)return;saveScheduled=true;
+        Utilities.globalQueue.postRunnable(ChatTranslation::save,3000);
+    }
+    private static void save(){
+        String json;synchronized(ChatTranslation.class){saveScheduled=false;try{JSONObject o=new JSONObject();for(Map.Entry<String,String> e:stored().entrySet())o.put(e.getKey(),e.getValue());json=o.toString();}catch(Exception e){return;}}
+        java.io.File f=storedFile(),tmp=new java.io.File(f.getPath()+".tmp");
+        try(OutputStream out=new java.io.FileOutputStream(tmp)){out.write(json.getBytes(StandardCharsets.UTF_8));}catch(Exception e){FileLog.e("Tetogram translation cache not saved");return;}
+        if(!tmp.renameTo(f))tmp.delete();
+    }
+    /** Removes stored translations (settings → clear). */
+    public static synchronized void clearStored(){stored=new LinkedHashMap<>(256,0.75f,true);CACHE.evictAll();storedFile().delete();}
+    public static synchronized int storedCount(){return stored().size();}
     private static String text(MessageObject m){if(m==null||!(m.messageOwner instanceof TLRPC.TL_message))return null;String t=m.getDisplayText();return t==null||t.trim().isEmpty()||t.length()>MAX_TEXT?null:t;}
     private static String cacheKey(MessageObject m,String text,String to){return m.getDialogId()+":"+m.getId()+":"+to+":"+text.hashCode()+":"+text.length();}
     /** Called for messages on or near the screen; translates incoming text of active chats and samples the language. */
@@ -96,10 +125,11 @@ public final class ChatTranslation {
         if(!m.isOutOwner())sample(dialog,m,text);
         if(m.isOutOwner()||!active(a,dialog))return;
         String to=target(),key=cacheKey(m,text,to);
+        if(CACHE.get(key)==null){String saved=storedGet(key);if(saved!=null){CACHE.put(key,saved);NotificationCenter.getInstance(a).postNotificationName(NotificationCenter.messageTranslated,m);return;}}
         if(CACHE.get(key)!=null||!ChatTranslationRules.retry(FAILED.get(key),System.currentTimeMillis())||!PENDING.add(key))return;
         LanguageDetector.detectLanguage(text,from->AndroidUtilities.runOnUIThread(()->{
             if(from==null||"und".equals(from)||sameLanguage(from,to)){PENDING.remove(key);CACHE.put(key,"");return;}
-            translate(text,from,to,out->{PENDING.remove(key);if(out==null){FAILED.put(key,System.currentTimeMillis());return;}FAILED.remove(key);CACHE.put(key,out.trim().isEmpty()||out.equals(text)?"":out);if(!out.trim().isEmpty()&&!out.equals(text))NotificationCenter.getInstance(a).postNotificationName(NotificationCenter.messageTranslated,m);});
+            translate(text,from,to,out->{PENDING.remove(key);if(out==null){FAILED.put(key,System.currentTimeMillis());return;}FAILED.remove(key);CACHE.put(key,out.trim().isEmpty()||out.equals(text)?"":out);if(!out.trim().isEmpty()&&!out.equals(text))storedPut(key,out);if(!out.trim().isEmpty()&&!out.equals(text))NotificationCenter.getInstance(a).postNotificationName(NotificationCenter.messageTranslated,m);});
         }),e->AndroidUtilities.runOnUIThread(()->PENDING.remove(key)));
     }
     /** What this device shows instead of the message text, or null for the original. */
@@ -107,7 +137,9 @@ public final class ChatTranslation {
         String text=text(m);if(text==null)return null;int a=m.currentAccount;long dialog=m.getDialogId();
         if(m.isOutOwner()){String original=original(a,dialog,text);return original==null||original.equals(text)?null:original;}
         if(!active(a,dialog))return null;
-        String out=CACHE.get(cacheKey(m,text,target()));return TextUtils.isEmpty(out)?null:out;
+        String key=cacheKey(m,text,target());String out=CACHE.get(key);
+        if(out==null){out=storedGet(key);if(out!=null)CACHE.put(key,out);}
+        return TextUtils.isEmpty(out)?null:out;
     }
 
     // ---- outgoing: what the user typed, kept for their own sent translations ----

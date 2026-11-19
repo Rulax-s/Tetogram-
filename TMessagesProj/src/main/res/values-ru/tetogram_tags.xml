@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramTags">Теги</string>
+    <string name="TetogramTagsNew">Новый тег</string>
+    <string name="TetogramTagsEdit">Изменить тег</string>
+    <string name="TetogramTagsName">Название тега</string>
+    <string name="TetogramTagsShowChats">Чаты с этим тегом</string>
+    <string name="TetogramTagsUp">Выше</string>
+    <string name="TetogramTagsInfo">Цветные метки для чатов, видны в списке чатов. Поставить: чат → ⋮ → Теги. Хранятся только на этом устройстве.</string>
+    <string name="TetogramTagsNoChats">Пока нет чатов с этим тегом. Откройте чат → ⋮ → Теги.</string>
+    <string name="TetogramTagsChatsInfo">Нажмите на чат, чтобы открыть его или снять тег.</string>
+    <string name="TetogramTagsRemoveFromChat">Снять тег с чата</string>
+</resources>

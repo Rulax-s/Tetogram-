@@ -56,10 +56,20 @@ android {
         }
 
         release {
-            storeFile rootProject.file(providers.environmentVariable("TETOGRAM_RELEASE_KEYSTORE").orElse("tetogram-release.keystore").get())
-            storePassword providers.environmentVariable("TETOGRAM_RELEASE_STORE_PASSWORD").orElse("").get()
-            keyAlias providers.environmentVariable("TETOGRAM_RELEASE_KEY_ALIAS").orElse("").get()
-            keyPassword providers.environmentVariable("TETOGRAM_RELEASE_KEY_PASSWORD").orElse("").get()
+            // Without a dedicated release keystore the release build is signed with the same permanent
+            // Tetogram key as debug builds, so it installs over them and keeps all data.
+            if (providers.environmentVariable("TETOGRAM_RELEASE_KEYSTORE").isPresent()) {
+                storeFile rootProject.file(providers.environmentVariable("TETOGRAM_RELEASE_KEYSTORE").get())
+                storePassword providers.environmentVariable("TETOGRAM_RELEASE_STORE_PASSWORD").orElse("").get()
+                keyAlias providers.environmentVariable("TETOGRAM_RELEASE_KEY_ALIAS").orElse("").get()
+                keyPassword providers.environmentVariable("TETOGRAM_RELEASE_KEY_PASSWORD").orElse("").get()
+            } else {
+                storeFile rootProject.file('TMessagesProj/config/tetogram-debug.keystore')
+                storeType 'PKCS12'
+                storePassword rootProject.ext.tetogram.debugKeyPassword
+                keyAlias 'androiddebugkey'
+                keyPassword rootProject.ext.tetogram.debugKeyPassword
+            }
         }
     }
 

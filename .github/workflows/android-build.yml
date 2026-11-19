@@ -2,6 +2,11 @@ name: Tetogram Android APK
 
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Also build the minified release APK (same signing key)'
+        type: boolean
+        default: false
   push:
     branches: [master]
     paths:
@@ -151,6 +156,34 @@ jobs:
         with:
           name: Tetogram-debug
           path: artifacts/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Build ARM64 release APK (same permanent key)
+        id: release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon --no-build-cache --no-configuration-cache --console=plain \
+            '-Dorg.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g' --max-workers=2 \
+            :TMessagesProj_App:assembleAfatRelease --stacktrace 2>&1 | tee build-logs/release-build.log
+          APK=$(ls TMessagesProj_App/build/outputs/apk/afat/release/*.apk | head -1)
+          python3 scripts/verify-apk.py "$APK" --release 2>&1 | tee build-logs/release-verification.log
+          TOOLS="${ANDROID_HOME:-$ANDROID_SDK_ROOT}/build-tools/36.0.0"
+          D=$("$TOOLS/apksigner" verify --print-certs artifacts/Tetogram-debug.apk | grep 'SHA-256 digest')
+          R=$("$TOOLS/apksigner" verify --print-certs "$APK" | grep 'SHA-256 digest')
+          test -n "$D" && test "$D" = "$R" || { echo 'Release certificate differs from the debug certificate'; exit 1; }
+          echo 'PASS: release APK is signed with the same certificate as debug.'
+          mkdir -p release
+          cp "$APK" release/Tetogram-release.apk
+          sha256sum release/Tetogram-release.apk > release/Tetogram-release.apk.sha256
+          git rev-parse HEAD > release/SOURCE_COMMIT.txt
+      - name: Upload release APK
+        if: ${{ steps.release.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: Tetogram-release
+          path: release/
           if-no-files-found: error
           retention-days: 14
       - name: Upload build logs

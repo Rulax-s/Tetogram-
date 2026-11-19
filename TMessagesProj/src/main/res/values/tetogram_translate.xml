@@ -36,4 +36,6 @@
     <string name="TetogramTranslateSuggestButton">Translate</string>
     <string name="TetogramTranslateEnabled">Chat translation is on</string>
     <string name="TetogramTranslateDisabled">Chat translation is off</string>
+    <string name="TetogramTranslateClear">Clear saved translations</string>
+    <string name="TetogramTranslateClearInfo">Translations are kept on this phone so chats open translated instantly.</string>
 </resources>

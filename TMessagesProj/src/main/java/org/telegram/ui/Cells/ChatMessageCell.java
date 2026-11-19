@@ -15729,6 +15729,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             currentTimeString = TextUtils.concat(getString(R.string.TetogramDeleted), " · ", currentTimeString);
         }
         if (org.telegram.messenger.tetogram.EditHistoryPolicy.visible(org.telegram.messenger.tetogram.EditHistory.cachedCount(messageObject),org.telegram.messenger.tetogram.LabsSettings.editMark(currentAccount),!messageObject.isEphemeral())) currentTimeString=TextUtils.concat(getString(R.string.TetogramEditBadge)," · ",currentTimeString);
+        if (messageObject.getId() > 0 && org.telegram.messenger.tetogram.BookmarksStore.contains(currentAccount, messageObject)) currentTimeString = TextUtils.concat("★ ", currentTimeString);
         timeTextWidth = timeWidth = (int) Math.ceil(Theme.chat_timePaint.measureText(currentTimeString, 0, currentTimeString == null ? 0 : currentTimeString.length()));
         if (messageObject.tetogramLocalDeleted && org.telegram.messenger.tetogram.LabsSettings.mark(currentAccount)) { timeWidth += dp(6); timeTextWidth += dp(6); }
         if (currentMessageObject.scheduled && currentMessageObject.messageOwner.date == 0x7FFFFFFE || currentMessageObject.notime) {

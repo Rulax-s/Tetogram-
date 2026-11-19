@@ -13,12 +13,18 @@ ANDROID = '{http://schemas.android.com/apk/res/android}'
 PACKAGE = 'org.tetogram.messenger'
 
 
+RELEASE = '--release' in sys.argv
+
+
 def verify_manifest(root):
     """Check decoded APK XML, not the presentation format of aapt2's tree dump."""
     assert root.get('package') == PACKAGE, 'Wrong APK manifest package'
     app = root.find('application')
     assert app is not None and app.get(ANDROID + 'icon'), 'Missing APK application icon'
-    assert app.get(ANDROID + 'debuggable') == 'true', 'Expected debug APK'
+    if RELEASE:
+        assert app.get(ANDROID + 'debuggable') != 'true', 'Release APK must not be debuggable'
+    else:
+        assert app.get(ANDROID + 'debuggable') == 'true', 'Expected debug APK'
     providers = [
         {'name': p.get(ANDROID + 'name'), 'authorities': p.get(ANDROID + 'authorities', '')}
         for p in app.findall('provider')
@@ -51,8 +57,8 @@ def main():
     verify_manifest(ET.fromstring(manifest))
     # The merged plain-text manifest verifies all resolved component identifiers and icon resource.
     manifests = list(Path('TMessagesProj_App/build/intermediates/merged_manifests').rglob('AndroidManifest.xml'))
-    debug = [p for p in manifests if 'afatDebug' in str(p)]
-    assert debug, 'Merged debug manifest not found'
+    debug = [p for p in manifests if ('afatRelease' if RELEASE else 'afatDebug') in str(p)]
+    assert debug, 'Merged manifest not found'
     root = ET.parse(debug[0]).getroot()
     android = '{http://schemas.android.com/apk/res/android}'
     assert root.get('package') == 'org.tetogram.messenger'
