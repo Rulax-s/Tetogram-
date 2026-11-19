@@ -17,7 +17,9 @@ import org.telegram.ui.Components.BulletinFactory;
 
 public final class VoiceUi {
     private VoiceUi(){}
-    public static boolean supports(MessageObject m){return m!=null&&m.messageOwner!=null&&(m.isVoice()||m.isRoundVideo())&&m.getDocument()!=null;}
+    /** Hidden for now at the owner's request; the code stays for a later return. */
+    public static final boolean ENABLED=false;
+    public static boolean supports(MessageObject m){return ENABLED&&m!=null&&m.messageOwner!=null&&(m.isVoice()||m.isRoundVideo())&&m.getDocument()!=null;}
     private static String key(MessageObject m){return m.currentAccount+":"+m.getDialogId()+":"+m.getId();}
 
     public static void transcribe(BaseFragment f,MessageObject m){

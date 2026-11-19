@@ -20,8 +20,8 @@
     <permission android:name="${applicationId}.permission.MAPS_RECEIVE" android:protectionLevel="signature"/>
 
     <application
-        android:icon="@mipmap/tetogram_launcher"
-        android:roundIcon="@mipmap/tetogram_launcher"
+        android:icon="${tetogramAppIcon}"
+        android:roundIcon="${tetogramAppIcon}"
         android:label="@string/AppName"
         android:theme="@style/Theme.TMessages.Start"
         android:hardwareAccelerated="true"

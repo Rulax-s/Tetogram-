@@ -63,7 +63,7 @@ def main():
     android = '{http://schemas.android.com/apk/res/android}'
     assert root.get('package') == 'org.tetogram.messenger'
     app = root.find('application')
-    assert app.get(android + 'icon') == '@mipmap/tetogram_launcher', 'Wrong launcher icon'
+    assert app.get(android + 'icon') in {'@mipmap/tetogram_' + season for season in ('spring', 'summer', 'autumn', 'winter')}, 'Wrong APK icon'
     for permission in root.findall('permission'):
         assert permission.get(android + 'name').startswith('org.tetogram.messenger.'), 'Custom permission conflict'
     with zipfile.ZipFile(apk) as archive:

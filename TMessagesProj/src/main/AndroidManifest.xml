@@ -135,6 +135,8 @@
             android:enabled="true"
             android:name="org.telegram.messenger.DefaultIcon"
             android:targetActivity="org.telegram.ui.LaunchActivity"
+            android:icon="@mipmap/tetogram_launcher"
+            android:roundIcon="@mipmap/tetogram_launcher"
             android:exported="true">
 
             <intent-filter>

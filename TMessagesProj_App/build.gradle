@@ -180,7 +180,9 @@ android {
         minSdkVersion 24
         targetSdkVersion 36
         versionName APP_VERSION_NAME
-        manifestPlaceholders = [tetogramMapsApiKey: rootProject.ext.tetogram.mapsApiKey]
+        // The APK file icon (installer, file manager) is the Tetogram season of the build date, like Auto on the home screen.
+        def tetogramSeason = ['winter','winter','spring','spring','spring','summer','summer','summer','autumn','autumn','autumn','winter'][Calendar.getInstance().get(Calendar.MONTH)]
+        manifestPlaceholders = [tetogramMapsApiKey: rootProject.ext.tetogram.mapsApiKey, tetogramAppIcon: "@mipmap/tetogram_" + tetogramSeason]
         ndkVersion "27.2.12479018"
 
         multiDexEnabled true
