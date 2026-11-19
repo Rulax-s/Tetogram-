@@ -3723,6 +3723,7 @@ public class ChatActivity extends BaseFragment implements
             @Override
             public void onItemClick(final int id) {
                 if (id == 46001) { presentFragment(new org.telegram.ui.tetogram.HistoryActivity(currentAccount, dialog_id)); return; }
+                if (id == 46006) { presentFragment(new org.telegram.ui.tetogram.BookmarksActivity(currentAccount, dialog_id)); return; }
                 if (id == 46003) {
                     String appearanceScope = getTopicId() == 0 ? "chat:" + dialog_id : "topic:" + dialog_id + ":" + getTopicId();
                     presentFragment(new org.telegram.ui.tetogram.AppearanceActivity(currentAccount, appearanceScope, arguments.getString("tetogram_appearance_section"), arguments.getString("tetogram_appearance_folder"), dialog_id, getTopicId())); return;
@@ -4491,6 +4492,7 @@ public class ChatActivity extends BaseFragment implements
             trackRedHeaderItem(headerItem.lazilyAddSubItem(delete_business_link, R.drawable.msg_delete, getString(R.string.Delete)), true).setColors(Theme.getColor(Theme.key_text_RedRegular), Theme.getColor(Theme.key_text_RedRegular));
         }
         if (headerItem != null && chatMode == MODE_DEFAULT) headerItem.lazilyAddSubItem(46003, R.drawable.settings_chat, getString(R.string.TetogramAppearance));
+        if (headerItem != null && chatMode == MODE_DEFAULT) headerItem.lazilyAddSubItem(46006, R.drawable.msg_fave, getString(R.string.TetogramBookmarksChat));
         if (headerItem != null && currentEncryptedChat == null && chatMode == MODE_DEFAULT) {
             headerItem.lazilyAddSubItem(46001, R.drawable.msg_delete, getString(R.string.TetogramDeletedMessages));
         }
@@ -34747,6 +34749,15 @@ public class ChatActivity extends BaseFragment implements
                 if (selectedObject != null && selectedObject.tetogramLocalDeleted) org.telegram.ui.tetogram.HistoryActivity.showInfo(this, selectedObject);
                 break;
             }
+            case 46005: {
+                if (selectedObject != null) {
+                    boolean wasBookmarked = org.telegram.messenger.tetogram.BookmarksStore.contains(currentAccount, selectedObject);
+                    boolean added = org.telegram.messenger.tetogram.BookmarksStore.toggle(currentAccount, selectedObject);
+                    boolean ok = added || wasBookmarked && !org.telegram.messenger.tetogram.BookmarksStore.contains(currentAccount, selectedObject);
+                    BulletinFactory.of(this).createSimpleBulletin(R.raw.saved_messages, LocaleController.getString(!ok ? R.string.TetogramStorageError : added ? R.string.TetogramBookmarkAdded : R.string.TetogramBookmarkRemoved)).show();
+                }
+                break;
+            }
             case 46004: {
                 if (selectedObject != null && selectedObject.getFromChatId() != 0) presentFragment(new org.telegram.ui.tetogram.AppearancePersonActivity(currentAccount, selectedObject.getFromChatId(), selectedObject.getDialogId()));
                 break;
@@ -46717,6 +46728,10 @@ public class ChatActivity extends BaseFragment implements
         }
         if (chatMode == MODE_DEFAULT && message != null && !message.isOutOwner() && message.getFromChatId() != 0 && message.getFromChatId() != getUserConfig().getClientUserId()) {
             items.add(LocaleController.getString(message.getDialogId() < 0 ? R.string.TetogramPersonMenuGroup : R.string.TetogramPersonMenuPrivate)); options.add(46004); icons.add(R.drawable.menu_profile_colors);
+        }
+        if (chatMode == MODE_DEFAULT && message != null && message.getId() > 0 && !message.tetogramLocalDeleted) {
+            boolean tetogramBookmarked = org.telegram.messenger.tetogram.BookmarksStore.contains(currentAccount, message);
+            items.add(LocaleController.getString(tetogramBookmarked ? R.string.TetogramBookmarkRemove : R.string.TetogramBookmarkAdd)); options.add(46005); icons.add(R.drawable.msg_fave);
         }
         if (message.tetogramLocalDeleted) {
             if (canReplyToTetogramDeleted(message)) {

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TetogramBookmarks">Закладки</string>
+    <string name="TetogramBookmarksChat">Закладки чата</string>
+    <string name="TetogramBookmarkAdd">В закладки</string>
+    <string name="TetogramBookmarkRemove">Убрать из закладок</string>
+    <string name="TetogramBookmarkAdded">Добавлено в закладки</string>
+    <string name="TetogramBookmarkRemoved">Убрано из закладок</string>
+    <string name="TetogramBookmarksSearch">Поиск по закладкам</string>
+    <string name="TetogramBookmarksEmpty">Закладок пока нет. Зажмите любое сообщение и выберите «В закладки», чтобы быстро найти его здесь.</string>
+    <string name="TetogramBookmarksNothingFound">Ничего не найдено.</string>
+    <string name="TetogramBookmarksInfo">Нажмите, чтобы открыть сообщение в чате. Удерживайте, чтобы добавить заметку или убрать. Закладки хранятся только на этом устройстве.</string>
+    <string name="TetogramBookmarksNoText">Медиа</string>
+    <string name="TetogramBookmarksOpen">Открыть в чате</string>
+    <string name="TetogramBookmarksAddNote">Добавить заметку</string>
+    <string name="TetogramBookmarksEditNote">Изменить заметку</string>
+    <string name="TetogramBookmarksNote">Заметка</string>
+    <string name="TetogramBookmarksNoteHint">О чём это сообщение?</string>
+</resources>

@@ -98,6 +98,8 @@ public final class LabsActivity extends LabsPage {
         boolean deleted=LabsSettings.enabled(currentAccount),edits=LabsSettings.edits(currentAccount);
         tiles.add(tile(ctx,R.drawable.msg_delete,0xffD9822B,getString(R.string.TetogramLabsDeletedTitle),getString(deleted?R.string.TetogramLabsSaving:R.string.TetogramLabsOff),deleted,()->presentFragment(new LabsHistoryActivity(currentAccount,false))));
         tiles.add(tile(ctx,R.drawable.msg_edit,0xff7A8696,getString(R.string.TetogramLabsEditsTitle),getString(edits?R.string.TetogramLabsSaving:R.string.TetogramLabsOff),edits,()->presentFragment(new LabsHistoryActivity(currentAccount,true))));
+        int bookmarks=org.telegram.messenger.tetogram.BookmarksStore.load(currentAccount).items.size();
+        tiles.add(tile(ctx,R.drawable.msg_fave,0xffE2A33B,getString(R.string.TetogramBookmarks),bookmarks==0?getString(R.string.TetogramLabsNone):formatString(R.string.TetogramLabsCount,bookmarks),false,()->presentFragment(new BookmarksActivity(currentAccount,0))));
         boolean ignore=org.telegram.messenger.tetogram.Ignore.enabled(currentAccount);
         tiles.add(tile(ctx,R.drawable.msg_block,0xff8E5A5A,getString(R.string.TetogramIgnoreTile),ignore?formatString(R.string.TetogramIgnoreTileOn,org.telegram.messenger.tetogram.Ignore.blocked(currentAccount).size()):getString(R.string.TetogramLabsOff),ignore,()->presentFragment(new IgnoreActivity(currentAccount))));
         items.add(UItem.asCustomShadow(grid(ctx,tiles),-2));
